@@ -1,0 +1,15 @@
+build/*
+*.iml
+app/build/*
+.gradle/*
+4*
+2*
+.idea/*
+buildOutputCleanup/*
+projectFilesBackup/*
+local.properties
+import-summary.txt
+app/libs*
+app/app-release.apk
+gradlew
+

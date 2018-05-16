@@ -1,6 +1,7 @@
 package com.LearningTracker.LearningTrackerApp.database_management;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 
 /**
  * Created by maximerichard on 15.05.18.
@@ -37,7 +38,7 @@ public class DbTableRelationTestObjective {
         contentValues.put(key_idTest, String.valueOf(idTest));
         contentValues.put(key_idObjective, String.valueOf(idObjective));
 
-        if (DbHelper.dbase.insert(tableName, null, contentValues) == -1 ) {
+        if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;
         } else {
             return true;

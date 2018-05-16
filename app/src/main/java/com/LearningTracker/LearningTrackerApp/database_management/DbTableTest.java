@@ -2,6 +2,7 @@ package com.LearningTracker.LearningTrackerApp.database_management;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
@@ -34,7 +35,7 @@ public class DbTableTest {
         contentValues.put(key_testName, test.getTestName());
         contentValues.put(key_questions_ids, test.serializeQuestionIDs());
 
-        if (DbHelper.dbase.insert(tableName, null, contentValues) == -1 ) {
+        if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;
         } else {
             return true;

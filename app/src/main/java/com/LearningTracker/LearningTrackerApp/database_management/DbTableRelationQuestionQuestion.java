@@ -2,6 +2,8 @@ package com.LearningTracker.LearningTrackerApp.database_management;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
 import java.util.Vector;
 
 /**
@@ -26,14 +28,14 @@ public class DbTableRelationQuestionQuestion {
         DbHelper.dbase.execSQL(sql);
     }
 
-    static public Boolean insertRelationQuestionQuestion(Long idGlobal1, Long idGlobal2, Long idTest, String condition) {
+    static public Boolean insertRelationQuestionQuestion(Long idGlobal1, Long idGlobal2, String testName, String condition) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(key_idGlobal1, String.valueOf(idGlobal1));
         contentValues.put(key_idGlobal2, String.valueOf(idGlobal2));
-        contentValues.put(key_testName, String.valueOf(idTest));
+        contentValues.put(key_testName, String.valueOf(testName));
         contentValues.put(key_condition, condition);
 
-        if (DbHelper.dbase.insert(tableName, null, contentValues) == -1 ) {
+        if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;
         } else {
             return true;

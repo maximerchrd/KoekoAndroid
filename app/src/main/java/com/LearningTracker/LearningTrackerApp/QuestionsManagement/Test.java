@@ -10,7 +10,7 @@ public class Test {
     private String testName = "";
     private Vector<String> questionsIDs;
 
-    Test() {
+    public Test() {
         questionsIDs = new Vector<>();
     }
 
