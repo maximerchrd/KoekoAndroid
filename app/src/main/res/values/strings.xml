@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Learning Tracker</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Parameters</string>
+    <string name="str_next">Next</string>
+    <string name="title_activity_result">Results</string>
+    <string name="title_activity_quiz">Quiz</string>
+    <string name="title_activity_scores">Best scores</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_client">Network</string>
+    <string name="title_activity_question">Question</string>
+    <string name="title_activity_bluetoothclient">Start</string>
+    <string name="title_activity_interactivemode">Classroom activity</string>
+    <string name="menu_score">score:</string>
+    <string name="menu_level">level:</string>
+    <string name="settings_name">Name</string>
+    <string name="settings_master">Server ip address:</string>
+    <string name="button_settings_back">Save and go back</string>
+    <string name="button_menu_settings">Settings</string>
+    <string name="button_result_back">Go back to menu</string>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="grey">#303030</color>
+    <color name="blue">#00CCCB</color>
+    <color name="yellow">#E8D630</color>
+    <color name="red">#F7230C</color>
+    <color name="green">#57D53B</color>
+    <string name="title_activity_evaluation_results">Evaluation results</string>
+    <string name="waiting_for_question">Waiting for the next question</string>
+    <string name="hello">Hello</string>
+    <string name="interactive_mode_button">Start</string>
+    <string name="answer_button">Submit the answer</string>
+    <string name="keepcalmimage" translatable="false">keepCalmImage</string>
+    <string name="keep_calm_and_wait">AND WAIT FOR NEXT QUESTION</string>
+    <string name="keep_calm_and_restart">AND RESTART THE CLASSROOM ACTIVITY (but before, check that you have the right ip address in "settings")</string>
+    <string name="keep_calm_problem">THERE WAS A PROBLEM. RESTART THE CLASSROOM ACTIVITY</string>
+    <string name="menu_subject">Subject</string>
+    <string name="all_subjects">All subjects</string>
+    <string name="exercices">Practice</string>
+    <string name="homeworks">Homeworks</string>
+    <string name="start_homeworks">Start Homeworks</string>
+    <string name="free_practice">Free Practice</string>
+    <string name="start_free_practice">Start Free Practice</string>
+    <string name="title_exercice_activity">Practice</string>
+    <string name="chose_teacher">Teacher:</string>
+    <string name="chose_subject">Subject:</string>
+    <string name="questionsetactivity">Practice</string>
+    <string name="correction_incorrect">Incorrect. The right answer was:</string>
+    <string name="correction_correct">Correct!</string>
+    <string name="correction_mltchoice_incorrect">Incorrect :-(</string>
+    <string name="noQuestionToPractice">You are quite good! You don\'t have any more questions needing practice.</string>
+    <string name="instructions_menu">. Welcome to Learning Tracker. Check that you have the right IP address in "Settings" before starting a classroom activity.</string>
+    <string name="ok_button">OK</string>
+    <string name="answer_example">The answer is for example:</string>
+    <string name="title_activity_corrected_question">Correction</string>
+</resources>

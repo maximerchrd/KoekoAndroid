@@ -1,0 +1,47 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+	android:layout_height="match_parent" android:background="@color/white"
+	tools:context=".Activities.InteractiveModeActivity">
+
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_centerHorizontal="true"
+		android:layout_alignParentTop="true"
+		android:weightSum="1">
+
+		<ImageView
+			android:layout_width="158dp"
+			android:layout_height="158dp"
+			android:id="@+id/imageView"
+			android:layout_gravity="center_horizontal"
+			android:contentDescription="@string/keepcalmimage"
+			android:src="@drawable/keep_calm_crown"
+			android:layout_weight="0.26" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:text="KEEP CALM"
+			android:id="@+id/textView"
+			android:layout_gravity="center_horizontal"
+			android:layout_weight="0.03"
+			android:textColor="@color/black"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:text="Instructions (either to wait for next question or to restart the classroom activity"
+			android:id="@+id/textView2"
+			android:layout_gravity="center_horizontal"
+			android:layout_weight="0.26"
+			android:layout_marginLeft="40dp"
+			android:layout_marginRight="40dp"
+			android:textAlignment="center"
+			android:textColor="@color/black"/>
+
+	</LinearLayout>
+</RelativeLayout>
