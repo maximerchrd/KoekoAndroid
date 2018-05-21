@@ -18,6 +18,7 @@ import java.util.Vector;
 import com.LearningTracker.LearningTrackerApp.Activities.CorrectedQuestionActivity;
 import com.LearningTracker.LearningTrackerApp.Activities.MultChoiceQuestionActivity;
 import com.LearningTracker.LearningTrackerApp.Activities.ShortAnswerQuestionActivity;
+import com.LearningTracker.LearningTrackerApp.Activities.TestActivity;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.Tools.StringTools;
@@ -238,14 +239,20 @@ public class WifiCommunication {
 					} else if (sizes.split(":")[0].contains("QID")) {
 						if (sizes.split(":")[1].contains("MLT")) {
 							int id_global = Integer.valueOf(sizes.split("///")[1]);
-							QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
-							if (questionMultipleChoice.getQUESTION().length() > 0) {
-								questionMultipleChoice.setID(id_global);
-								launchMultChoiceQuestionActivity(questionMultipleChoice);
+							if (id_global < 0 ) {
+								//setup test and show it
+								Long testId = Long.valueOf(sizes.split("///")[1]);
+								launchTestActivity(testId);
 							} else {
-								QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
-								questionShortAnswer.setID(id_global);
-								launchShortAnswerQuestionActivity(questionShortAnswer);
+								QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
+								if (questionMultipleChoice.getQUESTION().length() > 0) {
+									questionMultipleChoice.setID(id_global);
+									launchMultChoiceQuestionActivity(questionMultipleChoice);
+								} else {
+									QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
+									questionShortAnswer.setID(id_global);
+									launchShortAnswerQuestionActivity(questionShortAnswer);
+								}
 							}
 						}
 					} else if (sizes.split(":")[0].contains("EVAL")) {
@@ -339,7 +346,6 @@ public class WifiCommunication {
 	}
 
 	public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display) {
-		((LTApplication) mApplication).setAppWifi(this);
 		Intent mIntent = new Intent(mContextWifCom, MultChoiceQuestionActivity.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQUESTION());
@@ -360,12 +366,19 @@ public class WifiCommunication {
 	}
 
 	public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display) {
-		((LTApplication) mApplication).setAppWifi(this);
 		Intent mIntent = new Intent(mContextWifCom, ShortAnswerQuestionActivity.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQUESTION());
 		bun.putInt("id", question_to_display.getID());
 		bun.putString("image_name", question_to_display.getIMAGE());
+		mIntent.putExtras(bun);
+		mContextWifCom.startActivity(mIntent);
+	}
+
+	private void launchTestActivity(Long testID) {
+		Intent mIntent = new Intent(mContextWifCom, TestActivity.class);
+		Bundle bun = new Bundle();
+		bun.putLong("testID", testID);
 		mIntent.putExtras(bun);
 		mContextWifCom.startActivity(mIntent);
 	}

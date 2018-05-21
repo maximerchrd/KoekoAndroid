@@ -6,26 +6,23 @@ import android.util.Log;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.WifiCommunication;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 /**
  * Created by maximerichard on 17/02/17.
  */
 public class LTApplication extends Application {
-    private WifiCommunication appWifi;
+    private static WifiCommunication wifiCommunicationSingleton;
     private NetworkCommunication appNetwork;
     private Integer quitApp = 0;
     public final long MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
 
-    public WifiCommunication getAppWifi() {return appWifi;}
+    public WifiCommunication getAppWifi() {return wifiCommunicationSingleton;}
     public NetworkCommunication getAppNetwork() {
         return appNetwork;
     }
 
 
     public void setAppWifi(WifiCommunication appWifi) {
-        this.appWifi = appWifi;
+        this.wifiCommunicationSingleton = appWifi;
     }
 
     public void setAppNetwork(NetworkCommunication appNetwork) {
