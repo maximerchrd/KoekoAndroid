@@ -18,7 +18,13 @@ import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Vector;
+
 public class TestActivity extends Activity {
+    public static Map<String, String> mcqActivitiesStates;
+    public static Map<String, String> shrtaqActivitiesStates;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -34,6 +40,11 @@ public class TestActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_test);
         mRecyclerView = (RecyclerView) findViewById(R.id.test_recycler_view);
+
+        //initialize static variables
+        mcqActivitiesStates = new LinkedHashMap<>();
+        shrtaqActivitiesStates = new LinkedHashMap<>();
+        LTApplication.currentTestActivitySingleton = this;
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));

@@ -3,6 +3,7 @@ package com.LearningTracker.LearningTrackerApp;
 import android.app.Application;
 import android.util.Log;
 
+import com.LearningTracker.LearningTrackerApp.Activities.TestActivity;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.WifiCommunication;
 
@@ -10,6 +11,7 @@ import com.LearningTracker.LearningTrackerApp.NetworkCommunication.WifiCommunica
  * Created by maximerichard on 17/02/17.
  */
 public class LTApplication extends Application {
+    public static TestActivity currentTestActivitySingleton;
     private static WifiCommunication wifiCommunicationSingleton;
     private NetworkCommunication appNetwork;
     private Integer quitApp = 0;
