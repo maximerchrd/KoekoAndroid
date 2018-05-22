@@ -5,9 +5,15 @@ import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.LearningTracker.LearningTrackerApp.Activities.Tools.CustomListAdapter;
+import com.LearningTracker.LearningTrackerApp.Activities.Tools.RecyclerTouchListener;
+import com.LearningTracker.LearningTrackerApp.LTApplication;
+import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
+import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
@@ -47,6 +53,24 @@ public class TestActivity extends Activity {
 
         mAdapter = new CustomListAdapter(mTest.arrayOfQuestionIDs(), mTest.getIdMapQmc(), mTest.getIdMapShrtaq());
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                Log.v("test", "clicked mother fucker!");
+                QuestionMultipleChoice questionMultipleChoice = mTest.getIdMapQmc().get(mTest.getQuestionsIDs().get(position));
+                if (questionMultipleChoice == null) {
+                    QuestionShortAnswer questionShortAnswer = mTest.getIdMapShrtaq().get(mTest.getQuestionsIDs().get(position));
+                    ((LTApplication) getApplication()).getAppWifi().launchShortAnswerQuestionActivity(questionShortAnswer);
+                } else {
+                    ((LTApplication) getApplication()).getAppWifi().launchMultChoiceQuestionActivity(questionMultipleChoice);
+                }
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
 
     }
 }
