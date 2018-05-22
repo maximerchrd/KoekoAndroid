@@ -1,4 +1,4 @@
-package com.LearningTracker.LearningTrackerApp.Activities.SwipingTools;
+package com.LearningTracker.LearningTrackerApp.Activities.Tools;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

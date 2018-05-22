@@ -80,7 +80,6 @@ public class WifiCommunication {
 			Log.v("connectToServer", "beginning");
 			Socket s = new Socket(ip_address,PORTNUMBER);
 			connectionSuccess = 1;
-			Log.v("server name",s.getInetAddress().getCanonicalHostName());
 			//outgoing stream redirect to socket
 			mOutputStream = s.getOutputStream();
 			mInputStream = s.getInputStream();
@@ -241,7 +240,7 @@ public class WifiCommunication {
 							int id_global = Integer.valueOf(sizes.split("///")[1]);
 							if (id_global < 0 ) {
 								//setup test and show it
-								Long testId = Long.valueOf(sizes.split("///")[1]);
+								Long testId = -(Long.valueOf(sizes.split("///")[1]));
 								launchTestActivity(testId);
 							} else {
 								QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);

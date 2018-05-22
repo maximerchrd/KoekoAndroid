@@ -1,5 +1,11 @@
 package com.LearningTracker.LearningTrackerApp.QuestionsManagement;
 
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionMultipleChoice;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableRelationQuestionQuestion;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -9,9 +15,15 @@ public class Test {
     private Long idGlobal = 0L;
     private String testName = "";
     private Vector<String> questionsIDs;
+    private Map<String,String> idMapRelation;
+    private Map<String,QuestionMultipleChoice> idMapQmc;
+    private Map<String,QuestionShortAnswer> idMapShrtaq;
 
     public Test() {
         questionsIDs = new Vector<>();
+        idMapRelation = new LinkedHashMap<>();
+        idMapQmc = new LinkedHashMap<>();
+        idMapShrtaq = new LinkedHashMap<>();
     }
 
     //getters
@@ -24,6 +36,15 @@ public class Test {
     public Vector<String> getQuestionsIDs() {
         return questionsIDs;
     }
+    public Map<String, String> getIdMapRelation() {
+        return idMapRelation;
+    }
+    public Map<String, QuestionMultipleChoice> getIdMapQmc() {
+        return idMapQmc;
+    }
+    public Map<String, QuestionShortAnswer> getIdMapShrtaq() {
+        return idMapShrtaq;
+    }
 
     //setters
     public void setIdGlobal(Long idGlobal) {
@@ -35,6 +56,15 @@ public class Test {
     public void setQuestionsIDs(Vector<String> questionsIDs) {
         this.questionsIDs = questionsIDs;
     }
+    public void setIdMapRelation(Map<String, String> idMapRelation) {
+        this.idMapRelation = idMapRelation;
+    }
+    public void setIdMapQmc(Map<String, QuestionMultipleChoice> idMapQmc) {
+        this.idMapQmc = idMapQmc;
+    }
+    public void setIdMapShrtaq(Map<String, QuestionShortAnswer> idMapShrtaq) {
+        this.idMapShrtaq = idMapShrtaq;
+    }
 
     public String serializeQuestionIDs() {
         String IDs = "";
@@ -44,5 +74,41 @@ public class Test {
         }
 
         return IDs;
+    }
+
+    public String[] arrayOfQuestionIDs() {
+        String[] IDs = new String[questionsIDs.size()];
+
+        for (int i = 0; i < questionsIDs.size(); i++) {
+            IDs[i] = questionsIDs.get(i);
+        }
+
+        return IDs;
+    }
+
+    /**
+     * loads the map of the test from the db into the "Map" objects. After this method,
+     * you should be able to have find the objects with the ids in idMapQmc and idMapShrtaq,
+     * and the relation for each question in idMapRelation
+     */
+    public void loadMap() {
+        //loading into idMapRelation
+        Vector<String[]> testMap = DbTableRelationQuestionQuestion.getTestMapForTest(testName);
+        for (String[] relation : testMap) {
+            if (relation[3].length() > 0) {
+                idMapRelation.put(relation[0], relation[1] + "|" + relation[3]);
+            }
+        }
+
+        //loading into idMapQmc and idMapShrtaq
+        for (String id : questionsIDs) {
+            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(Integer.valueOf(id));
+            if (questionMultipleChoice.getQUESTION().length() <= 0) {
+                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(id));
+                idMapShrtaq.put(id, questionShortAnswer);
+            } else {
+                idMapQmc.put(id, questionMultipleChoice);
+            }
+        }
     }
 }

@@ -61,7 +61,7 @@ public class DbTableTest {
             unparsedIDs = cursor.getString(0);
         }
 
-        String[] idsArray = unparsedIDs.split("|");
+        String[] idsArray = unparsedIDs.split("\\|");
         for (String id: idsArray) {
             questionIds.add(id);
         }

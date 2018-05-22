@@ -48,8 +48,8 @@ public class DbTableRelationQuestionQuestion {
         Cursor cursor = DbHelper.dbase.rawQuery("SELECT * FROM " + tableName + " WHERE " +
                 key_testName + " = ?", new String[]{String.valueOf(testName)});
         while (cursor.moveToNext()) {
-            testMap.add(new String[] {cursor.getString(0),
-                cursor.getString(1), cursor.getString(2), cursor.getString(3)});
+            testMap.add(new String[] {cursor.getString(1),
+                cursor.getString(2), cursor.getString(3), cursor.getString(4)});
         }
 
         return testMap;

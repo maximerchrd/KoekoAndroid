@@ -19,11 +19,11 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:27.1.1'
-    compile files('libs/activation.jar')
-    compile files('libs/additionnal.jar')
-    compile files('libs/mail.jar')
-    compile 'com.github.PhilJay:MPAndroidChart:v3.0.3'
-    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation files('libs/activation.jar')
+    implementation files('libs/additionnal.jar')
+    implementation files('libs/mail.jar')
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
+    implementation 'com.google.android.gms:play-services-appindexing:8.1.0'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
 }

@@ -1,4 +1,4 @@
-package com.LearningTracker.LearningTrackerApp.Activities.SwipingTools;
+package com.LearningTracker.LearningTrackerApp.Activities.Tools;
 
 import android.app.Activity;
 import android.content.Context;

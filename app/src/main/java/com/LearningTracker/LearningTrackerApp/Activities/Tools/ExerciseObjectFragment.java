@@ -1,4 +1,4 @@
-package com.LearningTracker.LearningTrackerApp.Activities.SwipingTools;
+package com.LearningTracker.LearningTrackerApp.Activities.Tools;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;

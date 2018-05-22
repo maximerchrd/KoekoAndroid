@@ -1,26 +1,12 @@
 package com.LearningTracker.LearningTrackerApp.Activities;
 
-import android.app.ActionBar;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 
-import com.LearningTracker.LearningTrackerApp.Activities.SwipingTools.ExerciseCollectionPagerAdapter;
-import com.LearningTracker.LearningTrackerApp.Activities.SwipingTools.GraphsCollectionPagerAdapter;
+import com.LearningTracker.LearningTrackerApp.Activities.Tools.GraphsCollectionPagerAdapter;
 import com.LearningTracker.LearningTrackerApp.R;
-import com.LearningTracker.LearningTrackerApp.database_management.DbTableSubject;
-
-import java.util.ArrayList;
-import java.util.Vector;
 
 /**
  * Created by maximerichard on 21.02.18.
