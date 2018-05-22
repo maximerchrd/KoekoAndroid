@@ -202,7 +202,14 @@ public class MultChoiceQuestionActivity extends Activity {
 		linearLayout.addView(submitButton);
 
 		//restore activity state
-		String activityState = LTApplication.currentTestActivitySingleton.mcqActivitiesStates.get(String.valueOf(currentQ.getID()));
+		String activityState = null;
+		if (LTApplication.currentTestActivitySingleton != null) {
+			activityState = LTApplication.currentTestActivitySingleton.mcqActivitiesStates.get(String.valueOf(currentQ.getID()));
+		} else {
+			if (LTApplication.qmcActivityState != null) {
+				activityState = LTApplication.qmcActivityState;
+			}
+		}
 		if (activityState != null) {
 			String[] parsedState = activityState.split("///");
 			if (parsedState[parsedState.length - 1].contentEquals("true")) {
@@ -220,6 +227,7 @@ public class MultChoiceQuestionActivity extends Activity {
 				}
 			}
 		}
+		//finished restoring activity
 	}
 
 	@Override
@@ -237,7 +245,12 @@ public class MultChoiceQuestionActivity extends Activity {
 			}
 		}
 		activityState += wasAnswered;
-		LTApplication.currentTestActivitySingleton.mcqActivitiesStates.put(String.valueOf(currentQ.getID()), activityState);
+		if (LTApplication.currentTestActivitySingleton != null) {
+			LTApplication.currentTestActivitySingleton.mcqActivitiesStates.put(String.valueOf(currentQ.getID()), activityState);
+		} else {
+			LTApplication.qmcActivityState = activityState;
+			LTApplication.currentQuestionMultipleChoiceSingleton = currentQ;
+		}
 	}
 
 	public void onWindowFocusChanged(boolean hasFocus) {

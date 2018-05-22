@@ -26,22 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShortAnswerQuestionActivity extends Activity {
-	int score=0;
-	int qid=0;
-	int level=1;
-	int number_of_possible_answers = 0;
-	int nbQuestionsLevel1 = 8;
-	int nbQuestionsLevel2 = 6;
-	int nbQuestionsLevel3 = 5;
-	int trialCounter = 1;
-	int questionId = 1;
+	Boolean wasAnswered = false;
 	QuestionShortAnswer currentQ;
 	private TextView txtQuestion;
 	private EditText textAnswer;
-	Button answerButton1, answerButton2, answerButton3, answerButton4, submitButton;
-	CheckBox checkbox1, checkBox2, checkBox3, checkBox4, checkBox5, checkBox6, checkBox7;
-	ArrayList<CheckBox> checkBoxesArray;
-	ArrayList<String> arrayOfOptions;
+	Button submitButton;
 	ImageView picture;
 	boolean isImageFitToScreen = true;
 	LinearLayout linearLayout;
@@ -57,7 +46,6 @@ public class ShortAnswerQuestionActivity extends Activity {
 		txtQuestion = (TextView)findViewById(R.id.textViewShortAnswerQuest);
 		picture = new ImageView(getApplicationContext());
 		submitButton = new Button(getApplicationContext());
-		checkBoxesArray = new ArrayList<>();
 		textAnswer = new EditText(getApplicationContext());
 
 
@@ -105,6 +93,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		submitButton.setOnClickListener(new View.OnClickListener() {
 			@SuppressLint("SimpleDateFormat") @Override
 			public void onClick(View v) {
+				wasAnswered = true;
 				String answer = textAnswer.getText().toString();
 
 				NetworkCommunication networkCommunication = ((LTApplication) getApplication()).getAppNetwork();
@@ -148,7 +137,45 @@ public class ShortAnswerQuestionActivity extends Activity {
 		submitButton.setLayoutParams(params);
 		submitButton.setTextColor(Color.WHITE);
 		linearLayout.addView(submitButton);
-		qid++;
+
+		//restore activity state
+		String activityState = null;
+		if (LTApplication.currentTestActivitySingleton != null) {
+			activityState = LTApplication.currentTestActivitySingleton.shrtaqActivitiesStates.get(String.valueOf(currentQ.getID()));
+		} else {
+			if (LTApplication.shrtaqActivityState != null) {
+				activityState = LTApplication.shrtaqActivityState;
+			}
+		}
+		if (activityState != null) {
+			String[] parsedState = activityState.split("///");
+			if (parsedState[parsedState.length - 1].contentEquals("true")) {
+				submitButton.setEnabled(false);
+				submitButton.setAlpha(0.3f);
+				wasAnswered = true;
+			}
+
+			textAnswer.setText(parsedState[0]);
+		}
+		//finished restoring activity
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		saveActivityState();
+	}
+
+	private void saveActivityState() {
+		String activityState = textAnswer.getText().toString() + "///";
+		activityState += wasAnswered;
+		if (LTApplication.currentTestActivitySingleton != null) {
+			LTApplication.currentTestActivitySingleton.shrtaqActivitiesStates.put(String.valueOf(currentQ.getID()), activityState);
+		} else {
+			LTApplication.shrtaqActivityState = activityState;
+			LTApplication.currentQuestionShortAnswerSingleton = currentQ;
+		}
 	}
 
 

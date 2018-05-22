@@ -6,13 +6,20 @@ import android.util.Log;
 import com.LearningTracker.LearningTrackerApp.Activities.TestActivity;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.WifiCommunication;
+import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
+import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
 
 /**
  * Created by maximerichard on 17/02/17.
  */
 public class LTApplication extends Application {
-    public static TestActivity currentTestActivitySingleton;
-    private static WifiCommunication wifiCommunicationSingleton;
+    public static TestActivity currentTestActivitySingleton = null;
+    public static String qmcActivityState = null;
+    public static QuestionMultipleChoice currentQuestionMultipleChoiceSingleton = null;
+    public static String shrtaqActivityState = null;
+    public static QuestionShortAnswer currentQuestionShortAnswerSingleton = null;
+
+    public static WifiCommunication wifiCommunicationSingleton;
     private NetworkCommunication appNetwork;
     private Integer quitApp = 0;
     public final long MAX_ACTIVITY_TRANSITION_TIME_MS = 700;

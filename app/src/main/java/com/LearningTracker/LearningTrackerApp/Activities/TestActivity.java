@@ -54,7 +54,6 @@ public class TestActivity extends Activity {
         //initialize static variables
         mcqActivitiesStates = new LinkedHashMap<>();
         shrtaqActivitiesStates = new LinkedHashMap<>();
-        LTApplication.currentTestActivitySingleton = this;
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
@@ -66,11 +65,17 @@ public class TestActivity extends Activity {
         Bundle bun = getIntent().getExtras();
         Long testID = bun.getLong("testID");
 
-        mTest = new Test();
-        mTest.setIdGlobal(testID);
-        mTest.setTestName(DbTableTest.getNameFromTestID(testID));
-        mTest.setQuestionsIDs(DbTableTest.getQuestionIDsFromTestName(mTest.getTestName()));
-        mTest.loadMap();
+        if (LTApplication.currentTestActivitySingleton == null) {
+            mTest = new Test();
+            mTest.setIdGlobal(testID);
+            mTest.setTestName(DbTableTest.getNameFromTestID(testID));
+            mTest.setQuestionsIDs(DbTableTest.getQuestionIDsFromTestName(mTest.getTestName()));
+            mTest.loadMap();
+        } else {
+            mTest = LTApplication.currentTestActivitySingleton.mTest;
+            mcqActivitiesStates = LTApplication.currentTestActivitySingleton.mcqActivitiesStates;
+            shrtaqActivitiesStates = LTApplication.currentTestActivitySingleton.shrtaqActivitiesStates;
+        }
 
         mAdapter = new CustomListAdapter(mTest);
         mRecyclerView.setAdapter(mAdapter);
@@ -94,5 +99,6 @@ public class TestActivity extends Activity {
             }
         }));
 
+        LTApplication.currentTestActivitySingleton = this;
     }
 }

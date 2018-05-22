@@ -242,15 +242,21 @@ public class WifiCommunication {
 								//setup test and show it
 								Long testId = -(Long.valueOf(sizes.split("///")[1]));
 								launchTestActivity(testId);
+								LTApplication.shrtaqActivityState = null;
+								LTApplication.qmcActivityState = null;
 							} else {
 								QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
 								if (questionMultipleChoice.getQUESTION().length() > 0) {
 									questionMultipleChoice.setID(id_global);
 									launchMultChoiceQuestionActivity(questionMultipleChoice);
+									LTApplication.shrtaqActivityState = null;
+									LTApplication.currentTestActivitySingleton = null;
 								} else {
 									QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
 									questionShortAnswer.setID(id_global);
 									launchShortAnswerQuestionActivity(questionShortAnswer);
+									LTApplication.qmcActivityState = null;
+									LTApplication.currentTestActivitySingleton = null;
 								}
 							}
 						}
@@ -374,7 +380,7 @@ public class WifiCommunication {
 		mContextWifCom.startActivity(mIntent);
 	}
 
-	private void launchTestActivity(Long testID) {
+	public void launchTestActivity(Long testID) {
 		Intent mIntent = new Intent(mContextWifCom, TestActivity.class);
 		Bundle bun = new Bundle();
 		bun.putLong("testID", testID);
