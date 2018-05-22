@@ -1,12 +1,19 @@
 package com.LearningTracker.LearningTrackerApp.QuestionsManagement;
 
+import android.app.Activity;
+import android.util.Log;
+
+import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionMultipleChoice;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableRelationQuestionQuestion;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by maximerichard on 15.05.18.
@@ -15,15 +22,17 @@ public class Test {
     private Long idGlobal = 0L;
     private String testName = "";
     private Vector<String> questionsIDs;
-    private Map<String,String> idMapRelation;
+    private Map<String, String> idMapRelation;
     private Map<String,QuestionMultipleChoice> idMapQmc;
     private Map<String,QuestionShortAnswer> idMapShrtaq;
+    private Vector<String> activeQuestionIds;
 
     public Test() {
         questionsIDs = new Vector<>();
         idMapRelation = new LinkedHashMap<>();
         idMapQmc = new LinkedHashMap<>();
         idMapShrtaq = new LinkedHashMap<>();
+        activeQuestionIds = new Vector<>();
     }
 
     //getters
@@ -45,6 +54,9 @@ public class Test {
     public Map<String, QuestionShortAnswer> getIdMapShrtaq() {
         return idMapShrtaq;
     }
+    public Vector<String> getActiveQuestionIds() {
+        return activeQuestionIds;
+    }
 
     //setters
     public void setIdGlobal(Long idGlobal) {
@@ -64,6 +76,9 @@ public class Test {
     }
     public void setIdMapShrtaq(Map<String, QuestionShortAnswer> idMapShrtaq) {
         this.idMapShrtaq = idMapShrtaq;
+    }
+    public void setActiveQuestionIds(Vector<String> activeQuestionIds) {
+        this.activeQuestionIds = activeQuestionIds;
     }
 
     public String serializeQuestionIDs() {
@@ -96,7 +111,7 @@ public class Test {
         Vector<String[]> testMap = DbTableRelationQuestionQuestion.getTestMapForTest(testName);
         for (String[] relation : testMap) {
             if (relation[3].length() > 0) {
-                idMapRelation.put(relation[0], relation[1] + "|" + relation[3]);
+                idMapRelation.put(relation[0] + "|" + relation[1], relation[3]);
             }
         }
 
@@ -110,5 +125,37 @@ public class Test {
                 idMapQmc.put(id, questionMultipleChoice);
             }
         }
+
+        initializeActiveIds();
+    }
+
+    private void initializeActiveIds() {
+        activeQuestionIds = (Vector<String>) questionsIDs.clone();
+        for (Map.Entry<String, String> entry : idMapRelation.entrySet()) {
+            if (entry.getValue().length() > 0) {
+                activeQuestionIds.remove(entry.getKey().split("\\|")[1]);
+            }
+        }
+    }
+
+    public void addResultAndRefreshActiveIDs(String id, String result) {
+        for (Map.Entry<String, String> entry : idMapRelation.entrySet()) {
+            if (entry.getKey().split("\\|")[0].contentEquals(id)) {
+                if (entry.getValue().contains("EVALUATION<")) {
+                    Double threshold = Double.valueOf(entry.getValue().split("<")[1]);
+                    if (Double.valueOf(result) < threshold) {
+                        activeQuestionIds.add(entry.getKey().split("\\|")[1]);
+                    }
+                }
+            }
+        }
+
+        LTApplication.currentTestActivitySingleton.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LTApplication.currentTestActivitySingleton.getmAdapter().notifyDataSetChanged();
+            }
+        });
+
     }
 }

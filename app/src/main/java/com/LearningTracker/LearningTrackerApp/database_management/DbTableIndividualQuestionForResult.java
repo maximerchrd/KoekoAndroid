@@ -1,5 +1,7 @@
 package com.LearningTracker.LearningTrackerApp.database_management;
 
+import com.LearningTracker.LearningTrackerApp.LTApplication;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -41,6 +43,10 @@ public class DbTableIndividualQuestionForResult {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+
+        //for test: update the active questions list
+        LTApplication.currentTestActivitySingleton.getmTest().addResultAndRefreshActiveIDs(id_global, quantitative_eval);
+
         return quantitative_evaluation;
     }
 

@@ -18,19 +18,29 @@ import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
 public class TestActivity extends Activity {
-    public static Map<String, String> mcqActivitiesStates;
-    public static Map<String, String> shrtaqActivitiesStates;
+    public Map<String, String> mcqActivitiesStates;
+    public Map<String, String> shrtaqActivitiesStates;
 
     private RecyclerView mRecyclerView;
+    public RecyclerView.Adapter getmAdapter() {
+        return mAdapter;
+    }
+
     private RecyclerView.Adapter mAdapter;
+
     private RecyclerView.LayoutManager mLayoutManager;
 
+
     private Test mTest;
+    public Test getmTest() {
+        return mTest;
+    }
 
 
 
@@ -62,18 +72,19 @@ public class TestActivity extends Activity {
         mTest.setQuestionsIDs(DbTableTest.getQuestionIDsFromTestName(mTest.getTestName()));
         mTest.loadMap();
 
-        mAdapter = new CustomListAdapter(mTest.arrayOfQuestionIDs(), mTest.getIdMapQmc(), mTest.getIdMapShrtaq());
+        mAdapter = new CustomListAdapter(mTest);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Log.v("test", "clicked mother fucker!");
-                QuestionMultipleChoice questionMultipleChoice = mTest.getIdMapQmc().get(mTest.getQuestionsIDs().get(position));
-                if (questionMultipleChoice == null) {
-                    QuestionShortAnswer questionShortAnswer = mTest.getIdMapShrtaq().get(mTest.getQuestionsIDs().get(position));
-                    ((LTApplication) getApplication()).getAppWifi().launchShortAnswerQuestionActivity(questionShortAnswer);
-                } else {
-                    ((LTApplication) getApplication()).getAppWifi().launchMultChoiceQuestionActivity(questionMultipleChoice);
+                if (mTest.getActiveQuestionIds().contains(mTest.getQuestionsIDs().get(position))) {
+                    QuestionMultipleChoice questionMultipleChoice = mTest.getIdMapQmc().get(mTest.getQuestionsIDs().get(position));
+                    if (questionMultipleChoice == null) {
+                        QuestionShortAnswer questionShortAnswer = mTest.getIdMapShrtaq().get(mTest.getQuestionsIDs().get(position));
+                        ((LTApplication) getApplication()).getAppWifi().launchShortAnswerQuestionActivity(questionShortAnswer);
+                    } else {
+                        ((LTApplication) getApplication()).getAppWifi().launchMultChoiceQuestionActivity(questionMultipleChoice);
+                    }
                 }
             }
 

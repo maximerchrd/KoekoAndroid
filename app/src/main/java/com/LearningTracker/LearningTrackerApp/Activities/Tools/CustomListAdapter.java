@@ -1,5 +1,6 @@
 package com.LearningTracker.LearningTrackerApp.Activities.Tools;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,15 +9,15 @@ import android.widget.TextView;
 
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
+import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class CustomListAdapter extends RecyclerView.Adapter<CustomListAdapter.ViewHolder> {
-    private String[] mQuestionIds;
     private String[] mQuestionTexts;
-    private Map<String,QuestionMultipleChoice> idMapQmc;
-    private Map<String,QuestionShortAnswer> idMapShrtaq;
+    private Test test;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -31,17 +32,14 @@ public class CustomListAdapter extends RecyclerView.Adapter<CustomListAdapter.Vi
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public CustomListAdapter(String[] myDataset, Map<String,QuestionMultipleChoice> idMapQmcArg,
-             Map<String,QuestionShortAnswer> idMapShrtaqArg) {
-        mQuestionIds = myDataset;
-        idMapQmc = idMapQmcArg;
-        idMapShrtaq = idMapShrtaqArg;
-        mQuestionTexts = new String[mQuestionIds.length];
+    public CustomListAdapter(Test test) {
+        this.test = test;
+        mQuestionTexts = new String[test.getQuestionsIDs().size()];
 
-        for (int i = 0; i < mQuestionIds.length; i++) {
-            QuestionMultipleChoice questionMultipleChoice = idMapQmc.get(mQuestionIds[i]);
+        for (int i = 0; i < test.getQuestionsIDs().size(); i++) {
+            QuestionMultipleChoice questionMultipleChoice = test.getIdMapQmc().get(test.getQuestionsIDs().get(i));
             if (questionMultipleChoice == null) {
-                QuestionShortAnswer questionShortAnswer = idMapShrtaq.get(mQuestionIds[i]);
+                QuestionShortAnswer questionShortAnswer = test.getIdMapShrtaq().get(test.getQuestionsIDs().get(i));
                 mQuestionTexts[i] = questionShortAnswer.getQUESTION();
             } else {
                 mQuestionTexts[i] = questionMultipleChoice.getQUESTION();
@@ -67,12 +65,16 @@ public class CustomListAdapter extends RecyclerView.Adapter<CustomListAdapter.Vi
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.questionText.setText(mQuestionTexts[position]);
-
+        if (!test.getActiveQuestionIds().contains(test.getQuestionsIDs().get(position))) {
+            holder.questionText.setTextColor(Color.GRAY);
+        } else {
+            holder.questionText.setTextColor(Color.BLACK);
+        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mQuestionIds.length;
+        return test.getQuestionsIDs().size();
     }
 }
