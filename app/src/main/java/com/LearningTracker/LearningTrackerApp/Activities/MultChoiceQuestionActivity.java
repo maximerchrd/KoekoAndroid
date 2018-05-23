@@ -210,7 +210,8 @@ public class MultChoiceQuestionActivity extends Activity {
 				activityState = LTApplication.qmcActivityState;
 			}
 		}
-		if (activityState != null) {
+		if (activityState != null && LTApplication.currentQuestionMultipleChoiceSingleton != null &&
+				LTApplication.currentQuestionMultipleChoiceSingleton.getID() == currentQ.getID()) {
 			String[] parsedState = activityState.split("///");
 			if (parsedState[parsedState.length - 1].contentEquals("true")) {
 				submitButton.setEnabled(false);

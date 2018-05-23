@@ -147,7 +147,8 @@ public class ShortAnswerQuestionActivity extends Activity {
 				activityState = LTApplication.shrtaqActivityState;
 			}
 		}
-		if (activityState != null) {
+		if (activityState != null && LTApplication.currentQuestionShortAnswerSingleton != null &&
+				LTApplication.currentQuestionShortAnswerSingleton.getID() == currentQ.getID()) {
 			String[] parsedState = activityState.split("///");
 			if (parsedState[parsedState.length - 1].contentEquals("true")) {
 				submitButton.setEnabled(false);
