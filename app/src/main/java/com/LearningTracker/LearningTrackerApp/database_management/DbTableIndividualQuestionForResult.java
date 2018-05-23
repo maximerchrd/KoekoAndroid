@@ -1,19 +1,23 @@
 package com.LearningTracker.LearningTrackerApp.database_management;
 
+import android.database.Cursor;
+
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Vector;
 
 /**
  * Created by maximerichard on 03.01.18.
  */
 public class DbTableIndividualQuestionForResult {
+    static private String tableName = "individual_question_for_result";
     static public void createTableIndividualQuestionForResult() {
         try {
-            String sql = "CREATE TABLE IF NOT EXISTS individual_question_for_result " +
+            String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " " +
                     "(ID_DIRECT_EVAL        INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_GLOBAL             INT    NOT NULL, " +
                     " DATE                  TEXT    NOT NULL, " +
@@ -62,5 +66,20 @@ public class DbTableIndividualQuestionForResult {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    static public Vector<Vector<String>> getAllResults() {
+        Vector<Vector<String>> results = new Vector<>();
+
+        Cursor cursor = DbHelper.dbase.rawQuery("SELECT * FROM " + tableName, null);
+        while (cursor.moveToNext()) {
+            results.add( new Vector<String>());
+            results.get(results.size() - 1).add(cursor.getString(1)); //id
+            results.get(results.size() - 1).add(cursor.getString(3)); //answers
+            results.get(results.size() - 1).add(cursor.getString(2)); //date
+            results.get(results.size() - 1).add(cursor.getString(7)); //quantitative evaluation
+        }
+
+        return results;
     }
 }

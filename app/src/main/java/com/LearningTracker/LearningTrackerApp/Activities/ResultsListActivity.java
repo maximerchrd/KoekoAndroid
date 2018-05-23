@@ -8,22 +8,24 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.TestListAdapter;
 import com.LearningTracker.LearningTrackerApp.Activities.Tools.RecyclerTouchListener;
+import com.LearningTracker.LearningTrackerApp.Activities.Tools.ResultsListAdapter;
+import com.LearningTracker.LearningTrackerApp.Activities.Tools.TestListAdapter;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableIndividualQuestionForResult;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionMultipleChoice;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Vector;
 
-public class TestActivity extends Activity {
-    public Map<String, String> mcqActivitiesStates;
-    public Map<String, String> shrtaqActivitiesStates;
-
+public class ResultsListActivity extends Activity {
     private RecyclerView mRecyclerView;
     public RecyclerView.Adapter getmAdapter() {
         return mAdapter;
@@ -34,23 +36,13 @@ public class TestActivity extends Activity {
     private RecyclerView.LayoutManager mLayoutManager;
 
 
-    private Test mTest;
-    public Test getmTest() {
-        return mTest;
-    }
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_test);
-        mRecyclerView = (RecyclerView) findViewById(R.id.test_recycler_view);
+        setContentView(R.layout.activity_resultslist);
+        mRecyclerView = (RecyclerView) findViewById(R.id.results_recycler_view);
 
-        //initialize static variables
-        mcqActivitiesStates = new LinkedHashMap<>();
-        shrtaqActivitiesStates = new LinkedHashMap<>();
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
@@ -58,25 +50,26 @@ public class TestActivity extends Activity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        //load the test
-        Bundle bun = getIntent().getExtras();
-        Long testID = bun.getLong("testID");
+        //gather results and pass them to the ListAdapter
+        Vector<Vector<String>> results = DbTableIndividualQuestionForResult.getAllResults();
+        String[] questions = new String[results.size()];
+        String[] evaluations = new String[results.size()];
 
-        if (LTApplication.currentTestActivitySingleton == null) {
-            mTest = new Test();
-            mTest.setIdGlobal(testID);
-            mTest.setTestName(DbTableTest.getNameFromTestID(testID));
-            mTest.setQuestionsIDs(DbTableTest.getQuestionIDsFromTestName(mTest.getTestName()));
-            mTest.loadMap();
-        } else {
-            mTest = LTApplication.currentTestActivitySingleton.mTest;
-            mcqActivitiesStates = LTApplication.currentTestActivitySingleton.mcqActivitiesStates;
-            shrtaqActivitiesStates = LTApplication.currentTestActivitySingleton.shrtaqActivitiesStates;
+        for (int i = 0; i < results.size(); i++) {
+            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(Integer.valueOf(results.get(i).get(0)));
+            if (questionMultipleChoice == null) {
+                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(results.get(i).get(0)));
+                questions[i] = questionShortAnswer.getQUESTION();
+                evaluations[i] = results.get(i).get(3);
+            } else {
+                questions[i] = questionMultipleChoice.getQUESTION();
+                evaluations[i] = results.get(i).get(3);
+            }
         }
 
-        mAdapter = new TestListAdapter(mTest);
+        mAdapter = new ResultsListAdapter(questions, evaluations);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
+        /*mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
                 if (mTest.getActiveQuestionIds().contains(mTest.getQuestionsIDs().get(position))) {
@@ -94,8 +87,6 @@ public class TestActivity extends Activity {
             public void onLongClick(View view, int position) {
 
             }
-        }));
-
-        LTApplication.currentTestActivitySingleton = this;
+        }));*/
     }
 }

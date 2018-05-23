@@ -12,48 +12,37 @@ import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortA
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-public class CustomListAdapter extends RecyclerView.Adapter<CustomListAdapter.ViewHolder> {
-    private String[] mQuestionTexts;
-    private Test test;
+public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.ViewHolder> {
+    private String[] questions;
+    private String[] evaluations;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView questionText;
+        public TextView evaluationText;
         // each data item is just a string in this case
         public ViewHolder(View v) {
             super(v);
-            questionText = (TextView) v.findViewById(R.id.question_text);
+            questionText = (TextView) v.findViewById(R.id.result_question_text);
+            evaluationText = (TextView) v.findViewById(R.id.result_evaluation);
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public CustomListAdapter(Test test) {
-        this.test = test;
-        mQuestionTexts = new String[test.getQuestionsIDs().size()];
-
-        for (int i = 0; i < test.getQuestionsIDs().size(); i++) {
-            QuestionMultipleChoice questionMultipleChoice = test.getIdMapQmc().get(test.getQuestionsIDs().get(i));
-            if (questionMultipleChoice == null) {
-                QuestionShortAnswer questionShortAnswer = test.getIdMapShrtaq().get(test.getQuestionsIDs().get(i));
-                mQuestionTexts[i] = questionShortAnswer.getQUESTION();
-            } else {
-                mQuestionTexts[i] = questionMultipleChoice.getQUESTION();
-            }
-        }
+    public ResultsListAdapter(String[] questions, String[] evaluations) {
+        this.questions = questions;
+        this.evaluations = evaluations;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public CustomListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+    public ResultsListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                            int viewType) {
         // create a new view
         View v = (View) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.test_row, parent, false);
+                .inflate(R.layout.result_row, parent, false);
 
         ViewHolder vh = new ViewHolder(v);
         return vh;
@@ -64,17 +53,13 @@ public class CustomListAdapter extends RecyclerView.Adapter<CustomListAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.questionText.setText(mQuestionTexts[position]);
-        if (!test.getActiveQuestionIds().contains(test.getQuestionsIDs().get(position))) {
-            holder.questionText.setTextColor(Color.GRAY);
-        } else {
-            holder.questionText.setTextColor(Color.BLACK);
-        }
+        holder.questionText.setText(questions[position]);
+        holder.evaluationText.setText(evaluations[position]);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return test.getQuestionsIDs().size();
+        return questions.length;
     }
 }
