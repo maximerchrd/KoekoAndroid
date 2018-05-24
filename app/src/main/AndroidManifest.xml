@@ -67,6 +67,9 @@
             android:name="com.LearningTracker.LearningTrackerApp.Activities.ResultsListActivity"
             android:label="Test"></activity>
         <activity
+            android:name="com.LearningTracker.LearningTrackerApp.Activities.ResultsFullViewActivity"
+            android:label="Test"></activity>
+        <activity
             android:name="com.LearningTracker.LearningTrackerApp.AndroidDatabaseManager"
             android:label="DB Browsing"></activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->

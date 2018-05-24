@@ -1,6 +1,8 @@
 package com.LearningTracker.LearningTrackerApp.Activities;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,18 +23,18 @@ import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestio
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
 public class ResultsListActivity extends Activity {
+    private Context mContext;
     private RecyclerView mRecyclerView;
     public RecyclerView.Adapter getmAdapter() {
         return mAdapter;
     }
-
     private RecyclerView.Adapter mAdapter;
-
     private RecyclerView.LayoutManager mLayoutManager;
 
 
@@ -42,6 +44,7 @@ public class ResultsListActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_resultslist);
         mRecyclerView = (RecyclerView) findViewById(R.id.results_recycler_view);
+        mContext = this;
 
 
         mRecyclerView.setHasFixedSize(true);
@@ -51,7 +54,8 @@ public class ResultsListActivity extends Activity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         //gather results and pass them to the ListAdapter
-        Vector<Vector<String>> results = DbTableIndividualQuestionForResult.getAllResults();
+        final Vector<Vector<String>> results = DbTableIndividualQuestionForResult.getAllResults();
+        Collections.reverse(results);
         String[] questions = new String[results.size()];
         String[] evaluations = new String[results.size()];
 
@@ -69,24 +73,40 @@ public class ResultsListActivity extends Activity {
 
         mAdapter = new ResultsListAdapter(questions, evaluations);
         mRecyclerView.setAdapter(mAdapter);
-        /*mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
+        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                if (mTest.getActiveQuestionIds().contains(mTest.getQuestionsIDs().get(position))) {
-                    QuestionMultipleChoice questionMultipleChoice = mTest.getIdMapQmc().get(mTest.getQuestionsIDs().get(position));
-                    if (questionMultipleChoice == null) {
-                        QuestionShortAnswer questionShortAnswer = mTest.getIdMapShrtaq().get(mTest.getQuestionsIDs().get(position));
-                        ((LTApplication) getApplication()).getAppWifi().launchShortAnswerQuestionActivity(questionShortAnswer);
-                    } else {
-                        ((LTApplication) getApplication()).getAppWifi().launchMultChoiceQuestionActivity(questionMultipleChoice);
-                    }
+
+                Bundle bun = new Bundle();
+
+                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(Integer.valueOf(results.get(position).get(0)));
+                QuestionShortAnswer questionShortAnswer = null;
+                if (questionMultipleChoice == null) {
+                    questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(results.get(position).get(0)));
+                    bun.putString("questionText", questionShortAnswer.getQUESTION());
+                    bun.putString("questionImage", questionShortAnswer.getIMAGE());
+                    bun.putString("studentAnswer", results.get(position).get(1));
+                    bun.putString("allAnswers", "blou");
+                    bun.putString("date", results.get(position).get(2));
+                    bun.putString("evaluation", results.get(position).get(3));
+                } else {
+                    bun.putString("questionText", questionMultipleChoice.getQUESTION());
+                    bun.putString("questionImage", questionMultipleChoice.getIMAGE());
+                    bun.putString("studentAnswer", results.get(position).get(1));
+                    bun.putString("allAnswers", "blou");
+                    bun.putString("date", results.get(position).get(2));
+                    bun.putString("evaluation", results.get(position).get(3));
                 }
+
+                Intent mIntent = new Intent(mContext, ResultsFullViewActivity.class);
+                mIntent.putExtras(bun);
+                startActivity(mIntent);
             }
 
             @Override
             public void onLongClick(View view, int position) {
 
             }
-        }));*/
+        }));
     }
 }

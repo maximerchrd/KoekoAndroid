@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:padding="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/result_full_questionlabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="Question: " />
+
+        <TextView
+            android:id="@+id/result_full_questiontext"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="blablablablablabla blablablablablabla blablablablablabla blablablablablablablablablablablabla blablablablablabla blablablablablabla blablablablablabla: " />
+
+        <ImageView
+            android:id="@+id/result_full_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/result_full_studentanswerlabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_marginTop="20dp"
+            android:text="Your Answer: " />
+
+        <TextView
+            android:id="@+id/result_full_studentanswertext"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="blablablablablabla blablablablablabla blablablablablabla blablablablablablablablablablablabla blablablablablabla blablablablablabla blablablablablabla: " />
+
+        <TextView
+            android:id="@+id/result_full_allanswerslabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_marginTop="20dp"
+            android:text="All Answers: " />
+
+        <TextView
+            android:id="@+id/result_full_allanswerstext"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="blablablablablabla blablablablablabla blablablablablabla blablablablablablablablablablablabla blablablablablabla blablablablablabla blablablablablabla: " />
+
+        <TextView
+            android:id="@+id/result_full_datelabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_marginTop="20dp"
+            android:text="Date: " />
+
+        <TextView
+            android:id="@+id/result_full_date"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="10-11-1946" />
+
+        <TextView
+            android:id="@+id/result_full_evaluationlabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_marginTop="20dp"
+            android:text="Evaluation: " />
+
+        <TextView
+            android:id="@+id/result_full_evaluation"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="10-11-1946" />
+    </LinearLayout>
+</ScrollView>
