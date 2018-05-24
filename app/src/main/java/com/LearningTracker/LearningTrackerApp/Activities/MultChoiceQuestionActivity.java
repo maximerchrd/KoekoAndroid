@@ -6,8 +6,12 @@ import java.util.List;
 import java.util.Random;
 
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -38,13 +42,14 @@ public class MultChoiceQuestionActivity extends Activity {
 	private ImageView picture;
 	private boolean isImageFitToScreen = true;
 	private LinearLayout linearLayout;
+	private Context mContext;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_multchoicequestion);
-
+		mContext = this;
 
 		linearLayout = (LinearLayout) findViewById(R.id.linearLayoutMultChoice);
 		txtQuestion = (TextView)findViewById(R.id.textViewMultChoiceQuest1);
@@ -73,6 +78,7 @@ public class MultChoiceQuestionActivity extends Activity {
 		String image_path = bun.getString("image_name");
 		currentQ = new QuestionMultipleChoice("1",question,opt0,opt1,opt2,opt3,opt4,opt5,opt6,opt7,opt8,opt9,image_path);
 		currentQ.setID(id);
+		currentQ.setNB_CORRECT_ANS(bun.getInt("nbCorrectAnswers"));
 		if (currentQ.getIMAGE().length() > 0) {
 			picture.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -118,8 +124,13 @@ public class MultChoiceQuestionActivity extends Activity {
 
 				NetworkCommunication networkCommunication = ((LTApplication) getApplication()).getAppNetwork();
 				networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getID(), "ANSW0");
-				finish();
-				invalidateOptionsMenu();
+
+				if (LTApplication.wifiCommunicationSingleton.directCorrection.contentEquals("1")) {
+					MltChoiceQuestionButtonClick();
+				} else {
+					finish();
+					invalidateOptionsMenu();
+				}
 			}
 		});
 	}
@@ -252,6 +263,52 @@ public class MultChoiceQuestionActivity extends Activity {
 			LTApplication.qmcActivityState = activityState;
 			LTApplication.currentQuestionMultipleChoiceSingleton = currentQ;
 		}
+	}
+
+	private void MltChoiceQuestionButtonClick() {
+		//get the answers checked by student
+		ArrayList<String> studentAnswers = new ArrayList<String>();
+		for (int i = 0; i < checkBoxesArray.size(); i++) {
+			if (checkBoxesArray.get(i).isChecked()) {
+				studentAnswers.add(checkBoxesArray.get(i).getText().toString());
+			}
+		}
+		//get the right answers
+		ArrayList<String> rightAnswers = new ArrayList<String>();
+		for (int i = 0; i < currentQ.getNB_CORRECT_ANS(); i++) {
+			rightAnswers.add(currentQ.getPossibleAnswers().get(i));
+		}
+		//compare the student answers with the right answers
+		String title = "";
+		String message = "";
+		if (rightAnswers.containsAll(studentAnswers) && studentAnswers.containsAll(rightAnswers)) {
+			title = "Good job!";
+			message = getString(R.string.correction_correct);
+
+		} else {
+			String correct_answers = "";
+			for (int i = 0; i < rightAnswers.size(); i++) {
+				correct_answers += (rightAnswers.get(i));
+				if (!(i == rightAnswers.size() -1)) correct_answers += " and ";
+			}
+			title = ":-(";
+			message = getString(R.string.correction_incorrect) + correct_answers;
+		}
+		AlertDialog.Builder builder;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
+		} else {
+			builder = new AlertDialog.Builder(mContext);
+		}
+		builder.setTitle(title)
+				.setMessage(message)
+				.setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+						invalidateOptionsMenu();
+					}
+				})
+				.show();
 	}
 
 	public void onWindowFocusChanged(boolean hasFocus) {

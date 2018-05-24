@@ -31,16 +31,6 @@ public class QuestionMultipleChoice {
     private String OPT8;
     private String OPT9;
     private String IMAGE;
-    private String TRIAL0;
-    private String TRIAL1;
-    private String TRIAL2;
-    private String TRIAL3;
-    private String TRIAL4;
-    private String TRIAL5;
-    private String TRIAL6;
-    private String TRIAL7;
-    private String TRIAL8;
-    private String TRIAL9;
     private Vector<String> subjects;
     private Vector<String> objectives;
     public QuestionMultipleChoice()	{
@@ -60,16 +50,6 @@ public class QuestionMultipleChoice {
         OPT7="";
         OPT8="";
         OPT9="";
-        TRIAL0 = "0";
-        TRIAL1 = "0";
-        TRIAL2 = "0";
-        TRIAL3 = "0";
-        TRIAL4 = "0";
-        TRIAL5 = "0";
-        TRIAL6 = "0";
-        TRIAL7 = "0";
-        TRIAL8 = "0";
-        TRIAL9 = "0";
         IMAGE="none";
     }
     public QuestionMultipleChoice(String lEVEL, String qUESTION, String oPT0, String oPT1, String oPT2, String oPT3, String oPT4,
@@ -87,16 +67,6 @@ public class QuestionMultipleChoice {
         OPT7 = oPT7;
         OPT8 = oPT8;
         OPT9 = oPT9;
-        TRIAL0 = "0";
-        TRIAL1 = "0";
-        TRIAL2 = "0";
-        TRIAL3 = "0";
-        TRIAL4 = "0";
-        TRIAL5 = "0";
-        TRIAL6 = "0";
-        TRIAL7 = "0";
-        TRIAL8 = "0";
-        TRIAL9 = "0";
         if (iMAGE.length() == 0) {
             IMAGE = "none";
         } else {
@@ -161,36 +131,6 @@ public class QuestionMultipleChoice {
     public String getOPT9() {
         return OPT9;
     }
-    public String getTRIAL0() {
-        return TRIAL0;
-    }
-    public String getTRIAL1() {
-        return TRIAL1;
-    }
-    public String getTRIAL2() {
-        return TRIAL2;
-    }
-    public String getTRIAL3() {
-        return TRIAL3;
-    }
-    public String getTRIAL4() {
-        return TRIAL4;
-    }
-    public String getTRIAL5() {
-        return TRIAL5;
-    }
-    public String getTRIAL6() {
-        return TRIAL6;
-    }
-    public String getTRIAL7() {
-        return TRIAL7;
-    }
-    public String getTRIAL8() {
-        return TRIAL8;
-    }
-    public String getTRIAL9() {
-        return TRIAL9;
-    }
     public int getNB_CORRECT_ANS() {
         return NB_CORRECT_ANS;
     }
@@ -248,36 +188,6 @@ public class QuestionMultipleChoice {
     }
     public void setOPT9(String oPT9) {
         OPT9 = oPT9;
-    }
-    public void setTRIAL0(String tRIAL0) {
-        TRIAL0 = tRIAL0;
-    }
-    public void setTRIAL1(String tRIAL1) {
-        TRIAL1 = tRIAL1;
-    }
-    public void setTRIAL2(String tRIAL2) {
-        TRIAL2 = tRIAL2;
-    }
-    public void setTRIAL3(String tRIAL3) {
-        TRIAL3 = tRIAL3;
-    }
-    public void setTRIAL4(String tRIAL4) {
-        TRIAL4 = tRIAL4;
-    }
-    public void setTRIAL5(String tRIAL5) {
-        TRIAL5 = tRIAL5;
-    }
-    public void setTRIAL6(String tRIAL6) {
-        TRIAL6 = tRIAL6;
-    }
-    public void setTRIAL7(String tRIAL7) {
-        TRIAL7 = tRIAL7;
-    }
-    public void setTRIAL8(String tRIAL8) {
-        TRIAL8 = tRIAL8;
-    }
-    public void setTRIAL9(String tRIAL9) {
-        TRIAL9 = tRIAL9;
     }
     public void setNB_CORRECT_ANS(int NB_CORRECT_ANS) {
         this.NB_CORRECT_ANS = NB_CORRECT_ANS;

@@ -2,9 +2,13 @@ package com.LearningTracker.LearningTrackerApp.Activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +24,8 @@ import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.R;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableIndividualQuestionForResult;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,13 +40,14 @@ public class ShortAnswerQuestionActivity extends Activity {
 	ImageView picture;
 	boolean isImageFitToScreen = true;
 	LinearLayout linearLayout;
+	private Context mContext;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_shortanswerquestion);
-
+		mContext = this;
 
 		linearLayout = (LinearLayout) findViewById(R.id.linearLayoutShortAnswer);
 		txtQuestion = (TextView)findViewById(R.id.textViewShortAnswerQuest);
@@ -98,8 +105,13 @@ public class ShortAnswerQuestionActivity extends Activity {
 
 				NetworkCommunication networkCommunication = ((LTApplication) getApplication()).getAppNetwork();
 				networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getID(), "ANSW1");
-				finish();
-				invalidateOptionsMenu();
+
+				if (LTApplication.wifiCommunicationSingleton.directCorrection.contentEquals("1")) {
+					popupCorrection();
+				} else {
+					finish();
+					invalidateOptionsMenu();
+				}
 			}
 		});
 	}
@@ -179,6 +191,45 @@ public class ShortAnswerQuestionActivity extends Activity {
 		}
 	}
 
+	private void popupCorrection() {
+		//get the answerof the student
+		QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(currentQ.getID());
+		String studentAnswers = textAnswer.getText().toString();
+		//get the right answers
+		ArrayList<String> rightAnswers = questionShortAnswer.getAnswers();
+
+		//compare the student answer with the right answers
+		String title = "";
+		String message = "";
+		if (rightAnswers.contains(studentAnswers)) {
+			title = ":-)";
+			message = getString(R.string.correction_correct);
+		} else {
+			String rightAnswer = "";
+			for (int i = 0; i < rightAnswers.size(); i++) {
+				rightAnswer += (rightAnswers.get(i));
+				if (!(i == rightAnswers.size() -1)) rightAnswer += " or ";
+			}
+			title = ":-(";
+			message = getString(R.string.correction_incorrect) + rightAnswer;
+		}
+
+		AlertDialog.Builder builder;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
+		} else {
+			builder = new AlertDialog.Builder(mContext);
+		}
+		builder.setTitle(title)
+				.setMessage(message)
+				.setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+						invalidateOptionsMenu();
+					}
+				})
+				.show();
+	}
 
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);

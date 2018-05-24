@@ -72,10 +72,12 @@ public class InteractiveModeActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if (LTApplication.qmcActivityState != null || LTApplication.shrtaqActivityState != null) {
-            forwardButton.setTitle("Back To Question >");
-        } else if (LTApplication.currentTestActivitySingleton != null) {
-            forwardButton.setTitle("Back To Test >");
+        if (forwardButton != null) {
+            if (LTApplication.qmcActivityState != null || LTApplication.shrtaqActivityState != null) {
+                forwardButton.setTitle("Back To Question >");
+            } else if (LTApplication.currentTestActivitySingleton != null) {
+                forwardButton.setTitle("Back To Test >");
+            }
         }
     }
 
@@ -94,11 +96,14 @@ public class InteractiveModeActivity extends Activity {
 
         if (id == R.id.forwardbutton) {
             if (LTApplication.qmcActivityState != null && LTApplication.currentQuestionMultipleChoiceSingleton != null) {
-                LTApplication.wifiCommunicationSingleton.launchMultChoiceQuestionActivity(LTApplication.currentQuestionMultipleChoiceSingleton);
+                LTApplication.wifiCommunicationSingleton.launchMultChoiceQuestionActivity(LTApplication.currentQuestionMultipleChoiceSingleton,
+                        LTApplication.wifiCommunicationSingleton.directCorrection);
             } else if (LTApplication.shrtaqActivityState != null && LTApplication.currentQuestionShortAnswerSingleton != null) {
-                LTApplication.wifiCommunicationSingleton.launchShortAnswerQuestionActivity(LTApplication.currentQuestionShortAnswerSingleton);
+                LTApplication.wifiCommunicationSingleton.launchShortAnswerQuestionActivity(LTApplication.currentQuestionShortAnswerSingleton,
+                        LTApplication.wifiCommunicationSingleton.directCorrection);
             } else if (LTApplication.currentTestActivitySingleton != null) {
-                LTApplication.wifiCommunicationSingleton.launchTestActivity(LTApplication.currentTestActivitySingleton.getmTest().getIdGlobal());
+                LTApplication.wifiCommunicationSingleton.launchTestActivity(LTApplication.currentTestActivitySingleton.getmTest().getIdGlobal(),
+                        LTApplication.wifiCommunicationSingleton.directCorrection);
             }
         }
         return super.onOptionsItemSelected(item);

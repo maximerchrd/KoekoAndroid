@@ -83,9 +83,11 @@ public class TestActivity extends Activity {
                     QuestionMultipleChoice questionMultipleChoice = mTest.getIdMapQmc().get(mTest.getQuestionsIDs().get(position));
                     if (questionMultipleChoice == null) {
                         QuestionShortAnswer questionShortAnswer = mTest.getIdMapShrtaq().get(mTest.getQuestionsIDs().get(position));
-                        ((LTApplication) getApplication()).getAppWifi().launchShortAnswerQuestionActivity(questionShortAnswer);
+                        LTApplication.wifiCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer,
+                                LTApplication.wifiCommunicationSingleton.directCorrection);
                     } else {
-                        ((LTApplication) getApplication()).getAppWifi().launchMultChoiceQuestionActivity(questionMultipleChoice);
+                        LTApplication.wifiCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice,
+                                LTApplication.wifiCommunicationSingleton.directCorrection);
                     }
                 }
             }

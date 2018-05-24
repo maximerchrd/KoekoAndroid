@@ -55,6 +55,7 @@ public class WifiCommunication {
 	private int bytes_read = 0;
 	private String ip_address = "192.168.1.100";
 	final private int PORTNUMBER = 9090;
+	public String directCorrection = "0";
 	List<android.net.wifi.ScanResult> mScanResults = new ArrayList<android.net.wifi.ScanResult>();
 	BroadcastReceiver scanningreceiver;
 	private TextView logView = null;
@@ -241,20 +242,23 @@ public class WifiCommunication {
 							if (id_global < 0 ) {
 								//setup test and show it
 								Long testId = -(Long.valueOf(sizes.split("///")[1]));
-								launchTestActivity(testId);
+								directCorrection = sizes.split("///")[2];
+								launchTestActivity(testId, directCorrection);
 								LTApplication.shrtaqActivityState = null;
 								LTApplication.qmcActivityState = null;
 							} else {
 								QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
 								if (questionMultipleChoice.getQUESTION().length() > 0) {
 									questionMultipleChoice.setID(id_global);
-									launchMultChoiceQuestionActivity(questionMultipleChoice);
+									directCorrection = sizes.split("///")[2];
+									launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
 									LTApplication.shrtaqActivityState = null;
 									LTApplication.currentTestActivitySingleton = null;
 								} else {
 									QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
 									questionShortAnswer.setID(id_global);
-									launchShortAnswerQuestionActivity(questionShortAnswer);
+									directCorrection = sizes.split("///")[2];
+									launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
 									LTApplication.qmcActivityState = null;
 									LTApplication.currentTestActivitySingleton = null;
 								}
@@ -350,7 +354,7 @@ public class WifiCommunication {
 		}).start();
 	}
 
-	public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display) {
+	public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display, String directCorrection) {
 		Intent mIntent = new Intent(mContextWifCom, MultChoiceQuestionActivity.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQUESTION());
@@ -361,29 +365,33 @@ public class WifiCommunication {
 		bun.putString("opt4", question_to_display.getOPT4());
 		bun.putString("opt5", question_to_display.getOPT5());
 		bun.putString("opt6", question_to_display.getOPT6());
-		bun.putString("opt7", question_to_display.getOPT7());
+                bun.putString("opt7", question_to_display.getOPT7());
 		bun.putString("opt8", question_to_display.getOPT8());
 		bun.putString("opt9", question_to_display.getOPT9());
 		bun.putInt("id", question_to_display.getID());
 		bun.putString("image_name", question_to_display.getIMAGE());
+		bun.putString("directCorrection", directCorrection);
+		bun.putInt("nbCorrectAnswers",question_to_display.getNB_CORRECT_ANS());
 		mIntent.putExtras(bun);
 		mContextWifCom.startActivity(mIntent);
 	}
 
-	public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display) {
+	public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display, String directCorrection) {
 		Intent mIntent = new Intent(mContextWifCom, ShortAnswerQuestionActivity.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQUESTION());
 		bun.putInt("id", question_to_display.getID());
 		bun.putString("image_name", question_to_display.getIMAGE());
+		bun.putString("directCorrection", directCorrection);
 		mIntent.putExtras(bun);
 		mContextWifCom.startActivity(mIntent);
 	}
 
-	public void launchTestActivity(Long testID) {
+	public void launchTestActivity(Long testID, String directCorrection) {
 		Intent mIntent = new Intent(mContextWifCom, TestActivity.class);
 		Bundle bun = new Bundle();
 		bun.putLong("testID", testID);
+		bun.putString("directCorrection", directCorrection);
 		mIntent.putExtras(bun);
 		mContextWifCom.startActivity(mIntent);
 	}
