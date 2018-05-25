@@ -85,15 +85,15 @@ public class MenuActivity extends Activity {
 		});
 
 		Button button = (Button)findViewById(R.id.dbBrowsingButton);
-		button.setVisibility(View.GONE);
+		//button.setVisibility(View.GONE);
 
-		/*button.setOnClickListener(new View.OnClickListener() {
+		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
 				Intent dbmanager = new Intent(MenuActivity.this,AndroidDatabaseManager.class);
 				startActivity(dbmanager);
 			}
-		});*/
+		});
 
 	}
 }

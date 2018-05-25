@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableSubject;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
@@ -29,6 +30,7 @@ import java.util.Vector;
 public class EvaluationResultsActivity extends Activity {
 
     Spinner menuSubjectSpinner;
+    Spinner menuTestSpinner;
     Integer totalNumberOfObjectives = 1000;
 
     @Override
@@ -36,15 +38,17 @@ public class EvaluationResultsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_evaluation_results);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        totalNumberOfObjectives = DbTableLearningObjective.getResultsPerObjective("All").get(0).size();
+        totalNumberOfObjectives = DbTableLearningObjective.getResultsPerObjectiveForSubject("All").get(0).size();
 
-        drawChart(getString(R.string.all_subjects));
+        drawChart(getString(R.string.all_subjects), "");
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.activity_evaluation_results, menu);
+
+        //setup the spinner for subject choice
         MenuItem menuSubject = menu.findItem(R.id.menu_subject);
 
         menuSubjectSpinner = (Spinner) MenuItemCompat.getActionView(menuSubject);
@@ -61,7 +65,38 @@ public class EvaluationResultsActivity extends Activity {
         menuSubjectSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                drawChart(menuSubjectSpinner.getSelectedItem().toString());
+                drawChart(menuSubjectSpinner.getSelectedItem().toString(), "");
+                menuTestSpinner.setSelection(0, true);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+        });
+
+        //setup the menu item for test choice
+        MenuItem menuTest = menu.findItem(R.id.menu_test);
+
+        menuTestSpinner = (Spinner) MenuItemCompat.getActionView(menuTest);
+        Vector <String[]> testsArrayVector = DbTableTest.getAllTests();
+        Vector <String> testsVector = new Vector<>();
+        for (String[] test : testsArrayVector) {
+            testsVector.add(test[0]);
+        }
+        testsVector.insertElementAt("All tests",0);
+        String[] arraySpinner2 = testsVector.toArray(new String[testsVector.size()]);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpinner2);
+
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        menuTestSpinner.setAdapter(adapter2);
+
+        menuTestSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                drawChart("", menuTestSpinner.getSelectedItem().toString());
+                menuSubjectSpinner.setSelection(0, true);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
@@ -71,11 +106,21 @@ public class EvaluationResultsActivity extends Activity {
         return true;
     }
 
-    private void drawChart (String subject) {
+    private void drawChart (String subject, String test) {
         if (subject.contentEquals(getString(R.string.all_subjects))) {
             subject = "All";
         }
-        Vector<Vector<String>> evalForObjectives = DbTableLearningObjective.getResultsPerObjective(subject);
+
+        if (test.contentEquals("All")) {
+            test = "All";
+        }
+
+        Vector<Vector<String>> evalForObjectives = new Vector<>();
+        if (!subject.contentEquals("")) {
+            evalForObjectives = DbTableLearningObjective.getResultsPerObjectiveForSubject(subject);
+        } else if (!test.contentEquals("")) {
+            evalForObjectives = DbTableLearningObjective.getResultsPerObjectiveForTest(test);
+        }
         Vector<String> objectives = evalForObjectives.get(0);
         Vector<String> evaluations = evalForObjectives.get(1);
         HorizontalBarChart chart = (HorizontalBarChart) findViewById(R.id.chart);

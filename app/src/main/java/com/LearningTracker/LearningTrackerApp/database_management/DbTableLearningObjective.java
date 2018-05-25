@@ -5,6 +5,8 @@ import android.database.Cursor;
 import com.LearningTracker.LearningTrackerApp.R;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -86,7 +88,7 @@ public class DbTableLearningObjective {
 
         return objectives;
     }
-    static public Vector<Vector<String>> getResultsPerObjective(String subject) {
+    static public Vector<Vector<String>> getResultsPerObjectiveForSubject(String subject) {
         Vector<String> objectives = new Vector<>();
         Vector<String> results = new Vector<>();
         try {
@@ -107,6 +109,90 @@ public class DbTableLearningObjective {
                 evaluations_for_each_question.add(cursor.getString(1));
             }
             cursor.close();
+            Vector<String> objectives_for_question = new Vector<>();
+            for (int i = 0; i < id_questions.size(); i++) {
+                query = "SELECT OBJECTIVE FROM question_objective_relation " +
+                        "WHERE ID_GLOBAL = '" + id_questions.get(i) + "';";
+                Cursor cursor2 = DbHelper.dbase.rawQuery(query, null);
+                while (cursor2.moveToNext()) {
+                    objectives_for_question.add(cursor2.getString(0));
+                    //multiplies each evaluation for a specific question by the number of objectives attributed to the question
+                    evaluations_for_each_question.insertElementAt(evaluations_for_each_question.get(objectives_for_question.size() - 1), objectives_for_question.size());
+                }
+                cursor2.close();
+                evaluations_for_each_question.remove(objectives_for_question.size());
+            }
+            for (int i = 0; i < objectives_for_question.size(); i++) {
+                if (!objectives.contains(objectives_for_question.get(i))) {
+                    objectives.add(objectives_for_question.get(i));
+                    results.add(evaluations_for_each_question.get(i));
+                } else {
+                    int old_result_index = objectives.indexOf(objectives_for_question.get(i));
+                    double old_result = Double.parseDouble(results.get(old_result_index));
+                    old_result += Double.parseDouble(evaluations_for_each_question.get(i));
+                    results.set(old_result_index,String.valueOf(old_result));
+                }
+            }
+            for (int i = 0; i < results.size(); i++) {
+                double result_for_averaging = Double.parseDouble(results.get(i));
+                int number_occurences = Collections.frequency(objectives_for_question,objectives.get(i));
+                results.set(i,String.valueOf(result_for_averaging/number_occurences));
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        //remove empty objective
+        for (int i = 0; i < objectives.size(); i++) {
+            if (objectives.get(i).contentEquals("") || objectives.get(i).contentEquals(" ")) {
+                results.remove(i);
+                objectives.remove(i);
+                i--;
+            }
+        }
+        Vector<Vector<String>> vectors = new Vector<Vector<String>>();
+        vectors.add(objectives);
+        vectors.add(results);
+        return vectors;
+    }
+
+    static public Vector<Vector<String>> getResultsPerObjectiveForTest(String test) {
+        Vector<String> objectives = new Vector<>();
+        Vector<String> results = new Vector<>();
+        try {
+            String query = "";
+            Cursor cursor;
+            if (test.contentEquals("All tests")) {
+                query = "SELECT " + DbTableRelationQuestionQuestion.getTableName() + "." + DbTableRelationQuestionQuestion.getKey_idGlobal1() + "," +
+                        DbTableRelationQuestionQuestion.getTableName() + "." + DbTableRelationQuestionQuestion.getKey_idGlobal2() + " FROM " + DbTableRelationQuestionQuestion.getTableName();
+                cursor = DbHelper.dbase.rawQuery(query, null);
+            } else {
+                query = "SELECT " + DbTableRelationQuestionQuestion.getTableName() + "." + DbTableRelationQuestionQuestion.getKey_idGlobal1() + "," +
+                        DbTableRelationQuestionQuestion.getTableName() + "." + DbTableRelationQuestionQuestion.getKey_idGlobal2() + " FROM " + DbTableRelationQuestionQuestion.getTableName() +
+                        " WHERE " + DbTableRelationQuestionQuestion.getKey_testName() + " = ?";
+                cursor = DbHelper.dbase.rawQuery(query, new String[]{test});
+            }
+
+            Set<String> questionIDs = new LinkedHashSet<>();
+            while (cursor.moveToNext()) {
+                questionIDs.add(cursor.getString(0));
+                questionIDs.add(cursor.getString(1));
+            }
+            cursor.close();
+
+            Vector<String> id_questions = new Vector<>();
+            Vector<String> evaluations_for_each_question = new Vector<>();
+            for (String questID : questionIDs) {
+                String sql = "SELECT individual_question_for_result.ID_GLOBAL, individual_question_for_result.QUANTITATIVE_EVAL FROM individual_question_for_result " +
+                        " WHERE individual_question_for_result.ID_GLOBAL = ?" ;
+                Cursor cursor2 = DbHelper.dbase.rawQuery(sql, new String[]{questID});
+                while (cursor2.moveToNext()) {
+                    id_questions.add(cursor2.getString(0));
+                    evaluations_for_each_question.add(cursor2.getString(1));
+                }
+                cursor2.close();
+            }
+
             Vector<String> objectives_for_question = new Vector<>();
             for (int i = 0; i < id_questions.size(); i++) {
                 query = "SELECT OBJECTIVE FROM question_objective_relation " +

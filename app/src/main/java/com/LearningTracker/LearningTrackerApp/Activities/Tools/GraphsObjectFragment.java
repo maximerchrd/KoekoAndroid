@@ -86,7 +86,7 @@ public class GraphsObjectFragment extends Fragment {
 
 
         if (mTabPosition == 0) {
-            totalNumberOfObjectives = DbTableLearningObjective.getResultsPerObjective("All").get(0).size();
+            totalNumberOfObjectives = DbTableLearningObjective.getResultsPerObjectiveForSubject("All").get(0).size();
             drawChart(getString(R.string.all_subjects));
             chart.setVisibility(View.VISIBLE);
             picture.setVisibility(View.GONE);
@@ -137,7 +137,7 @@ public class GraphsObjectFragment extends Fragment {
         if (subject.contentEquals(getString(R.string.all_subjects))) {
             subject = "All";
         }
-        Vector<Vector<String>> evalForObjectives = DbTableLearningObjective.getResultsPerObjective(subject);
+        Vector<Vector<String>> evalForObjectives = DbTableLearningObjective.getResultsPerObjectiveForSubject(subject);
         Vector<String> objectives = evalForObjectives.get(0);
         Vector<String> evaluations = evalForObjectives.get(1);
 
@@ -193,7 +193,7 @@ public class GraphsObjectFragment extends Fragment {
             subject = "All";
         }
 
-        Vector<Vector<String>> evalForObjectives = DbTableLearningObjective.getResultsPerObjective(subject);
+        Vector<Vector<String>> evalForObjectives = DbTableLearningObjective.getResultsPerObjectiveForSubject(subject);
         Vector<String> objectives = evalForObjectives.get(0);
         Vector<String> evaluations = evalForObjectives.get(1);
         Vector<String> evaluations_low = new Vector<>();

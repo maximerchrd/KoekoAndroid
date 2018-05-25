@@ -275,7 +275,7 @@ public class WifiCommunication {
 						mIntent.putExtras(bun);
 						mContextWifCom.startActivity(mIntent);
 					} else if (sizes.split(":")[0].contains("TEST")) {
-						//2000001///test1///2000005;;;2000006:::EVALUATION<60|||2000006;;;2000007:::EVALUATION<60|||2000007|||///1///
+						//2000001///test1///2000005;;;2000006:::EVALUATION<60|||2000006;;;2000007:::EVALUATION<60|||2000007|||///objectives///TESTMODE///
 						//first, fetch the size we'll have to read
 						Integer textBytesSize = 0;
 						try {
@@ -338,11 +338,13 @@ public class WifiCommunication {
 							newTest.getQuestionsIDs().add(questionId);
 							for (int i = 1; i < relationSplit.length; i++) {
 								try {
+								    String[] array = relationSplit[i].split(":::");
 									DbTableRelationQuestionQuestion.insertRelationQuestionQuestion(StringTools.stringToLongID(questionId),
-											StringTools.stringToLongID(relationSplit[i].split(":::")[0]), newTest.getTestName(),
-											relationSplit[i].split(":::")[1]);
+											StringTools.stringToLongID(array[0]), newTest.getTestName(),
+											array[1]);
 								} catch (ArrayIndexOutOfBoundsException e) {
-									Log.e("WifiCommunication", "Array out of bound when inserting the condition for insertRelationQuestionQuestion");
+									//ERROR HERE
+								    Log.e("WifiCommunication", "Array out of bound when inserting the condition for insertRelationQuestionQuestion");
 									e.printStackTrace();
 								}
 							}

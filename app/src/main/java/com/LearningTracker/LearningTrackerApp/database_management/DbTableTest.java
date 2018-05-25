@@ -18,6 +18,22 @@ public class DbTableTest {
     static private String key_testName = "TEST_NAME";
     static private String key_questions_ids = "QUESTION_IDS";
 
+    public static String getTableName() {
+        return tableName;
+    }
+
+    public static String getKey_idGlobal() {
+        return key_idGlobal;
+    }
+
+    public static String getKey_testName() {
+        return key_testName;
+    }
+
+    public static String getKey_questions_ids() {
+        return key_questions_ids;
+    }
+
     static public void createTableTest() {
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName +
                 "(ID      INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -76,6 +92,20 @@ public class DbTableTest {
                 " FROM " + tableName, null);
         while (cursor.moveToNext()) {
             testNamesAndIds.add(new String[] {cursor.getString(0), cursor.getString(1)});
+        }
+
+        return testNamesAndIds;
+    }
+
+    static public Vector<String[]> getAllTestsWithObjectives() {
+        Vector<String[]> testNamesAndIds = new Vector<>();
+
+        String sql = "SELECT " + key_testName + "," + key_idGlobal + " FROM " + tableName +
+                " INNER JOIN " + DbTableRelationTestObjective.getTableName() + " ON " +
+                tableName + "." + key_idGlobal + " = " + DbTableRelationTestObjective.getTableName() + "." + DbTableRelationTestObjective.getKey_idTest();
+        Cursor cursor = DbHelper.dbase.rawQuery(sql, null);
+        while (cursor.moveToNext()) {
+            testNamesAndIds.add(new String[] {cursor.getString(1), cursor.getString(2)});
         }
 
         return testNamesAndIds;

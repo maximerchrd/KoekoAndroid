@@ -17,6 +17,22 @@ public class DbTableRelationQuestionQuestion {
     static private String key_testName = "TEST_NAME";
     static private String key_condition = "CONDITION";
 
+    public static String getTableName() {
+        return tableName;
+    }
+
+    public static String getKey_idGlobal1() {
+        return key_idGlobal1;
+    }
+
+    public static String getKey_idGlobal2() {
+        return key_idGlobal2;
+    }
+
+    public static String getKey_testName() {
+        return key_testName;
+    }
+
     static public void createTable() {
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName +
                 "(ID      INTEGER PRIMARY KEY AUTOINCREMENT," +
