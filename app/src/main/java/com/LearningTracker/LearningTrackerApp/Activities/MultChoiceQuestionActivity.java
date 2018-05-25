@@ -221,8 +221,8 @@ public class MultChoiceQuestionActivity extends Activity {
 				activityState = LTApplication.qmcActivityState;
 			}
 		}
-		if (activityState != null && LTApplication.currentQuestionMultipleChoiceSingleton != null &&
-				LTApplication.currentQuestionMultipleChoiceSingleton.getID() == currentQ.getID()) {
+		if ( (activityState != null && LTApplication.currentTestActivitySingleton != null) || (LTApplication.currentQuestionMultipleChoiceSingleton != null &&
+				LTApplication.currentQuestionMultipleChoiceSingleton.getID() == currentQ.getID())) {
 			String[] parsedState = activityState.split("///");
 			if (parsedState[parsedState.length - 1].contentEquals("true")) {
 				submitButton.setEnabled(false);
@@ -289,7 +289,7 @@ public class MultChoiceQuestionActivity extends Activity {
 			String correct_answers = "";
 			for (int i = 0; i < rightAnswers.size(); i++) {
 				correct_answers += (rightAnswers.get(i));
-				if (!(i == rightAnswers.size() -1)) correct_answers += " and ";
+				if (!(i == rightAnswers.size() -1)) correct_answers += " or ";
 			}
 			title = ":-(";
 			message = getString(R.string.correction_incorrect) + correct_answers;
