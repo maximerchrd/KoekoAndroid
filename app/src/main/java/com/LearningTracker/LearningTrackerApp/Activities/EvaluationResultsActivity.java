@@ -4,8 +4,10 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.v4.view.MenuItemCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,11 +29,14 @@ import com.LearningTracker.LearningTrackerApp.database_management.DbTableLearnin
 import java.util.ArrayList;
 import java.util.Vector;
 
+import static android.content.ContentValues.TAG;
+
 public class EvaluationResultsActivity extends Activity {
 
-    Spinner menuSubjectSpinner;
-    Spinner menuTestSpinner;
-    Integer totalNumberOfObjectives = 1000;
+    private Spinner menuSubjectSpinner;
+    private Spinner menuTestSpinner;
+    private Integer totalNumberOfObjectives = 1000;
+    private Boolean automaticItemSelection = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +71,17 @@ public class EvaluationResultsActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 drawChart(menuSubjectSpinner.getSelectedItem().toString(), "");
-                menuTestSpinner.setSelection(0, true);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
                 // your code here
+            }
+        });
+        menuSubjectSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                menuTestSpinner.setSelection(0, true);
+                return false;
             }
         });
 
@@ -103,6 +114,15 @@ public class EvaluationResultsActivity extends Activity {
                 // your code here
             }
         });
+
+        menuTestSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                menuSubjectSpinner.setSelection(0, true);
+                return false;
+            }
+        });
+
         return true;
     }
 
