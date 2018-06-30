@@ -188,9 +188,11 @@ public class ExerciseObjectFragment extends Fragment {
     private void MltChoiceQuestionButtonClick() {
         //get the answers checked by student
         ArrayList<String> studentAnswers = new ArrayList<String>();
+        String answerForStoring = "";
         for (int i = 0; i < checkBoxesArray.size(); i++) {
             if (checkBoxesArray.get(i).isChecked()) {
                 studentAnswers.add(checkBoxesArray.get(i).getText().toString());
+                answerForStoring += checkBoxesArray.get(i).getText().toString() + ";";
             }
         }
         //get the right answers
@@ -208,7 +210,7 @@ public class ExerciseObjectFragment extends Fragment {
             picture.setAlpha(0.45f);
             txtQuestion.setAlpha(0.45f);
             textAnswer.setAlpha(0.45f);
-            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getID()),"100");
+            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getID()),"100", answerForStoring);
         } else {
             String correct_answers = "";
             for (int i = 0; i < rightAnswers.size(); i++) {
@@ -239,7 +241,7 @@ public class ExerciseObjectFragment extends Fragment {
                     }
                 }
             }
-            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getID()),"0");
+            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getID()),"0", answerForStoring);
         }
     }
 
@@ -317,7 +319,7 @@ public class ExerciseObjectFragment extends Fragment {
             picture.setAlpha(0.45f);
             txtQuestion.setAlpha(0.45f);
             textAnswer.setAlpha(0.45f);
-            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getID()),"100");
+            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getID()),"100", studentAnswers);
         } else {
             String rightAnswer = "";
             for (int i = 0; i < rightAnswers.size(); i++) {
@@ -332,7 +334,7 @@ public class ExerciseObjectFragment extends Fragment {
             picture.setAlpha(0.45f);
             txtQuestion.setAlpha(0.45f);
             textAnswer.setAlpha(0.45f);
-            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getID()),"0");
+            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getID()),"0", studentAnswers);
         }
     }
 }

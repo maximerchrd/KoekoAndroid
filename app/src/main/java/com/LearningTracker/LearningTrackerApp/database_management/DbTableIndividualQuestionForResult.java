@@ -20,6 +20,7 @@ public class DbTableIndividualQuestionForResult {
             String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " " +
                     "(ID_DIRECT_EVAL        INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_GLOBAL             INT    NOT NULL, " +
+                    " TYPE                  INT, " +       //0: Question Multiple Choice; 1: Question Short Answer; 2: Objective
                     " DATE                  TEXT    NOT NULL, " +
                     " ANSWERS               TEXT    NOT NULL, " +
                     " TIME_FOR_SOLVING      INT    NOT NULL, " +
@@ -36,12 +37,12 @@ public class DbTableIndividualQuestionForResult {
         }
     }
 
-    static public double addIndividualQuestionForStudentResult(String id_global, String quantitative_eval) {
+    static public double addIndividualQuestionForStudentResult(String id_global, String quantitative_eval, String answer) {
         double quantitative_evaluation = -1;
         try {
             String sql = 	"INSERT INTO individual_question_for_result (ID_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
                     "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
-                    "VALUES ('" + id_global + "',date('now'),'none','none','none','none','" + quantitative_eval + "','none','none','none');";
+                    "VALUES ('" + id_global + "',date('now'),'" + answer + "','none','none','none','" + quantitative_eval + "','none','none','none');";
             DbHelper.dbase.execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -56,7 +57,28 @@ public class DbTableIndividualQuestionForResult {
         return quantitative_evaluation;
     }
 
-    static public void setEvalForQuestionAndStudentIDs (Double eval, String idQuestion) {
+    static public double addIndividualQuestionForStudentResult(String id_global, String quantitative_eval, Integer type, String test) {
+        double quantitative_evaluation = -1;
+        try {
+            String sql = 	"INSERT INTO individual_question_for_result (ID_GLOBAL,TYPE,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
+                    "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
+                    "VALUES ('" + id_global  + "', '" + type + "',date('now'),'none','none','none','none','" + quantitative_eval + "','none','" +
+                     test + "','none');";
+            DbHelper.dbase.execSQL(sql);
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        //for test: update the active questions list
+        if (LTApplication.currentTestActivitySingleton != null) {
+            LTApplication.currentTestActivitySingleton.getmTest().addResultAndRefreshActiveIDs(id_global, quantitative_eval);
+        }
+
+        return quantitative_evaluation;
+    }
+
+    static public void setEvalForQuestion(Double eval, String idQuestion) {
         String sql = "UPDATE individual_question_for_result SET QUANTITATIVE_EVAL = '" + eval + "' " +
                 "WHERE ID_DIRECT_EVAL=(SELECT MAX (ID_DIRECT_EVAL) " +
                 "FROM (SELECT * FROM 'individual_question_for_result') WHERE ID_GLOBAL='" + idQuestion + "');";
@@ -71,13 +93,13 @@ public class DbTableIndividualQuestionForResult {
     static public Vector<Vector<String>> getAllResults() {
         Vector<Vector<String>> results = new Vector<>();
 
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT * FROM " + tableName, null);
+        Cursor cursor = DbHelper.dbase.rawQuery("SELECT ID_GLOBAL,ANSWERS,DATE,QUANTITATIVE_EVAL FROM " + tableName, null);
         while (cursor.moveToNext()) {
             results.add( new Vector<String>());
-            results.get(results.size() - 1).add(cursor.getString(1)); //id
-            results.get(results.size() - 1).add(cursor.getString(3)); //answers
+            results.get(results.size() - 1).add(cursor.getString(0)); //id
+            results.get(results.size() - 1).add(cursor.getString(1)); //answers
             results.get(results.size() - 1).add(cursor.getString(2)); //date
-            results.get(results.size() - 1).add(cursor.getString(7)); //quantitative evaluation
+            results.get(results.size() - 1).add(cursor.getString(3)); //quantitative evaluation
         }
 
         return results;

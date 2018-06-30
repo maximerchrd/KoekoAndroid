@@ -61,7 +61,7 @@ public class ResultsListActivity extends Activity {
 
         for (int i = 0; i < results.size(); i++) {
             QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(Integer.valueOf(results.get(i).get(0)));
-            if (questionMultipleChoice == null) {
+            if (questionMultipleChoice.getQUESTION().length() == 0) {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(results.get(i).get(0)));
                 questions[i] = questionShortAnswer.getQUESTION();
                 evaluations[i] = results.get(i).get(3);
@@ -81,7 +81,7 @@ public class ResultsListActivity extends Activity {
 
                 QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(Integer.valueOf(results.get(position).get(0)));
                 QuestionShortAnswer questionShortAnswer = null;
-                if (questionMultipleChoice == null) {
+                if (questionMultipleChoice.getQUESTION().length() == 0) {
                     questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(results.get(position).get(0)));
                     bun.putString("questionText", questionShortAnswer.getQUESTION());
                     bun.putString("questionImage", questionShortAnswer.getIMAGE());

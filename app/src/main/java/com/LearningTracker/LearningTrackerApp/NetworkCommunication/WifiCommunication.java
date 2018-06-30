@@ -10,7 +10,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
@@ -26,6 +25,7 @@ import com.LearningTracker.LearningTrackerApp.database_management.DbHelper;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableIndividualQuestionForResult;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableLearningObjective;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionMultipleChoice;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableRelationQuestionQuestion;
@@ -37,6 +37,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -54,6 +55,7 @@ public class WifiCommunication {
 	private int current = 0;
 	private int bytes_read = 0;
 	private String ip_address = "192.168.1.100";
+	private String lastAnswer = "";
 	final private int PORTNUMBER = 9090;
 	public String directCorrection = "0";
 	List<android.net.wifi.ScanResult> mScanResults = new ArrayList<android.net.wifi.ScanResult>();
@@ -114,6 +116,9 @@ public class WifiCommunication {
 	}
 
 	public void sendAnswerToServer(String answer) {
+		if (answer.split("///").length > 3) {
+			lastAnswer = answer.split("///")[3]; //save the answer for when we receive the evaluation from the server
+		}
 		byte[] ansBuffer = answer.getBytes();
 		try {
 			mOutputStream.write(ansBuffer, 0, ansBuffer.length);
@@ -162,7 +167,7 @@ public class WifiCommunication {
 						able_to_read = false;
 					}
 					Log.v("WifiCommunication", "received string: " + sizes);
-					if (sizes.split(":")[0].contains("MULTQ")) {
+					if (sizes.split("///")[0].split(":")[0].contentEquals("MULTQ")) {
 						int size_of_image = Integer.parseInt(sizes.split(":")[1]);
 						int size_of_text = Integer.parseInt(sizes.split(":")[2].replaceAll("\\D+", ""));
 						byte[] whole_question_buffer = new byte[80 + size_of_image + size_of_text];
@@ -197,7 +202,7 @@ public class WifiCommunication {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-					} else if (sizes.split(":")[0].contains("SHRTA")) {
+					} else if (sizes.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
 						int size_of_image = Integer.parseInt(sizes.split(":")[1]);
 						int size_of_text = Integer.parseInt(sizes.split(":")[2].replaceAll("\\D+", ""));
 						byte[] whole_question_buffer = new byte[80 + size_of_image + size_of_text];
@@ -236,7 +241,7 @@ public class WifiCommunication {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-					} else if (sizes.split(":")[0].contains("QID")) {
+					} else if (sizes.split("///")[0].split(":")[0].contentEquals("QID")) {
 						if (sizes.split(":")[1].contains("MLT")) {
 							int id_global = Integer.valueOf(sizes.split("///")[1]);
 							if (id_global < 0 ) {
@@ -264,17 +269,17 @@ public class WifiCommunication {
 								}
 							}
 						}
-					} else if (sizes.split(":")[0].contains("EVAL")) {
-						DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizes.split("///")[2],sizes.split("///")[1]);
-					} else if (sizes.split(":")[0].contains("UPDEV")) {
-						DbTableIndividualQuestionForResult.setEvalForQuestionAndStudentIDs(Double.valueOf(sizes.split("///")[1]),sizes.split("///")[2]);
-					} else if (sizes.split(":")[0].contains("CORR")) {
+					} else if (sizes.split("///")[0].split(":")[0].contentEquals("EVAL")) {
+						DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizes.split("///")[2],sizes.split("///")[1], lastAnswer);
+					} else if (sizes.split("///")[0].split(":")[0].contentEquals("UPDEV")) {
+						DbTableIndividualQuestionForResult.setEvalForQuestion(Double.valueOf(sizes.split("///")[1]),sizes.split("///")[2]);
+					} else if (sizes.split("///")[0].split(":")[0].contentEquals("CORR")) {
 						Intent mIntent = new Intent(mContextWifCom, CorrectedQuestionActivity.class);
 						Bundle bun = new Bundle();
 						bun.putString("questionID", sizes.split("///")[1]);
 						mIntent.putExtras(bun);
 						mContextWifCom.startActivity(mIntent);
-					} else if (sizes.split(":")[0].contains("TEST")) {
+					} else if (sizes.split("///")[0].split(":")[0].contentEquals("TEST")) {
 						//2000001///test1///2000005;;;2000006:::EVALUATION<60|||2000006;;;2000007:::EVALUATION<60|||2000007|||///objectives///TESTMODE///
 						//first, fetch the size we'll have to read
 						Integer textBytesSize = 0;
@@ -350,6 +355,63 @@ public class WifiCommunication {
 							}
 						}
 						DbTableTest.insertTest(newTest);
+					} else if (sizes.split(":")[0].contentEquals("OEVAL")) {
+						if (sizes.split(":").length > 1) {
+							//Read text data into array
+							Integer textBytesSize = 0;
+							try {
+								textBytesSize = Integer.valueOf(sizes.split("///")[0].split(":")[1]);
+							} catch (NumberFormatException e) {
+								textBytesSize = 0;
+								Log.e("WifiCommunication", "error reading size when receiving OEVAL");
+							}
+
+							byte[] wholeDataBuffer = new byte[textBytesSize];
+							current = 0;
+							do {
+								try {
+									bytes_read = mInputStream.read(wholeDataBuffer, current, (textBytesSize - current));
+									Log.v("WifiCommunication", "number of bytes read:" + Integer.toString(bytes_read));
+								} catch (IOException e) {
+									e.printStackTrace();
+									able_to_read = false;
+								}
+								if (bytes_read >= 0) {
+									current += bytes_read;
+									if (able_to_read == false) {
+										bytes_read = -1;
+										able_to_read = true;
+									}
+								}
+							} while (bytes_read > 0);
+							bytes_read = 1;
+
+							//Convert data to string
+							String testString = "";
+							try {
+								testString = new String(wholeDataBuffer, "UTF-8");
+							} catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+							}
+
+							if (testString.split("///").length > 4) {
+								String testID = testString.split("///")[0];
+								String testName = testString.split("///")[1];
+								String objectiveID = testString.split("///")[2];
+								String objective = testString.split("///")[3];
+								String evaluation = testString.split("///")[4];
+
+								DbTableLearningObjective.addLearningObjective(objectiveID, objective, 0);
+								DbTableRelationTestObjective.insertRelationTestObjective(Long.getLong(testID),Long.getLong(objectiveID));
+								Test certificativeTest = new Test();
+								certificativeTest.setTestName(testName);
+								certificativeTest.setTestType("CERTIF");
+								certificativeTest.setIdGlobal(Long.getLong(testID));
+								DbTableTest.insertTest(certificativeTest);
+								DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(objectiveID, evaluation, 2, testName);
+								Log.d("INFO","received OEVAL");
+							}
+						}
 					}
 				}
 			}
