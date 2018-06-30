@@ -69,6 +69,23 @@ public class DbTableLearningObjective {
             System.exit(0);
         }
     }
+
+    static public void addLearningObjective(String objectiveID, String objective, int level_cognitive_ability) {
+        try {
+            String sql = 	"INSERT OR IGNORE INTO learning_objectives (ID_OBJECTIVE_GLOBAL,OBJECTIVE,LEVEL_COGNITIVE_ABILITY) " +
+                    "VALUES ('" +
+                    objectiveID + "','" +
+                    objective.replace("'", "''") + "','" +
+                    level_cognitive_ability +"');";
+            DbHelper.dbase.execSQL(sql);
+            sql = "UPDATE learning_objectives SET ID_OBJECTIVE_GLOBAL = 2000000 + ID_OBJECTIVE WHERE ID_OBJECTIVE = (SELECT MAX(ID_OBJECTIVE) FROM learning_objectives)";
+            DbHelper.dbase.execSQL(sql);
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
     static public Vector<String> getObjectivesForQuestionID(int questionID) {
         Vector<String> objectives = new Vector<>();
         try {
@@ -162,9 +179,8 @@ public class DbTableLearningObjective {
         try {
             String query = "";
             Cursor cursor;
-            if (test.contentEquals("All tests")) {
-                query = "SELECT " + DbTableRelationQuestionQuestion.getTableName() + "." + DbTableRelationQuestionQuestion.getKey_idGlobal1() + "," +
-                        DbTableRelationQuestionQuestion.getTableName() + "." + DbTableRelationQuestionQuestion.getKey_idGlobal2() + " FROM " + DbTableRelationQuestionQuestion.getTableName();
+            if (test.contentEquals("All")) {
+                query = "SELECT ID_GLOBAL,QUANTITATIVE_EVAL FROM individual_question_for_result;";
                 cursor = DbHelper.dbase.rawQuery(query, null);
             } else {
                 query = "SELECT " + DbTableRelationQuestionQuestion.getTableName() + "." + DbTableRelationQuestionQuestion.getKey_idGlobal1() + "," +
@@ -235,6 +251,36 @@ public class DbTableLearningObjective {
             }
         }
         Vector<Vector<String>> vectors = new Vector<Vector<String>>();
+        vectors.add(objectives);
+        vectors.add(results);
+        return vectors;
+    }
+
+    static public Vector<Vector<String>> getResultsPerObjectiveForCertificativeTest(String test) {
+        Vector<String> objectives = new Vector<>();
+        Vector<String> results = new Vector<>();
+
+        String query = "SELECT ID_GLOBAL, QUANTITATIVE_EVAL FROM individual_question_for_result" +
+                " WHERE TEST_BELONGING = '" + test + "'";
+        Cursor cursor = DbHelper.dbase.rawQuery(query, null);
+
+
+        Vector<String> objectiveIds = new Vector<>();
+        while (cursor.moveToNext()) {
+            objectiveIds.add(cursor.getString(0));
+            results.add(cursor.getString(1));
+        }
+        cursor.close();
+
+        for (String objectiveId : objectiveIds) {
+            String query2 = "SELECT " + key_objective + " FROM " + tableName + " WHERE " + key_objectiveId + " = '" + objectiveId + "'";
+            Cursor cursor2 = DbHelper.dbase.rawQuery(query2, null);
+
+            cursor2.moveToFirst();
+            objectives.add(cursor2.getString(0));
+            cursor2.close();
+        }
+        Vector<Vector<String>> vectors = new Vector<>();
         vectors.add(objectives);
         vectors.add(results);
         return vectors;

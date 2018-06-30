@@ -44,8 +44,6 @@ public class EvaluationResultsActivity extends Activity {
         setContentView(R.layout.activity_evaluation_results);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         totalNumberOfObjectives = DbTableLearningObjective.getResultsPerObjectiveForSubject("All").get(0).size();
-
-        drawChart(getString(R.string.all_subjects), "");
     }
 
     @Override
@@ -107,7 +105,6 @@ public class EvaluationResultsActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 drawChart("", menuTestSpinner.getSelectedItem().toString());
-                menuSubjectSpinner.setSelection(0, true);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
@@ -131,7 +128,7 @@ public class EvaluationResultsActivity extends Activity {
             subject = "All";
         }
 
-        if (test.contentEquals("All")) {
+        if (test.contentEquals("All tests")) {
             test = "All";
         }
 
