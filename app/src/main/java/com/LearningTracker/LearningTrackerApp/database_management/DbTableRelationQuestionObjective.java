@@ -23,7 +23,7 @@ public class DbTableRelationQuestionObjective {
             String sql = "CREATE TABLE IF NOT EXISTS " + tableName +
                     " (ID_OBJ_REL       INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     key_idGlobal + " INT     NOT NULL, " +
-                    key_objective + "  TEXT     NOT NULL) ";
+                    key_objective + "  TEXT     NOT NULL) "; //make unique rel
             DbHelper.dbase.execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );

@@ -33,10 +33,10 @@ public class DbTableRelationTestObjective {
         DbHelper.dbase.execSQL(sql);
     }
 
-    static public Boolean insertRelationTestObjective(Long idTest, Long idObjective) {
+    static public Boolean insertRelationTestObjective(String idTest, String idObjective) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(key_idTest, String.valueOf(idTest));
-        contentValues.put(key_idObjective, String.valueOf(idObjective));
+        contentValues.put(key_idTest, idTest);
+        contentValues.put(key_idObjective, idObjective);
 
         if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;

@@ -27,9 +27,9 @@
         android:id="@+id/button4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/blue"
-        android:textColor="@color/white"
-        android:onClick="showMountainRepresentation"
         android:layout_margin="20dp"
-        android:text="Mountain Representation" />
+        android:background="@color/blue"
+        android:onClick="showCityRepresentation"
+        android:text="City Representation"
+        android:textColor="@color/white" />
 </LinearLayout>

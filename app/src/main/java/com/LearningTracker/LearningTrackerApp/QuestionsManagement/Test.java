@@ -21,6 +21,7 @@ import static android.content.ContentValues.TAG;
 public class Test {
     private Long idGlobal = 0L;
     private String testName = "";
+    private String testType = "";
     private Vector<String> questionsIDs;
     private Map<String, String> idMapRelation;
     private Map<String,QuestionMultipleChoice> idMapQmc;
@@ -41,6 +42,9 @@ public class Test {
     }
     public String getTestName() {
         return testName;
+    }
+    public String getTestType() {
+        return testType;
     }
     public Vector<String> getQuestionsIDs() {
         return questionsIDs;
@@ -64,6 +68,9 @@ public class Test {
     }
     public void setTestName(String testName) {
         this.testName = testName;
+    }
+    public void setTestType(String testType) {
+        this.testType = testType;
     }
     public void setQuestionsIDs(Vector<String> questionsIDs) {
         this.questionsIDs = questionsIDs;

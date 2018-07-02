@@ -33,8 +33,8 @@ public class ResultsActivtity extends Activity {
         startActivity(mIntent);
     }
 
-    public void showMountainRepresentation(View view) {
-        Intent mIntent = new Intent(this, EvaluationResultsActivity.class);
+    public void showCityRepresentation(View view) {
+        Intent mIntent = new Intent(this, EvaluationCityRepresentationActivity.class);
         startActivity(mIntent);
     }
 }

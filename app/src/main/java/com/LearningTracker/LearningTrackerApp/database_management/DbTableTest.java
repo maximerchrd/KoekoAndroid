@@ -17,6 +17,7 @@ public class DbTableTest {
     static private String key_idGlobal = "ID_TEST_GLOBAL";
     static private String key_testName = "TEST_NAME";
     static private String key_questions_ids = "QUESTION_IDS";
+    static private String key_test_type = "TEST_TYPE";
 
     public static String getTableName() {
         return tableName;
@@ -30,6 +31,10 @@ public class DbTableTest {
         return key_testName;
     }
 
+    public static String getKey_test_type() {
+        return key_test_type;
+    }
+
     public static String getKey_questions_ids() {
         return key_questions_ids;
     }
@@ -39,6 +44,7 @@ public class DbTableTest {
                 "(ID      INTEGER PRIMARY KEY AUTOINCREMENT," +
                 key_idGlobal + " TEXT     NOT NULL, " +
                 key_testName + " TEXT     NOT NULL, " +
+                key_test_type + " TEXT     NOT NULL, " +
                 key_questions_ids + " TEXT, " +
                 " UNIQUE (" + key_idGlobal + ") )";
         DbHelper.dbase.execSQL(sql);
@@ -49,6 +55,7 @@ public class DbTableTest {
         ContentValues contentValues = new ContentValues();
         contentValues.put(key_idGlobal, String.valueOf(test.getIdGlobal()));
         contentValues.put(key_testName, test.getTestName());
+        contentValues.put(key_test_type, test.getTestType());
         contentValues.put(key_questions_ids, test.serializeQuestionIDs());
 
         if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
@@ -66,6 +73,16 @@ public class DbTableTest {
             testName = cursor.getString(0);
         }
         return testName;
+    }
+
+    static public String getTypeFromTestName(String testName) {
+        String testType = "";
+        Cursor cursor = DbHelper.dbase.rawQuery("SELECT " + key_test_type + " FROM " + tableName + " WHERE " +
+                key_testName + " = ?", new String[]{String.valueOf(testName)});
+        while (cursor.moveToNext()) {
+            testType = cursor.getString(0);
+        }
+        return testType;
     }
 
     static public Vector<String> getQuestionIDsFromTestName(String testName) {

@@ -329,7 +329,7 @@ public class WifiCommunication {
 						try {
 							String[] objectives = testString.split("///")[3].split("\\|\\|\\|");
 							for (String objective : objectives) {
-								DbTableRelationTestObjective.insertRelationTestObjective(newTest.getIdGlobal(), StringTools.stringToLongID(objective));
+								DbTableRelationTestObjective.insertRelationTestObjective(String.valueOf(newTest.getIdGlobal()), objective);
 							}
 						} catch (ArrayIndexOutOfBoundsException e) {
 							Log.e("WifiCommunication", "ArrayOutOfBound when parsing objectives from: " + testString);
@@ -402,7 +402,7 @@ public class WifiCommunication {
 								String evaluation = testString.split("///")[4];
 
 								DbTableLearningObjective.addLearningObjective(objectiveID, objective, 0);
-								DbTableRelationTestObjective.insertRelationTestObjective(Long.getLong(testID),Long.getLong(objectiveID));
+								DbTableRelationTestObjective.insertRelationTestObjective(testID, objectiveID);
 								Test certificativeTest = new Test();
 								certificativeTest.setTestName(testName);
 								certificativeTest.setTestType("CERTIF");
