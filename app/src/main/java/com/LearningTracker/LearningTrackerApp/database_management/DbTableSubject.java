@@ -25,17 +25,19 @@ public class DbTableSubject {
         }
     }
     static public void addSubject(String subject) {
-        try {
-            String sql = 	"INSERT OR IGNORE INTO subjects (ID_SUBJECT_GLOBAL,SUBJECT) " +
-                    "VALUES ('" +
-                    2000000 + "','" +
-                    subject +"');";
-            DbHelper.dbase.execSQL(sql);
-            sql = "UPDATE subjects SET ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
-            DbHelper.dbase.execSQL(sql);
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
+        if (!subject.contentEquals("")) {
+            try {
+                String sql = "INSERT OR IGNORE INTO subjects (ID_SUBJECT_GLOBAL,SUBJECT) " +
+                        "VALUES ('" +
+                        2000000 + "','" +
+                        subject + "');";
+                DbHelper.dbase.execSQL(sql);
+                sql = "UPDATE subjects SET ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
+                DbHelper.dbase.execSQL(sql);
+            } catch (Exception e) {
+                System.err.println(e.getClass().getName() + ": " + e.getMessage());
+                System.exit(0);
+            }
         }
     }
     static public Vector<String> getSubjectsForQuestionID(int questionID) {
@@ -87,7 +89,7 @@ public class DbTableSubject {
         Vector<String> subjects = new Vector<>();
         try {
             //get all question IDs and corresponding evaluations
-            String query = "SELECT ID_GLOBAL,QUANTITATIVE_EVAL FROM individual_question_for_result;";
+            String query = "SELECT ID_GLOBAL,QUANTITATIVE_EVAL FROM individual_question_for_result WHERE TYPE IS NOT 2;";
             Cursor cursor = DbHelper.dbase.rawQuery(query, null);
             while (cursor.moveToNext()) {
                 questionIDs.add(cursor.getString(0));
