@@ -14,8 +14,9 @@
             android:id="@+id/result_full_questionlabel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:text="Question: "
             android:textColor="@color/black"
-            android:text="Question: " />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/result_full_questiontext"
@@ -34,9 +35,10 @@
             android:id="@+id/result_full_studentanswerlabel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
             android:layout_marginTop="20dp"
-            android:text="Your Answer: " />
+            android:text="Your Answer: "
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/result_full_studentanswertext"
@@ -49,9 +51,10 @@
             android:id="@+id/result_full_allanswerslabel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
             android:layout_marginTop="20dp"
-            android:text="All Answers: " />
+            android:text="All Answers: "
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/result_full_allanswerstext"
@@ -64,9 +67,10 @@
             android:id="@+id/result_full_datelabel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
             android:layout_marginTop="20dp"
-            android:text="Date: " />
+            android:text="Date: "
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/result_full_date"
@@ -79,9 +83,10 @@
             android:id="@+id/result_full_evaluationlabel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
             android:layout_marginTop="20dp"
-            android:text="Evaluation: " />
+            android:text="Evaluation: "
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/result_full_evaluation"

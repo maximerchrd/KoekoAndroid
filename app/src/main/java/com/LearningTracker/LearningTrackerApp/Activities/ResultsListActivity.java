@@ -23,6 +23,7 @@ import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestio
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -83,17 +84,37 @@ public class ResultsListActivity extends Activity {
                 QuestionShortAnswer questionShortAnswer = null;
                 if (questionMultipleChoice.getQUESTION().length() == 0) {
                     questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(results.get(position).get(0)));
+
+                    String allAnswers = "";
+                    for (String answer : questionShortAnswer.getAnswers()) {
+                        allAnswers += answer + "; ";
+                    }
+
                     bun.putString("questionText", questionShortAnswer.getQUESTION());
                     bun.putString("questionImage", questionShortAnswer.getIMAGE());
                     bun.putString("studentAnswer", results.get(position).get(1));
-                    bun.putString("allAnswers", "blou");
+                    bun.putString("allAnswers", allAnswers);
                     bun.putString("date", results.get(position).get(2));
                     bun.putString("evaluation", results.get(position).get(3));
                 } else {
+                    ArrayList<String> allAnswers = questionMultipleChoice.getPossibleAnswers();
+                    String rightAnswers = "";
+                    String wrongAnswers = "";
+                    for (int i = 0; i < allAnswers.size(); i++) {
+                        if (i < questionMultipleChoice.getNB_CORRECT_ANS()) {
+                            rightAnswers += allAnswers.get(i) + "; ";
+                        } else if (!allAnswers.get(i).contentEquals(" ")){
+                            wrongAnswers += allAnswers.get(i) + "; ";
+                        }
+                    }
+
+                    String allAnswersString = "Right Answers: \n" + rightAnswers +
+                            "\nWrong Answers: \n" + wrongAnswers;
+
                     bun.putString("questionText", questionMultipleChoice.getQUESTION());
                     bun.putString("questionImage", questionMultipleChoice.getIMAGE());
                     bun.putString("studentAnswer", results.get(position).get(1));
-                    bun.putString("allAnswers", "blou");
+                    bun.putString("allAnswers", allAnswersString);
                     bun.putString("date", results.get(position).get(2));
                     bun.putString("evaluation", results.get(position).get(3));
                 }
