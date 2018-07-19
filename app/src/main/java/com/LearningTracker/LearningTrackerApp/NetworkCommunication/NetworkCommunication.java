@@ -60,7 +60,7 @@ public class NetworkCommunication {
 		DbHelper db_for_name = new DbHelper(mContextNetCom);
 		String name = db_for_name.getName();
 
-		answer = answerType + "///" + MacAddress + "///" + name + "///" + answer + "///" + question + "///" + String.valueOf(id);
+		answer = answerType + "///" + MacAddress + "///" + name + "///" + answer + "///" + question + "///" + String.valueOf(id) + "///";
 		if (network_solution == 0) {
 			mWifiCom.sendAnswerToServer(answer);
 		}

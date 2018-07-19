@@ -42,8 +42,13 @@ public class DbTableIndividualQuestionForResult {
         try {
             String sql = 	"INSERT INTO individual_question_for_result (ID_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
                     "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
-                    "VALUES ('" + id_global + "',date('now'),'" + answer + "','none','none','none','" + quantitative_eval + "','none','none','none');";
-            DbHelper.dbase.execSQL(sql);
+                    "VALUES (?,date('now'),?,'none','none','none',?,'none','none','none');";
+            String[] sqlArgs = new String[]{
+                    id_global,
+                    answer,
+                    quantitative_eval
+            };
+            DbHelper.dbase.execSQL(sql, sqlArgs);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);

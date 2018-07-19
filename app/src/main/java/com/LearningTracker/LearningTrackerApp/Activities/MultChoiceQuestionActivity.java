@@ -96,43 +96,59 @@ public class MultChoiceQuestionActivity extends Activity {
 				}
 			});
 		}
-		setQuestionView();
 
-		//check if no error has occured
-		if (question == "the question couldn't be read") {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		/**
+		 * START CODE USED FOR TESTING
+		 */
+		if (question.contains("*ç%&")) {
+			NetworkCommunication networkCommunication = ((LTApplication) getApplication()).getAppNetwork();
+			networkCommunication.sendAnswerToServer(String.valueOf(opt0), question, currentQ.getID(), "ANSW0");
 			finish();
+			invalidateOptionsMenu();
 		}
+		/**
+		 * END CODE USED FOR TESTING
+		 */
+		else {
+			setQuestionView();
 
-		submitButton.setOnClickListener(new View.OnClickListener() {
-			@SuppressLint("SimpleDateFormat") @Override
-			public void onClick(View v) {
-				String answer = "";
-				for (int i = 0; i < number_of_possible_answers; i++) {
-					if (checkBoxesArray.get(i).isChecked()) {
-						answer += checkBoxesArray.get(i).getText() + "|||";
+			//check if no error has occured
+			if (question == "the question couldn't be read") {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				finish();
+			}
+
+			submitButton.setOnClickListener(new View.OnClickListener() {
+				@SuppressLint("SimpleDateFormat")
+				@Override
+				public void onClick(View v) {
+					String answer = "";
+					for (int i = 0; i < number_of_possible_answers; i++) {
+						if (checkBoxesArray.get(i).isChecked()) {
+							answer += checkBoxesArray.get(i).getText() + "|||";
+						}
+					}
+
+					wasAnswered = true;
+					saveActivityState();
+
+					NetworkCommunication networkCommunication = ((LTApplication) getApplication()).getAppNetwork();
+					networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getID(), "ANSW0");
+
+					if (LTApplication.wifiCommunicationSingleton.directCorrection.contentEquals("1")) {
+						MltChoiceQuestionButtonClick();
+					} else {
+						finish();
+						invalidateOptionsMenu();
 					}
 				}
-
-				wasAnswered = true;
-				saveActivityState();
-
-				NetworkCommunication networkCommunication = ((LTApplication) getApplication()).getAppNetwork();
-				networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getID(), "ANSW0");
-
-				if (LTApplication.wifiCommunicationSingleton.directCorrection.contentEquals("1")) {
-					MltChoiceQuestionButtonClick();
-				} else {
-					finish();
-					invalidateOptionsMenu();
-				}
-			}
-		});
+			});
+		}
 	}
 	private void setQuestionView()
 	{
