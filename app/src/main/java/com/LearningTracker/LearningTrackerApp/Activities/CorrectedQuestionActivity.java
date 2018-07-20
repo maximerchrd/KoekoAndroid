@@ -33,7 +33,7 @@ import java.util.ArrayList;
 // Instances of this class are fragments representing a single
 // object in our collection.
 public class CorrectedQuestionActivity extends Activity {
-    private Integer mQuestionId = -1;
+    private String mQuestionId = "-1";
     private QuestionMultipleChoice mMulChoiceQuestion = null;
     private QuestionShortAnswer mShortAnsQuestion = null;
     private TextView txtQuestion;
@@ -52,7 +52,7 @@ public class CorrectedQuestionActivity extends Activity {
         setContentView(R.layout.activity_corrected_question);
 
         Bundle bun = getIntent().getExtras();
-        mQuestionId = Integer.valueOf(bun.getString("questionID"));
+        mQuestionId = bun.getString("questionID");
 
         mContext = this.getApplicationContext();
         linearLayout = (LinearLayout) findViewById(R.id.correction_linearLayout);

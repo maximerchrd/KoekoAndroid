@@ -74,7 +74,7 @@ public class DbTableQuestionMultipleChoice {
             System.exit(0);
         }
     }
-    static public QuestionMultipleChoice getQuestionWithId(int globalID) {
+    static public QuestionMultipleChoice getQuestionWithId(String globalID) {
         QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
         try {
             String selectQuery = "SELECT  LEVEL,QUESTION,OPTION0,OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9,NB_CORRECT_ANS," +

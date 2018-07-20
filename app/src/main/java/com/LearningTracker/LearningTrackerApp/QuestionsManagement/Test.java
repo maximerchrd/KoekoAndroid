@@ -124,9 +124,9 @@ public class Test {
 
         //loading into idMapQmc and idMapShrtaq
         for (String id : questionsIDs) {
-            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(Integer.valueOf(id));
+            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id);
             if (questionMultipleChoice.getQUESTION().length() <= 0) {
-                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(id));
+                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id);
                 idMapShrtaq.put(id, questionShortAnswer);
             } else {
                 idMapQmc.put(id, questionMultipleChoice);

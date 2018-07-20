@@ -7,7 +7,7 @@ import java.util.Vector;
  * Created by maximerichard on 26.10.17.
  */
 public class QuestionShortAnswer {
-    private int ID;
+    private String ID;
     private String SUBJECT;
     private String LEVEL;
     private String QUESTION;
@@ -17,7 +17,7 @@ public class QuestionShortAnswer {
     private Vector<String> subjects;
     private Vector<String> objectives;
     public QuestionShortAnswer()	{
-        ID=0;
+        ID="0";
         SUBJECT="";
         LEVEL="";
         QUESTION="";
@@ -35,7 +35,7 @@ public class QuestionShortAnswer {
         }
         answers = new  ArrayList<>();
     }
-    public int getID()
+    public String getID()
     {
         return ID;
     }
@@ -60,7 +60,7 @@ public class QuestionShortAnswer {
     public Vector<String> getObjectives() {
         return objectives;
     }
-    public void setID(int id)
+    public void setID(String id)
     {
         ID=id;
     }

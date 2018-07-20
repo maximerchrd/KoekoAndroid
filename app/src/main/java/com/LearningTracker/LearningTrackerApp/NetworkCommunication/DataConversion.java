@@ -83,7 +83,7 @@ public class DataConversion {
             question_to_return.setOPT8(question_text.split("///")[9]);
             question_to_return.setOPT9(question_text.split("///")[10]);
             String ID_string = question_text.split("///")[11];
-            question_to_return.setID(Integer.parseInt(ID_string));
+            question_to_return.setID(ID_string);
             question_to_return.setNB_CORRECT_ANS(Integer.parseInt(question_text.split("///")[12]));
             question_to_return.setIMAGE(question_text.split("///")[15]); //14 because inbetween come subjects and objectives
             SaveImageFile(bitmap, question_text.split("///")[15]);
@@ -94,7 +94,7 @@ public class DataConversion {
             for (int i = 0; i < subjects.length; i++) {
                 try {
                     DbTableSubject.addSubject(subjects[i]);
-                    DbTableRelationQuestionSubject.addRelationQuestionSubject(Integer.valueOf(ID_string), subjects[i]);
+                    DbTableRelationQuestionSubject.addRelationQuestionSubject(ID_string, subjects[i]);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -155,7 +155,7 @@ public class DataConversion {
         String ID_string = "";
         if (question_text.split("///").length > 1) {
             ID_string = question_text.split("///")[1];
-            question_to_return.setID(Integer.parseInt(ID_string));
+            question_to_return.setID(ID_string);
         } else { Log.w("reading quest buffer", "no ID"); }
         if (question_text.split("///").length > 2) {
             String[] answers = question_text.split("///")[2].split("\\|\\|\\|");
@@ -176,7 +176,7 @@ public class DataConversion {
             for (int i = 0; i < subjects.length; i++) {
                 try {
                     DbTableSubject.addSubject(subjects[i]);
-                    DbTableRelationQuestionSubject.addRelationQuestionSubject(Integer.valueOf(ID_string), subjects[i]);
+                    DbTableRelationQuestionSubject.addRelationQuestionSubject(ID_string, subjects[i]);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -216,7 +216,7 @@ public class DataConversion {
             questionMultipleChoice.setOPT8(questionText.split("///")[9]);
             questionMultipleChoice.setOPT9(questionText.split("///")[10]);
             String ID_string = questionText.split("///")[11];
-            questionMultipleChoice.setID(Integer.parseInt(ID_string));
+            questionMultipleChoice.setID(ID_string);
             questionMultipleChoice.setNB_CORRECT_ANS(Integer.parseInt(questionText.split("///")[12]));
             questionMultipleChoice.setIMAGE(questionText.split("///")[15]); //14 because inbetween come subjects and objectives
 
@@ -226,7 +226,7 @@ public class DataConversion {
             for (int i = 0; i < subjects.length; i++) {
                 try {
                     DbTableSubject.addSubject(subjects[i]);
-                    DbTableRelationQuestionSubject.addRelationQuestionSubject(Integer.valueOf(ID_string), subjects[i]);
+                    DbTableRelationQuestionSubject.addRelationQuestionSubject(ID_string, subjects[i]);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -253,7 +253,7 @@ public class DataConversion {
         questionShortAnswer.setQUESTION(questionText.split("///")[0]);
         if (questionText.split("///").length > 5) {
             String ID_string = questionText.split("///")[1];
-            questionShortAnswer.setID(Integer.valueOf(ID_string));
+            questionShortAnswer.setID(ID_string);
             ArrayList<String> answers = new ArrayList<>(Arrays.asList(questionText.split("///")[2].split("\\|\\|\\|")));
             questionShortAnswer.setAnswers(answers);
 
@@ -265,7 +265,7 @@ public class DataConversion {
             for (int i = 0; i < subjects.length; i++) {
                 try {
                     DbTableSubject.addSubject(subjects[i]);
-                    DbTableRelationQuestionSubject.addRelationQuestionSubject(Integer.valueOf(ID_string), subjects[i]);
+                    DbTableRelationQuestionSubject.addRelationQuestionSubject(ID_string, subjects[i]);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -61,9 +61,9 @@ public class ResultsListActivity extends Activity {
         String[] evaluations = new String[results.size()];
 
         for (int i = 0; i < results.size(); i++) {
-            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(Integer.valueOf(results.get(i).get(0)));
+            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(results.get(i).get(0));
             if (questionMultipleChoice.getQUESTION().length() == 0) {
-                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(results.get(i).get(0)));
+                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(results.get(i).get(0));
                 questions[i] = questionShortAnswer.getQUESTION();
                 evaluations[i] = results.get(i).get(3);
             } else {
@@ -80,10 +80,10 @@ public class ResultsListActivity extends Activity {
 
                 Bundle bun = new Bundle();
 
-                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(Integer.valueOf(results.get(position).get(0)));
+                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(results.get(position).get(0));
                 QuestionShortAnswer questionShortAnswer = null;
                 if (questionMultipleChoice.getQUESTION().length() == 0) {
-                    questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(results.get(position).get(0)));
+                    questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(results.get(position).get(0));
 
                     String allAnswers = "";
                     for (String answer : questionShortAnswer.getAnswers()) {

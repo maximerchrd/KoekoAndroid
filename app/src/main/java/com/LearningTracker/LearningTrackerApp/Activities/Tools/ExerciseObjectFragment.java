@@ -38,7 +38,7 @@ import java.util.Random;
 // object in our collection.
 public class ExerciseObjectFragment extends Fragment {
     public static final String ARG_OBJECT = "object";
-    private ArrayList<Integer> mQuestionIds = new ArrayList<>();
+    private ArrayList<String> mQuestionIds = new ArrayList<>();
     private Integer mQuestionPositionInArray = 0;
     private QuestionMultipleChoice mMulChoiceQuestion = null;
     private QuestionShortAnswer mShortAnsQuestion = null;
@@ -59,7 +59,7 @@ public class ExerciseObjectFragment extends Fragment {
         // properly.
         View rootView = inflater.inflate(R.layout.fragment_collection_object, container, false);
         Bundle args = getArguments();
-        mQuestionIds = args.getIntegerArrayList("IDsArray");
+        mQuestionIds = args.getStringArrayList("IDsArray");
         mQuestionPositionInArray = args.getInt(ARG_OBJECT);
         //((TextView) rootView.findViewById(android.R.id.text1)).setText(Integer.toString(args.getIntegerArrayList("IDsArray").get(args.getInt(ARG_OBJECT))));
 

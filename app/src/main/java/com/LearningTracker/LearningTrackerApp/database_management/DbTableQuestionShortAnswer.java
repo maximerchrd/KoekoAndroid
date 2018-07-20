@@ -50,7 +50,7 @@ public class DbTableQuestionShortAnswer {
             System.exit(0);
         }
     }
-    static public QuestionShortAnswer getShortAnswerQuestionWithId(int globalID) {
+    static public QuestionShortAnswer getShortAnswerQuestionWithId(String globalID) {
         QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
         try {
             String selectQuery = "SELECT  LEVEL,QUESTION,IMAGE_PATH FROM short_answer_questions WHERE ID_GLOBAL=" + globalID + ";";

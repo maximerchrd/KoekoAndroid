@@ -243,8 +243,8 @@ public class WifiCommunication {
 						}
 					} else if (sizes.split("///")[0].split(":")[0].contentEquals("QID")) {
 						if (sizes.split(":")[1].contains("MLT")) {
-							int id_global = Integer.valueOf(sizes.split("///")[1]);
-							if (id_global < 0 ) {
+							String id_global = sizes.split("///")[1];
+							if (Long.valueOf(id_global) < 0 ) {
 								//setup test and show it
 								Long testId = -(Long.valueOf(sizes.split("///")[1]));
 								directCorrection = sizes.split("///")[2];
@@ -432,7 +432,7 @@ public class WifiCommunication {
                 bun.putString("opt7", question_to_display.getOPT7());
 		bun.putString("opt8", question_to_display.getOPT8());
 		bun.putString("opt9", question_to_display.getOPT9());
-		bun.putInt("id", question_to_display.getID());
+		bun.putString("id", question_to_display.getID());
 		bun.putString("image_name", question_to_display.getIMAGE());
 		bun.putString("directCorrection", directCorrection);
 		bun.putInt("nbCorrectAnswers",question_to_display.getNB_CORRECT_ANS());
@@ -444,7 +444,7 @@ public class WifiCommunication {
 		Intent mIntent = new Intent(mContextWifCom, ShortAnswerQuestionActivity.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQUESTION());
-		bun.putInt("id", question_to_display.getID());
+		bun.putString("id", question_to_display.getID());
 		bun.putString("image_name", question_to_display.getIMAGE());
 		bun.putString("directCorrection", directCorrection);
 		mIntent.putExtras(bun);

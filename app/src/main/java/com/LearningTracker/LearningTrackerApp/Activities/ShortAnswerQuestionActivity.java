@@ -62,7 +62,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		//get question from the bundle
 		Bundle bun = getIntent().getExtras();
 		final String question = bun.getString("question");
-		int id = bun.getInt("id");
+		String id = bun.getString("id");
 		String image_path = bun.getString("image_name");
 		currentQ = new QuestionShortAnswer("1",question,image_path);
 		currentQ.setID(id);

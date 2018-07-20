@@ -33,7 +33,7 @@ public class DbTableRelationQuestionSubject {
      * @param subject,questionID
      * @throws Exception
      */
-    static public void addRelationQuestionSubject(Integer questionID, String subject) {
+    static public void addRelationQuestionSubject(String questionID, String subject) {
         try {
             String query = "SELECT ID_GLOBAL FROM question_subject_relation " +
                     "WHERE ID_GLOBAL='" + questionID + "' " +
