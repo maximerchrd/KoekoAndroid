@@ -159,8 +159,9 @@ public class ShortAnswerQuestionActivity extends Activity {
 				activityState = LTApplication.shrtaqActivityState;
 			}
 		}
-		if ((activityState != null && LTApplication.currentTestActivitySingleton != null) || (LTApplication.currentQuestionShortAnswerSingleton != null &&
-				LTApplication.currentQuestionShortAnswerSingleton.getID() == currentQ.getID())) {
+		if ((activityState != null && LTApplication.currentTestActivitySingleton != null) || (activityState != null &&
+				LTApplication.currentQuestionShortAnswerSingleton != null &&
+				LTApplication.currentQuestionShortAnswerSingleton.getID().contentEquals(currentQ.getID()))) {
 			String[] parsedState = activityState.split("///");
 			if (parsedState[parsedState.length - 1].contentEquals("true")) {
 				submitButton.setEnabled(false);

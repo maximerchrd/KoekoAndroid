@@ -250,8 +250,9 @@ public class MultChoiceQuestionActivity extends Activity {
                 activityState = LTApplication.qmcActivityState;
             }
         }
-        if ((activityState != null && LTApplication.currentTestActivitySingleton != null) || (LTApplication.currentQuestionMultipleChoiceSingleton != null &&
-                LTApplication.currentQuestionMultipleChoiceSingleton.getID() == currentQ.getID())) {
+        if ((activityState != null && LTApplication.currentTestActivitySingleton != null) || (activityState != null &&
+                LTApplication.currentQuestionMultipleChoiceSingleton != null &&
+                LTApplication.currentQuestionMultipleChoiceSingleton.getID().contentEquals(currentQ.getID()))) {
             String[] parsedState = activityState.split("///");
             if (parsedState[parsedState.length - 1].contentEquals("true")) {
                 submitButton.setEnabled(false);

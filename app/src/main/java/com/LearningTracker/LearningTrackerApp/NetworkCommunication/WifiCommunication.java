@@ -244,6 +244,12 @@ public class WifiCommunication {
 					} else if (sizes.split("///")[0].split(":")[0].contentEquals("QID")) {
 						if (sizes.split(":")[1].contains("MLT")) {
 							String id_global = sizes.split("///")[1];
+
+							//reinitializing all types of displays
+							LTApplication.currentTestActivitySingleton = null;
+							LTApplication.shrtaqActivityState = null;
+							LTApplication.qmcActivityState = null;
+
 							if (Long.valueOf(id_global) < 0 ) {
 								//setup test and show it
 								Long testId = -(Long.valueOf(sizes.split("///")[1]));
