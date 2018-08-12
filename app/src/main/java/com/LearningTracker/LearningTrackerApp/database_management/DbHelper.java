@@ -47,6 +47,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String KEY_IDsettings = "idsettings";
     private static final String KEY_NAME = "name";
     private static final String KEY_MASTER = "master";
+    private static final String KEY_AUTOMATIC_CONNECTION = "automatic_connection";
 
 
     public static SQLiteDatabase dbase;
@@ -73,11 +74,15 @@ public class DbHelper extends SQLiteOpenHelper {
 
         //add table for settings
         String sql3 = "CREATE TABLE IF NOT EXISTS " + TABLE_SETTINGS + " ( "
-                + KEY_IDsettings + " INTEGER PRIMARY KEY AUTOINCREMENT, " + KEY_NAME +" TEXT," + KEY_MASTER + " TEXT)";
+                + KEY_IDsettings + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + KEY_NAME +" TEXT,"
+                + KEY_MASTER + " TEXT," +
+                KEY_AUTOMATIC_CONNECTION +" INTEGER)";
         db.execSQL(sql3);
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, "Anonyme");
         values.put(KEY_MASTER, "192.168.1.100");
+        values.put(KEY_AUTOMATIC_CONNECTION, 1);
         // Inserting of Replacing Row
         dbase.insert(TABLE_SETTINGS, null, values);
 
@@ -121,27 +126,45 @@ public class DbHelper extends SQLiteOpenHelper {
         return name;
     }
     //add new name
-    public void addMaster(String newname)
+    static public void addMaster(String newname)
     {
         //SQLiteDatabase db = this.getWritableDatabase();
-        dbase=this.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_MASTER, newname);
         // Replacing Row
-        dbase.update(TABLE_SETTINGS, values, null, null);
+        DbHelper.dbase.update(TABLE_SETTINGS, values, null, null);
     }
     //get name from db
-    public String getMaster() {
+    static public String getMaster() {
         // Select All Query
         String master = "";
         String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;
-        dbase=this.getReadableDatabase();
-        Cursor cursor = dbase.rawQuery(selectQuery, null);
+        Cursor cursor = DbHelper.dbase.rawQuery(selectQuery, null);
         if (cursor.moveToPosition(0)) {
             master = cursor.getString(2);
         }
         // return string name
         return master;
+    }
+
+    static public void setAutomaticConnection(Integer automaticConnection) {
+        //SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_AUTOMATIC_CONNECTION, automaticConnection);
+        // Replacing Row
+        DbHelper.dbase.update(TABLE_SETTINGS, values, null, null);
+    }
+
+    static public Integer getAutomaticCorrection() {
+        // Select All Query
+        Integer automaticCorrection = 1;
+        String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;
+        Cursor cursor = DbHelper.dbase.rawQuery(selectQuery, null);
+        if (cursor.moveToPosition(0)) {
+            automaticCorrection = cursor.getInt(3);
+        }
+        // return string name
+        return automaticCorrection;
     }
 
     @Override

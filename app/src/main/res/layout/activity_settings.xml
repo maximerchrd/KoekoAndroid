@@ -20,17 +20,29 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/textViewNom"
         android:ems="10"
+        android:layout_marginBottom="20dp"
         android:inputType="textPersonName"
         android:textColor="@color/black">
 
         <requestFocus />
     </EditText>
 
+    <Switch
+        android:id="@+id/automaticConnectionSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edittextnom"
+        android:text="Automatic Connection"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/black"/>
+
     <TextView
         android:id="@+id/textViewMaster"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/edittextnom"
+        android:layout_below="@+id/automaticConnectionSwitch"
         android:text="@string/settings_master"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/black" />

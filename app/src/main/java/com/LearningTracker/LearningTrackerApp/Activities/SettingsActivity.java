@@ -2,11 +2,14 @@ package com.LearningTracker.LearningTrackerApp.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.view.View;
+import android.widget.Switch;
 
 import com.LearningTracker.LearningTrackerApp.database_management.DbHelper;
 import com.LearningTracker.LearningTrackerApp.R;
@@ -22,6 +25,7 @@ public class SettingsActivity extends Activity {
 		final Button buttonSaveAndBack;
 		final DbHelper db = new DbHelper(this);
 		final EditText editMaster;
+		final Switch automaticConnectionSwitch;
 
 		editName = (EditText) findViewById(R.id.edittextnom);
 		buttonSaveAndBack = (Button) findViewById(R.id.buttonsaveandback);
@@ -29,6 +33,14 @@ public class SettingsActivity extends Activity {
 
 		editMaster = (EditText) findViewById(R.id.edittextmaster);
 		editMaster.setText(db.getMaster(), null);
+
+		//setup the switch for automatic connecion
+		automaticConnectionSwitch = findViewById(R.id.automaticConnectionSwitch);
+		if (DbHelper.getAutomaticCorrection() == 1) {
+			automaticConnectionSwitch.setChecked(true);
+			editMaster.setEnabled(false);
+			editMaster.setTextColor(Color.GRAY);
+		}
 
 		buttonSaveAndBack.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -42,6 +54,20 @@ public class SettingsActivity extends Activity {
 				intent.putExtra("flag", "modify");
 				startActivity(intent);
 				finish();
+			}
+		});
+
+		automaticConnectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (automaticConnectionSwitch.isChecked()) {
+					DbHelper.setAutomaticConnection(1);
+					editMaster.setEnabled(false);
+					editMaster.setTextColor(Color.GRAY);
+				} else {
+					DbHelper.setAutomaticConnection(0);
+					editMaster.setEnabled(true);
+					editMaster.setTextColor(Color.BLACK);
+				}
 			}
 		});
 	}
