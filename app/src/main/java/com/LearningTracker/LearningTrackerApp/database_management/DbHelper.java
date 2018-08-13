@@ -155,7 +155,7 @@ public class DbHelper extends SQLiteOpenHelper {
         DbHelper.dbase.update(TABLE_SETTINGS, values, null, null);
     }
 
-    static public Integer getAutomaticCorrection() {
+    static public Integer getAutomaticConnection() {
         // Select All Query
         Integer automaticCorrection = 1;
         String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;

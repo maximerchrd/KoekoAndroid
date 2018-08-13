@@ -39,7 +39,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -60,9 +59,10 @@ public class WifiCommunication {
     private Vector<InputStream> inputStreamVector = null;
     private int current = 0;
     private int bytes_read = 0;
-    private String ip_address = "192.168.1.100";
+    private String ip_address = "no IP";
     private String lastAnswer = "";
     private TextView logView = null;
+    private DatagramSocket socket;
 
     public WifiCommunication(Context arg_context, Application arg_application, TextView logView) {
         if (android.os.Build.VERSION.SDK_INT > 9) {
@@ -79,9 +79,11 @@ public class WifiCommunication {
 
     public void connectToServer(String connectionString) {
         try {
+            //Reinitialize IP to detect automatic connection failure
+
             //Automatic connection
-            Integer automaticCorrection = DbHelper.getAutomaticCorrection();
-            if (automaticCorrection == 1) {
+            Integer automaticConnection = DbHelper.getAutomaticConnection();
+            if (automaticConnection == 1) {
                 listenForIPThroughUDP();
                 try {
                     Thread.sleep(3000);
@@ -89,8 +91,9 @@ public class WifiCommunication {
                     e.printStackTrace();
                 }
 
-                if (ip_address.contentEquals("192.168.1.100")) {
+                if (ip_address.contentEquals("no IP")) {
                     ip_address = DbHelper.getMaster();
+                    connectionSuccess = -2;
                 }
             } else {
                 ip_address = DbHelper.getMaster();
@@ -118,14 +121,16 @@ public class WifiCommunication {
         } catch (UnknownHostException e) {
             Log.v("connection to server", ": failure, unknown host");
 
-            // TODO Auto-generated catch block
-            connectionSuccess = -1;
+            if (connectionSuccess != -2) {
+                connectionSuccess = -1;
+            }
             e.printStackTrace();
         } catch (IOException e) {
             Log.v("connection to server", ": failure, i/o exception");
 
-            // TODO Auto-generated catch block
-            connectionSuccess = -1;
+            if (connectionSuccess != -2) {
+                connectionSuccess = -1;
+            }
             e.printStackTrace();
         }
     }
@@ -487,10 +492,17 @@ public class WifiCommunication {
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    DatagramSocket socket = new DatagramSocket(9346);
+                    System.out.println("Open socket");
+                    if (socket == null) {
+                        socket = new DatagramSocket(9346);
+                    } else {
+                        socket.close();
+                    }
                     DatagramPacket packet = new DatagramPacket(new byte[100], 100);
                     socket.receive(packet);
                     socket.close();
+                    System.out.println("Close socket");
+
 
                     byte[] data = packet.getData();
                     String message = new String(data);

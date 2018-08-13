@@ -36,7 +36,7 @@ public class NetworkCommunication {
 		((LTApplication) mApplication).setAppNetwork(this);
 	}
 	/**
-	 * method to launch the network of smartphones and 1 laptop communicating using wifi direct and bluetooth
+	 * method to launch the network of smartphones and 1 laptop communicating using wifi
 	 */
 	public void ConnectToMaster() {
 		if (network_solution == 0) {

@@ -36,7 +36,7 @@ public class SettingsActivity extends Activity {
 
 		//setup the switch for automatic connecion
 		automaticConnectionSwitch = findViewById(R.id.automaticConnectionSwitch);
-		if (DbHelper.getAutomaticCorrection() == 1) {
+		if (DbHelper.getAutomaticConnection() == 1) {
 			automaticConnectionSwitch.setChecked(true);
 			editMaster.setEnabled(false);
 			editMaster.setTextColor(Color.GRAY);

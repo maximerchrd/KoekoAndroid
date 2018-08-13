@@ -18,6 +18,7 @@ public class InteractiveModeActivity extends Activity {
     private TextView intmod_wait_for_question;
     private TextView logView = null;
     private MenuItem forwardButton;
+    private InteractiveModeActivity interactiveModeActivity;
 
     /**
      * Called when the activity is first created.
@@ -26,6 +27,8 @@ public class InteractiveModeActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        interactiveModeActivity = this;
+
         //initialize view
         setContentView(R.layout.activity_interactivemode);
         intmod_wait_for_question = (TextView) findViewById(R.id.textView2);
@@ -33,24 +36,56 @@ public class InteractiveModeActivity extends Activity {
         //mNetCom = new NetworkCommunication(this, getApplication());
         mNetCom = new NetworkCommunication(this, getApplication(), intmod_out, logView);
         mNetCom.ConnectToMaster();
-        Boolean connectionInfo = false;
-        for (int i = 0;!connectionInfo && i < 16; i++) {
-            if (((LTApplication) getApplication()).getAppWifi().connectionSuccess == 1) {
-                intmod_wait_for_question.setText(getString(R.string.keep_calm_and_wait));
-                connectionInfo = true;
-            } else if (((LTApplication) getApplication()).getAppWifi().connectionSuccess == -1) {
-                intmod_wait_for_question.setText(getString(R.string.keep_calm_and_restart));
-                connectionInfo = true;
+
+        intmod_wait_for_question.setText("Connecting...");
+
+        new Thread(new Runnable() {
+            public void run() {
+                Boolean connectionInfo = false;
+                for (int i = 0;!connectionInfo && i < 24; i++) {
+                    if (((LTApplication) getApplication()).getAppWifi().connectionSuccess == 1) {
+                        interactiveModeActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                intmod_wait_for_question.setText(getString(R.string.keep_calm_and_wait));
+                            }
+                        });
+
+                        connectionInfo = true;
+                    } else if (((LTApplication) getApplication()).getAppWifi().connectionSuccess == -1) {
+                        interactiveModeActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                intmod_wait_for_question.setText(getString(R.string.keep_calm_and_restart));
+                            }
+                        });
+                        connectionInfo = true;
+                    } else if (((LTApplication) getApplication()).getAppWifi().connectionSuccess == -2) {
+                        interactiveModeActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                intmod_wait_for_question.setText("Automatic connection failed. If it keeps failing, " +
+                                        "try to set the teachers'IP address manually in \"Settings\"");
+                            }
+                        });
+                        connectionInfo = true;
+                    }
+                    try {
+                        Thread.sleep(250);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (i >= 23) {
+                        interactiveModeActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                intmod_wait_for_question.setText(getString(R.string.keep_calm_problem));
+                            }
+                        });
+                    }
+                }
             }
-            try {
-                Thread.sleep(250);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (i >= 15) {
-                intmod_wait_for_question.setText(getString(R.string.keep_calm_problem));
-            }
-        }
+        }).start();
 
 
         ((LTApplication) this.getApplication()).resetQuitApp();
