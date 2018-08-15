@@ -32,8 +32,8 @@
     <string name="exercices">S\'exercer</string>
     <string name="homeworks">Devoirs</string>
     <string name="start_homeworks">Commencer les devoirs</string>
-    <string name="free_practice">S\'exercer Librement</string>
-    <string name="start_free_practice">Commencer de s\'exercer</string>
+    <string name="free_practice">S\'exercer</string>
+    <string name="start_free_practice">Commencer</string>
     <string name="title_exercice_activity">S\'exercer</string>
     <string name="chose_teacher">Enseignant:</string>
     <string name="chose_subject">Sujet:</string>

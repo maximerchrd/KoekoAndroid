@@ -40,8 +40,8 @@
     <string name="exercices">Practice</string>
     <string name="homeworks">Homeworks</string>
     <string name="start_homeworks">Start Homeworks</string>
-    <string name="free_practice">Free Practice</string>
-    <string name="start_free_practice">Start Free Practice</string>
+    <string name="free_practice">Practice</string>
+    <string name="start_free_practice">Start</string>
     <string name="title_exercice_activity">Practice</string>
     <string name="chose_teacher">Teacher:</string>
     <string name="chose_subject">Subject:</string>
