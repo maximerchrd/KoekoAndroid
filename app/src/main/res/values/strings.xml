@@ -26,10 +26,10 @@
     <color name="yellow">#E8D630</color>
     <color name="red">#F7230C</color>
     <color name="green">#57D53B</color>
-    <string name="title_activity_evaluation_results">Evaluation results</string>
+    <string name="title_activity_evaluation_results">Results</string>
     <string name="waiting_for_question">Waiting for the next question</string>
     <string name="hello">Hello</string>
-    <string name="interactive_mode_button">Start</string>
+    <string name="interactive_mode_button">Classroom Activity</string>
     <string name="answer_button">Submit the answer</string>
     <string name="keepcalmimage" translatable="false">keepCalmImage</string>
     <string name="keep_calm_and_wait">AND WAIT FOR NEXT QUESTION</string>

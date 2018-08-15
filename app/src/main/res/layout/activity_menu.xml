@@ -1,3 +1,4 @@
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,64 +14,72 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:orientation="vertical"
-        android:weightSum="200">
-
-        <TextView
-            android:id="@+id/textViewmenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Consignes"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/black"
-            android:layout_weight="74.93" />
-
-        <ImageView
-            android:layout_width="114dp"
-            android:layout_height="157dp"
-            android:id="@+id/imageView2"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/owl_small" />
+        android:weightSum="9">
 
         <Button
+            android:id="@+id/dbBrowsingButton"
             android:layout_width="wrap_content"
             android:layout_height="23dp"
-            android:text="DB Browsing"
-            android:id="@+id/dbBrowsingButton"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:text="DB Browsing" />
 
         <Button
             android:id="@+id/interactivemodebutton"
+            android:drawableTop="@drawable/class_activity_icon"
+            android:paddingTop="40dp"
+            android:gravity="top|center"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="20"
+            android:layout_height="0dp"
+            android:layout_weight="3"
             android:background="@color/red"
             android:text="@string/interactive_mode_button"
             android:textColor="@color/white" />
 
-        <Button
-            android:id="@+id/exercicebutton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="20"
-            android:background="@color/blue"
-            android:text="@string/exercices"
-            android:textColor="@color/white" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/scoresbutton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="20"
-            android:background="@color/yellow"
-            android:text="@string/title_activity_evaluation_results"
-            android:textColor="@color/white" />
+            <Button
+                android:id="@+id/exercicebutton"
+                android:drawableTop="@drawable/practice_icon"
+                android:paddingTop="40dp"
+                android:gravity="top|center"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginRight="1dp"
+                android:background="@color/blue"
+                android:text="@string/exercices"
+                android:textColor="@color/white" />
+
+            <Button
+                android:id="@+id/scoresbutton"
+                android:drawableTop="@drawable/results_icon"
+                android:paddingTop="40dp"
+                android:gravity="top|center"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="1dp"
+                android:layout_alignParentRight="true"
+                android:layout_weight="1"
+                android:background="@color/yellow"
+                android:text="@string/title_activity_evaluation_results"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/buttonchangesettings"
+            android:drawableTop="@drawable/settings_icon"
+            android:paddingTop="40dp"
+            android:gravity="top|center"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="20"
+            android:layout_height="0dp"
+            android:layout_weight="3"
             android:background="@color/green"
             android:text="@string/button_menu_settings"
             android:textColor="@color/white" />

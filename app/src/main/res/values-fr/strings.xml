@@ -12,7 +12,7 @@
     <string name="str_next">Suivant</string>
     <string name="title_activity_bluetoothclient">Commencer</string>
     <string name="title_activity_client">Réseau</string>
-    <string name="title_activity_evaluation_results">Résultats de l\'évaluation</string>
+    <string name="title_activity_evaluation_results">Résultats</string>
     <string name="title_activity_interactivemode">Activité en classe</string>
     <string name="title_activity_question">Question</string>
     <string name="title_activity_quiz">Quiz</string>
@@ -22,7 +22,7 @@
     <string name="hello_world">Bonjour monde</string>
     <string name="waiting_for_question">En attente de la question suivante</string>
     <string name="hello">Bonjour </string>
-    <string name="interactive_mode_button">Commencer</string>
+    <string name="interactive_mode_button">Activité en Classe</string>
     <string name="answer_button">Soumettre la réponse</string>
     <string name="keep_calm_and_wait">ET ATTENDS LA PROCHAINE QUESTION</string>
     <string name="keep_calm_and_restart">ET REDEMARRE L\'ACTIVITE EN CLASSE (mais avant, vérifie que tu as la bonne adresse ip dans les "paramètres")</string>

@@ -28,25 +28,7 @@ public class MenuActivity extends Activity {
 		exerciceButton = (Button)findViewById(R.id.exercicebutton);
 		interactiveModeButton = (Button)findViewById(R.id.interactivemodebutton);
 		buttonChangeSettings = (Button)findViewById(R.id.buttonchangesettings);
-		consignes = (TextView) findViewById(R.id.textViewmenu);
 		final DbHelper db = new DbHelper(this);
-
-
-		//set  text for consignes
-		consignes.setText(getString(R.string.hello) + " " + db.getName().split(" ")[0] + getString(R.string.instructions_menu));
-
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,      
-				LinearLayout.LayoutParams.WRAP_CONTENT
-				);
-		int height = getApplicationContext().getResources().getDisplayMetrics().heightPixels;
-		int width = getApplicationContext().getResources().getDisplayMetrics().widthPixels;
-		params.setMargins(width / 40, height / 200, width / 40, height / 200);  //left, top, right, bottom
-		//startButton.setLayoutParams(params);
-		scoresButton.setLayoutParams(params);
-		exerciceButton.setLayoutParams(params);
-		interactiveModeButton.setLayoutParams(params);
-		buttonChangeSettings.setLayoutParams(params);
 
 		//start interactive questions session
 		interactiveModeButton.setOnClickListener(new View.OnClickListener() {
