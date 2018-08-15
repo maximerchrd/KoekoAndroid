@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 public class DbTableQuestionMultipleChoice {
     static public void createTableQuestionMultipleChoice() {
         try {
+            System.out.println("creating table multiple choice");
             String sql = "CREATE TABLE IF NOT EXISTS multiple_choice_questions " +
                     "(ID_QUESTION       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " LEVEL      INT     NOT NULL, " +

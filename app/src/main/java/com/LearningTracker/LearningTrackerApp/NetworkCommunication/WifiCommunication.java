@@ -32,6 +32,7 @@ import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestio
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableRelationQuestionQuestion;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableRelationTestObjective;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableSettings;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
 import android.app.Application;
@@ -82,7 +83,7 @@ public class WifiCommunication {
             //Reinitialize IP to detect automatic connection failure
 
             //Automatic connection
-            Integer automaticConnection = DbHelper.getAutomaticConnection();
+            Integer automaticConnection = DbTableSettings.getAutomaticConnection();
             if (automaticConnection == 1) {
                 listenForIPThroughUDP();
                 try {
@@ -92,11 +93,11 @@ public class WifiCommunication {
                 }
 
                 if (ip_address.contentEquals("no IP")) {
-                    ip_address = DbHelper.getMaster();
+                    ip_address = DbTableSettings.getMaster();
                     connectionSuccess = -2;
                 }
             } else {
-                ip_address = DbHelper.getMaster();
+                ip_address = DbTableSettings.getMaster();
             }
 
             Log.v("connectToServer", "beginning");
@@ -510,7 +511,7 @@ public class WifiCommunication {
 
                     if (message.split("///")[0].contentEquals("IPADDRESS")) {
                         ip_address = message.split("///")[1];
-                        DbHelper.addMaster(message.split("///")[1]);
+                        DbTableSettings.addMaster(message.split("///")[1]);
                     }
                 } catch (SocketException e) {
                     e.printStackTrace();

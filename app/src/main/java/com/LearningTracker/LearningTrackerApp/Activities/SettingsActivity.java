@@ -13,6 +13,7 @@ import android.widget.Switch;
 
 import com.LearningTracker.LearningTrackerApp.database_management.DbHelper;
 import com.LearningTracker.LearningTrackerApp.R;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableSettings;
 
 
 public class SettingsActivity extends Activity {
@@ -29,14 +30,14 @@ public class SettingsActivity extends Activity {
 
 		editName = (EditText) findViewById(R.id.edittextnom);
 		buttonSaveAndBack = (Button) findViewById(R.id.buttonsaveandback);
-		editName.setText(db.getName(), null);
+		editName.setText(DbTableSettings.getName(), null);
 
 		editMaster = (EditText) findViewById(R.id.edittextmaster);
-		editMaster.setText(db.getMaster(), null);
+		editMaster.setText(DbTableSettings.getMaster(), null);
 
 		//setup the switch for automatic connecion
 		automaticConnectionSwitch = findViewById(R.id.automaticConnectionSwitch);
-		if (DbHelper.getAutomaticConnection() == 1) {
+		if (DbTableSettings.getAutomaticConnection() == 1) {
 			automaticConnectionSwitch.setChecked(true);
 			editMaster.setEnabled(false);
 			editMaster.setTextColor(Color.GRAY);
@@ -47,8 +48,8 @@ public class SettingsActivity extends Activity {
 
 				String name = editName.getText().toString();
 				String master = editMaster.getText().toString();
-				db.addName(name);
-				db.addMaster(master);
+				DbTableSettings.addName(name);
+				DbTableSettings.addMaster(master);
 				Intent intent = new Intent(SettingsActivity.this, MenuActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				intent.putExtra("flag", "modify");
@@ -60,11 +61,11 @@ public class SettingsActivity extends Activity {
 		automaticConnectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (automaticConnectionSwitch.isChecked()) {
-					DbHelper.setAutomaticConnection(1);
+					DbTableSettings.setAutomaticConnection(1);
 					editMaster.setEnabled(false);
 					editMaster.setTextColor(Color.GRAY);
 				} else {
-					DbHelper.setAutomaticConnection(0);
+					DbTableSettings.setAutomaticConnection(0);
 					editMaster.setEnabled(true);
 					editMaster.setTextColor(Color.BLACK);
 				}
