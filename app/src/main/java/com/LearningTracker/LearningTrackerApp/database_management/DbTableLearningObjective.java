@@ -84,6 +84,25 @@ public class DbTableLearningObjective {
         }
     }
 
+    static public String getObjectiveWithID(String id) {
+        String objective = "";
+        try {
+            String query = "SELECT OBJECTIVE FROM learning_objectives WHERE ID_OBJECTIVE_GLOBAL = ?";
+            String[] args = {
+                id
+            };
+            Cursor cursor = DbHelper.dbase.rawQuery(query, args);
+            while (cursor.moveToNext()) {
+                objective = cursor.getString(0);
+            }
+            cursor.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return objective;
+    }
+
     static public Vector<String> getObjectivesForQuestionID(int questionID) {
         Vector<String> objectives = new Vector<>();
         try {

@@ -98,13 +98,14 @@ public class DbTableIndividualQuestionForResult {
     static public Vector<Vector<String>> getAllResults() {
         Vector<Vector<String>> results = new Vector<>();
 
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT ID_GLOBAL,ANSWERS,DATE,QUANTITATIVE_EVAL FROM " + tableName, null);
+        Cursor cursor = DbHelper.dbase.rawQuery("SELECT ID_GLOBAL,ANSWERS,DATE,QUANTITATIVE_EVAL,TYPE FROM " + tableName, null);
         while (cursor.moveToNext()) {
             results.add( new Vector<String>());
             results.get(results.size() - 1).add(cursor.getString(0)); //id
             results.get(results.size() - 1).add(cursor.getString(1)); //answers
             results.get(results.size() - 1).add(cursor.getString(2)); //date
             results.get(results.size() - 1).add(cursor.getString(3)); //quantitative evaluation
+            results.get(results.size() - 1).add(cursor.getString(4)); //type
         }
 
         return results;
