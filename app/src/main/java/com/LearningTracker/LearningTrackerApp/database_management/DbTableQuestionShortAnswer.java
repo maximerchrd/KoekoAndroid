@@ -35,16 +35,19 @@ public class DbTableQuestionShortAnswer {
     static public void addShortAnswerQuestion(QuestionShortAnswer quest) throws Exception {
         try {
             String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL) " +
-                    "VALUES ('" +
-                    quest.getLEVEL() + "','" +
-                    quest.getQUESTION().replace("'","''") + "','" +
-                    quest.getIMAGE().replace("'","''") + "','" +
-                    quest.getID() +"');";
-            DbHelper.dbase.execSQL(sql);
+                    "VALUES (?,?,?,?)";
+            String[] sqlArgs = new String[]{
+                    quest.getLEVEL(),
+                    quest.getQUESTION(),
+                    quest.getIMAGE(),
+                    quest.getID()
+            };
+            DbHelper.dbase.execSQL(sql,sqlArgs);
+            Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getID()));
+
             for (int i = 0; i < quest.getAnswers().size(); i++) {
                 DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getID()),quest.getAnswers().get(i));
             }
-            Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getID()));
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
