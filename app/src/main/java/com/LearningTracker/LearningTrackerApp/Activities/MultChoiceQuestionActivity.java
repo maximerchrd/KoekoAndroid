@@ -341,6 +341,10 @@ public class MultChoiceQuestionActivity extends Activity {
                 .show();
     }
 
+    /**
+     * method used to know if we send a disconnection signal to the server
+     * @param hasFocus
+     */
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus) {

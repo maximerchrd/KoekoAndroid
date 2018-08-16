@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -99,5 +100,20 @@ public class TestActivity extends Activity {
         }));
 
         LTApplication.currentTestActivitySingleton = this;
+    }
+
+    /**
+     * method used to know if we send a disconnection signal to the server
+     * @param hasFocus
+     */
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (!hasFocus) {
+            Log.v("test activity: ", "focus lost");
+            ((LTApplication) this.getApplication()).startActivityTransitionTimer();
+        } else {
+            ((LTApplication) this.getApplication()).stopActivityTransitionTimer();
+            Log.v("test activity: ", "has focus");
+        }
     }
 }
