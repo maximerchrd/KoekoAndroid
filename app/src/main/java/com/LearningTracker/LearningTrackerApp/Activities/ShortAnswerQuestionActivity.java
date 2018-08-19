@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.LearningTracker.LearningTrackerApp.Activities.Tools.CorrectionAlertDialog;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
@@ -215,21 +216,9 @@ public class ShortAnswerQuestionActivity extends Activity {
 			message = getString(R.string.correction_incorrect) + rightAnswer;
 		}
 
-		AlertDialog.Builder builder;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
-		} else {
-			builder = new AlertDialog.Builder(mContext);
-		}
-		builder.setTitle(title)
-				.setMessage(message)
-				.setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						finish();
-						invalidateOptionsMenu();
-					}
-				})
-				.show();
+		CorrectionAlertDialog correctionAlertDialog = new CorrectionAlertDialog(this);
+		correctionAlertDialog.show();
+		correctionAlertDialog.setProperties(message, this);
 	}
 
 	public void onWindowFocusChanged(boolean hasFocus) {

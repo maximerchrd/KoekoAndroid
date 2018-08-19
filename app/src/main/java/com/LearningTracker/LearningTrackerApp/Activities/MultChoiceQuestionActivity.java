@@ -2,17 +2,12 @@ package com.LearningTracker.LearningTrackerApp.Activities;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -28,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.LearningTracker.LearningTrackerApp.Activities.Tools.CorrectionAlertDialog;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
@@ -324,21 +320,10 @@ public class MultChoiceQuestionActivity extends Activity {
             title = ":-(";
             message = getString(R.string.correction_incorrect) + correct_answers;
         }
-        AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog_Alert);
-        } else {
-            builder = new AlertDialog.Builder(mContext);
-        }
-        builder.setTitle(title)
-                .setMessage(message)
-                .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                        invalidateOptionsMenu();
-                    }
-                })
-                .show();
+
+        CorrectionAlertDialog correctionAlertDialog = new CorrectionAlertDialog(this);
+        correctionAlertDialog.show();
+        correctionAlertDialog.setProperties(message, this);
     }
 
     /**
