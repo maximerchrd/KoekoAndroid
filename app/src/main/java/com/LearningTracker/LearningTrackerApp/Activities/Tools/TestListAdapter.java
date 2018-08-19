@@ -1,6 +1,7 @@
 package com.LearningTracker.LearningTrackerApp.Activities.Tools;
 
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,6 +65,8 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
         holder.questionText.setText(mQuestionTexts[position]);
         if (!test.getActiveQuestionIds().contains(test.getQuestionsIDs().get(position))) {
             holder.questionText.setTextColor(Color.GRAY);
+        } else if (test.getAnsweredQuestionIds().contains(test.getQuestionsIDs().get(position))) {
+            holder.questionText.setPaintFlags(holder.questionText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             holder.questionText.setTextColor(Color.BLACK);
         }

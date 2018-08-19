@@ -27,6 +27,7 @@ public class Test {
     private Map<String,QuestionMultipleChoice> idMapQmc;
     private Map<String,QuestionShortAnswer> idMapShrtaq;
     private Vector<String> activeQuestionIds;
+    private Vector<String> answeredQuestionIds;
 
     public Test() {
         questionsIDs = new Vector<>();
@@ -34,6 +35,7 @@ public class Test {
         idMapQmc = new LinkedHashMap<>();
         idMapShrtaq = new LinkedHashMap<>();
         activeQuestionIds = new Vector<>();
+        answeredQuestionIds = new Vector<>();
     }
 
     //getters
@@ -61,6 +63,9 @@ public class Test {
     public Vector<String> getActiveQuestionIds() {
         return activeQuestionIds;
     }
+    public Vector<String> getAnsweredQuestionIds() {
+        return answeredQuestionIds;
+    }
 
     //setters
     public void setIdGlobal(Long idGlobal) {
@@ -86,6 +91,9 @@ public class Test {
     }
     public void setActiveQuestionIds(Vector<String> activeQuestionIds) {
         this.activeQuestionIds = activeQuestionIds;
+    }
+    public void setAnsweredQuestionIds(Vector<String> answeredQuestionIds) {
+        this.answeredQuestionIds = answeredQuestionIds;
     }
 
     public String serializeQuestionIDs() {

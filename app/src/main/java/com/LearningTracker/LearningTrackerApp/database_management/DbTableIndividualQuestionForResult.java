@@ -54,9 +54,10 @@ public class DbTableIndividualQuestionForResult {
             System.exit(0);
         }
 
-        //for test: update the active questions list
+        //for test: update the active questions list and the answered questions list
         if (LTApplication.currentTestActivitySingleton != null) {
             LTApplication.currentTestActivitySingleton.getmTest().addResultAndRefreshActiveIDs(id_global, quantitative_eval);
+            LTApplication.currentTestActivitySingleton.getmTest().getAnsweredQuestionIds().add(id_global);
         }
 
         return quantitative_evaluation;
