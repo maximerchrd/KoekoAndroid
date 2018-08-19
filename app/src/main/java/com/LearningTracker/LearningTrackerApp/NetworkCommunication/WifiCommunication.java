@@ -86,10 +86,15 @@ public class WifiCommunication {
             Integer automaticConnection = DbTableSettings.getAutomaticConnection();
             if (automaticConnection == 1) {
                 listenForIPThroughUDP();
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                for (int i = 0; i < 10; i++) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (!ip_address.contentEquals("no IP")) {
+                        break;
+                    }
                 }
 
                 if (ip_address.contentEquals("no IP")) {
