@@ -18,6 +18,7 @@ public class DbTableTest {
     static private String key_testName = "TEST_NAME";
     static private String key_questions_ids = "QUESTION_IDS";
     static private String key_test_type = "TEST_TYPE";
+    static private String key_medals_instructions = "MEDALS_INSTRUCTIONS";
 
     public static String getTableName() {
         return tableName;
@@ -46,6 +47,7 @@ public class DbTableTest {
                 key_testName + " TEXT     NOT NULL, " +
                 key_test_type + " TEXT     NOT NULL, " +
                 key_questions_ids + " TEXT, " +
+                key_medals_instructions + " TEXT, " +
                 " UNIQUE (" + key_idGlobal + ") )";
         DbHelper.dbase.execSQL(sql);
     }
@@ -57,6 +59,7 @@ public class DbTableTest {
         contentValues.put(key_testName, test.getTestName());
         contentValues.put(key_test_type, test.getTestType());
         contentValues.put(key_questions_ids, test.serializeQuestionIDs());
+        contentValues.put(key_medals_instructions, test.getMedalsInstructionsString());
 
         if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;
@@ -83,6 +86,26 @@ public class DbTableTest {
             testType = cursor.getString(0);
         }
         return testType;
+    }
+
+    static public Test getTestFromTestId(String tesId) {
+        Test test = new Test();
+        Cursor cursor = DbHelper.dbase.rawQuery("SELECT * FROM " + tableName + " WHERE " +
+                key_idGlobal + " = ?", new String[]{String.valueOf(tesId)});
+        if (cursor.moveToNext()) {
+            test.setIdGlobal(Long.valueOf(cursor.getString(1)));
+            test.setTestName(cursor.getString(2));
+            test.setTestType(cursor.getString(3));
+            test.setMedalsInstructionsString(cursor.getString(5));
+
+            Vector<String> questionIds = new Vector<>();
+            String[] idsArray = cursor.getString(4).split("\\|");
+            for (String id: idsArray) {
+                questionIds.add(id);
+            }
+            test.setQuestionsIDs(questionIds);
+        }
+        return test;
     }
 
     static public Vector<String> getQuestionIDsFromTestName(String testName) {

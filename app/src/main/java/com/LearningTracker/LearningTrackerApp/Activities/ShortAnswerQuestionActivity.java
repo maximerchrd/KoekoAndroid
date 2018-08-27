@@ -2,35 +2,29 @@ package com.LearningTracker.LearningTrackerApp.Activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.CorrectionAlertDialog;
+import com.LearningTracker.LearningTrackerApp.Activities.Tools.CustomAlertDialog;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.R;
-import com.LearningTracker.LearningTrackerApp.database_management.DbTableIndividualQuestionForResult;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ShortAnswerQuestionActivity extends Activity {
 	Boolean wasAnswered = false;
@@ -216,9 +210,9 @@ public class ShortAnswerQuestionActivity extends Activity {
 			message = getString(R.string.correction_incorrect) + rightAnswer;
 		}
 
-		CorrectionAlertDialog correctionAlertDialog = new CorrectionAlertDialog(this);
-		correctionAlertDialog.show();
-		correctionAlertDialog.setProperties(message, this);
+		CustomAlertDialog customAlertDialog = new CustomAlertDialog(this);
+		customAlertDialog.show();
+		customAlertDialog.setProperties(message, this);
 	}
 
 	public void onWindowFocusChanged(boolean hasFocus) {

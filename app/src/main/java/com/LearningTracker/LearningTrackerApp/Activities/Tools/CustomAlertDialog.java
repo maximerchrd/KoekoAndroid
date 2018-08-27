@@ -1,7 +1,6 @@
 package com.LearningTracker.LearningTrackerApp.Activities.Tools;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -14,17 +13,17 @@ import android.widget.TextView;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.R;
 
-import static android.content.ContentValues.TAG;
-
-public class CorrectionAlertDialog extends Dialog {
+public class CustomAlertDialog extends Dialog {
     private Context context;
     private TextView correctionMessage;
     private Button okButton;
     private Activity activity;
+    private Boolean testInstructions;
 
-    public CorrectionAlertDialog(Context context) {
+    public CustomAlertDialog(Context context) {
         super(context);
         this.context = context;
+        this.testInstructions = false;
     }
 
     @Override
@@ -40,8 +39,16 @@ public class CorrectionAlertDialog extends Dialog {
                 Log.v("Correction dialog: ", "focus lost");
                 ((LTApplication) context.getApplicationContext()).startActivityTransitionTimer();
                 dismiss();
-                activity.finish();
-                activity.invalidateOptionsMenu();
+                if (!testInstructions) {
+                    activity.finish();
+                    activity.invalidateOptionsMenu();
+                } else {
+                    if (LTApplication.currentTestActivitySingleton.testChronometer != null) {
+                        LTApplication.currentTestActivitySingleton.testChronometer.reset();
+                        LTApplication.currentTestActivitySingleton.testChronometer.run();
+                        LTApplication.activeTestStartTime = LTApplication.currentTestActivitySingleton.testChronometer.getStartTime();
+                    }
+                }
             }
         });
     }
@@ -49,6 +56,14 @@ public class CorrectionAlertDialog extends Dialog {
     public void setProperties(String message, Activity activity) {
         correctionMessage.setText(message);
         this.activity = activity;
+    }
+
+    public Boolean getTestInstructions() {
+        return testInstructions;
+    }
+
+    public void setTestInstructions(Boolean testInstructions) {
+        this.testInstructions = testInstructions;
     }
 
     @Override

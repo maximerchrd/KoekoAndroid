@@ -18,6 +18,8 @@ public class LTApplication extends Application {
     public static QuestionMultipleChoice currentQuestionMultipleChoiceSingleton = null;
     public static String shrtaqActivityState = null;
     public static QuestionShortAnswer currentQuestionShortAnswerSingleton = null;
+    public static Long activeTestStartTime = 0L;
+
 
     public static WifiCommunication wifiCommunicationSingleton;
     private NetworkCommunication appNetwork;

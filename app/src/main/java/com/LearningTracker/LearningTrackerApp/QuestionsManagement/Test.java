@@ -2,6 +2,7 @@ package com.LearningTracker.LearningTrackerApp.QuestionsManagement;
 
 import android.app.Activity;
 import android.util.Log;
+import android.widget.Chronometer;
 
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionMultipleChoice;
@@ -28,6 +29,8 @@ public class Test {
     private Map<String,QuestionShortAnswer> idMapShrtaq;
     private Vector<String> activeQuestionIds;
     private Vector<String> answeredQuestionIds;
+    private String medalsInstructionsString = "";
+    private Vector<Vector<String>> medalsInstructions;
 
     public Test() {
         questionsIDs = new Vector<>();
@@ -36,6 +39,7 @@ public class Test {
         idMapShrtaq = new LinkedHashMap<>();
         activeQuestionIds = new Vector<>();
         answeredQuestionIds = new Vector<>();
+        medalsInstructions = new Vector<>();
     }
 
     //getters
@@ -66,6 +70,9 @@ public class Test {
     public Vector<String> getAnsweredQuestionIds() {
         return answeredQuestionIds;
     }
+    public String getMedalsInstructionsString() {
+        return medalsInstructionsString;
+    }
 
     //setters
     public void setIdGlobal(Long idGlobal) {
@@ -95,6 +102,12 @@ public class Test {
     public void setAnsweredQuestionIds(Vector<String> answeredQuestionIds) {
         this.answeredQuestionIds = answeredQuestionIds;
     }
+    public void setMedalsInstructionsString(String medalsInstructionsString) {
+        this.medalsInstructionsString = medalsInstructionsString;
+    }
+    public void setMedalsInstructions(Vector<Vector<String>> medalsInstructions) {
+        this.medalsInstructions = medalsInstructions;
+    }
 
     public String serializeQuestionIDs() {
         String IDs = "";
@@ -114,6 +127,25 @@ public class Test {
         }
 
         return IDs;
+    }
+
+    public Vector<Vector<String>> getMedalsInstructions() {
+        if (medalsInstructions.size() == 0) {
+            parseMedalsInstructions();
+        }
+        return medalsInstructions;
+    }
+
+    private void parseMedalsInstructions() {
+        String[] instructions = medalsInstructionsString.split(";");
+        if (instructions.length == 3) {
+            for (String instruction : instructions) {
+                Vector<String> couple = new Vector<>();
+                couple.add(instruction.split(":")[1].split("/")[0]);
+                couple.add(instruction.split(":")[1].split("/")[1]);
+                medalsInstructions.add(couple);
+            }
+        }
     }
 
     /**

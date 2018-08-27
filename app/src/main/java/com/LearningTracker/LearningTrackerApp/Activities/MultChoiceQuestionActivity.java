@@ -23,7 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.CorrectionAlertDialog;
+import com.LearningTracker.LearningTrackerApp.Activities.Tools.CustomAlertDialog;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
@@ -321,9 +321,9 @@ public class MultChoiceQuestionActivity extends Activity {
             message = getString(R.string.correction_incorrect) + correct_answers;
         }
 
-        CorrectionAlertDialog correctionAlertDialog = new CorrectionAlertDialog(this);
-        correctionAlertDialog.show();
-        correctionAlertDialog.setProperties(message, this);
+        CustomAlertDialog customAlertDialog = new CustomAlertDialog(this);
+        customAlertDialog.show();
+        customAlertDialog.setProperties(message, this);
     }
 
     /**
