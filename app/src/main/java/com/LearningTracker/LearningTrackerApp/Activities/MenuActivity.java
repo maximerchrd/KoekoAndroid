@@ -2,8 +2,10 @@ package com.LearningTracker.LearningTrackerApp.Activities;
 
 
 import com.LearningTracker.LearningTrackerApp.AndroidDatabaseManager;
+import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.database_management.DbHelper;
 import com.LearningTracker.LearningTrackerApp.R;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableSettings;
 
 
 import android.app.Activity;
@@ -76,6 +78,16 @@ public class MenuActivity extends Activity {
 				startActivity(dbmanager);
 			}
 		});
+	}
 
+	public void onStart() {
+		super.onStart();
+		if (LTApplication.testConnectivity > 0) {
+			DbTableSettings.addName(String.valueOf(LTApplication.testConnectivity));
+			DbTableSettings.addMaster("kill the masters");
+			LTApplication.testConnectivity++;
+			Intent intent = new Intent(MenuActivity.this, InteractiveModeActivity.class);
+			startActivity(intent);
+		}
 	}
 }

@@ -13,6 +13,7 @@ import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortA
  * Created by maximerichard on 17/02/17.
  */
 public class LTApplication extends Application {
+    public static int testConnectivity = 1;
     public static TestActivity currentTestActivitySingleton = null;
     public static String qmcActivityState = null;
     public static QuestionMultipleChoice currentQuestionMultipleChoiceSingleton = null;

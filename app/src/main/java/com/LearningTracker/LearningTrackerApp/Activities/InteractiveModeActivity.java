@@ -7,6 +7,7 @@ import com.LearningTracker.LearningTrackerApp.R;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -89,6 +90,24 @@ public class InteractiveModeActivity extends Activity {
 
 
         ((LTApplication) this.getApplication()).resetQuitApp();
+
+        if (LTApplication.testConnectivity > 0) {
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        Thread.sleep(1500);
+                    } catch (Exception e) {
+                    }
+                    Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
+
+                    Runnable myRunnable = new Runnable() {
+                        @Override
+                        public void run() {onBackPressed();} // This is your code
+                    };
+                    mainHandler.post(myRunnable);
+                }
+            }).start();
+        }
     }
 
     public void onStart() {
