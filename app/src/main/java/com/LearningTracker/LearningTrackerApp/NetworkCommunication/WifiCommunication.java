@@ -228,6 +228,18 @@ public class WifiCommunication {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+
+                        if (multquestion_to_save.getQUESTION().contains("7492qJfzdDSB")) {
+                            byte[] ansBuffer = "ACCUSERECEPTION".getBytes();
+                            try {
+                                mOutputStream.write(ansBuffer, 0, ansBuffer.length);
+                                Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
+                                mOutputStream.flush();
+                            } catch (IOException e) {
+                                String msg = "Sending accuse reception: an exception occurred during write: " + e.getMessage();
+                                Log.e("Fatal Error", msg);
+                            }
+                        }
                     } else if (sizes.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
                         int size_of_image = Integer.parseInt(sizes.split(":")[1]);
                         int size_of_text = Integer.parseInt(sizes.split(":")[2].replaceAll("\\D+", ""));
