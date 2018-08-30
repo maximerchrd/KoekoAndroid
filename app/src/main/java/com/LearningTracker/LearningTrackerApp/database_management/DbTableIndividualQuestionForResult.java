@@ -1,6 +1,10 @@
 package com.LearningTracker.LearningTrackerApp.database_management;
 
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 
@@ -8,6 +12,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Vector;
 
 /**
@@ -20,12 +26,12 @@ public class DbTableIndividualQuestionForResult {
             String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " " +
                     "(ID_DIRECT_EVAL        INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_GLOBAL             INT    NOT NULL, " +
-                    " TYPE                  INT, " +       //0: Question Multiple Choice; 1: Question Short Answer; 2: Objective
+                    " TYPE                  INT, " +       //0: Question Multiple Choice; 1: Question Short Answer; 2: Objective, 3: test
                     " DATE                  TEXT    NOT NULL, " +
                     " ANSWERS               TEXT    NOT NULL, " +
                     " TIME_FOR_SOLVING      INT    NOT NULL, " +
                     " QUESTION_WEIGHT       REAL    NOT NULL, " +
-                    " EVAL_TYPE             TEXT    NOT NULL, " +
+                    " EVAL_TYPE             TEXT    NOT NULL, " +       //FORMATIVE, CERTIFICATIVE
                     " QUANTITATIVE_EVAL     TEXT    NOT NULL, " +
                     " QUALITATIVE_EVAL       TEXT    NOT NULL, " +
                     " TEST_BELONGING        TEXT    NOT NULL, " +
@@ -34,6 +40,28 @@ public class DbTableIndividualQuestionForResult {
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
+        }
+    }
+
+    static public Boolean addIndividualTestForStudentResult(String testId, String testName, String timeForSolving, String evalType, Double quantitativeEval, String medal) {
+        String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("ID_GLOBAL", testId);
+        contentValues.put("TYPE", 3);
+        contentValues.put("DATE", timeStamp);
+        contentValues.put("ANSWERS", "none");
+        contentValues.put("TIME_FOR_SOLVING", timeForSolving);
+        contentValues.put("QUESTION_WEIGHT", "none");
+        contentValues.put("EVAL_TYPE", evalType);
+        contentValues.put("QUANTITATIVE_EVAL", quantitativeEval);
+        contentValues.put("QUALITATIVE_EVAL", medal);
+        contentValues.put("TEST_BELONGING", testName);
+        contentValues.put("WEIGHTS_OF_ANSWERS", "none");
+
+        if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -58,6 +86,16 @@ public class DbTableIndividualQuestionForResult {
         if (LTApplication.currentTestActivitySingleton != null) {
             LTApplication.currentTestActivitySingleton.getmTest().addResultAndRefreshActiveIDs(id_global, quantitative_eval);
             LTApplication.currentTestActivitySingleton.getmTest().getAnsweredQuestionIds().add(id_global);
+            LTApplication.currentTestActivitySingleton.getmTest().getQuestionsScores().add(Double.valueOf(quantitative_eval));
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+
+            Runnable myRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    LTApplication.currentTestActivitySingleton.checkIfTestFinished();
+                }
+            };
+            mainHandler.post(myRunnable);
         }
 
         return quantitative_evaluation;

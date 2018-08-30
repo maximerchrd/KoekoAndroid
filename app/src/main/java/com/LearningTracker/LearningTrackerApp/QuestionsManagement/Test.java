@@ -29,6 +29,7 @@ public class Test {
     private Map<String,QuestionShortAnswer> idMapShrtaq;
     private Vector<String> activeQuestionIds;
     private Vector<String> answeredQuestionIds;
+    private Vector<Double> questionsScores;
     private String medalsInstructionsString = "";
     private Vector<Vector<String>> medalsInstructions;
 
@@ -40,6 +41,7 @@ public class Test {
         activeQuestionIds = new Vector<>();
         answeredQuestionIds = new Vector<>();
         medalsInstructions = new Vector<>();
+        questionsScores = new Vector<>();
     }
 
     //getters
@@ -72,6 +74,9 @@ public class Test {
     }
     public String getMedalsInstructionsString() {
         return medalsInstructionsString;
+    }
+    public Vector<Double> getQuestionsScores() {
+        return questionsScores;
     }
 
     //setters
@@ -108,6 +113,9 @@ public class Test {
     public void setMedalsInstructions(Vector<Vector<String>> medalsInstructions) {
         this.medalsInstructions = medalsInstructions;
     }
+    public void setQuestionsScores(Vector<Double> questionsScores) {
+        this.questionsScores = questionsScores;
+    }
 
     public String serializeQuestionIDs() {
         String IDs = "";
@@ -141,7 +149,11 @@ public class Test {
         if (instructions.length == 3) {
             for (String instruction : instructions) {
                 Vector<String> couple = new Vector<>();
-                couple.add(instruction.split(":")[1].split("/")[0]);
+                String time = instruction.split(":")[1].split("/")[0];
+                if (time.contentEquals("0")) {
+                    time = "1000000";
+                }
+                couple.add(time);
                 couple.add(instruction.split(":")[1].split("/")[1]);
                 medalsInstructions.add(couple);
             }

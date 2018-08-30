@@ -38,6 +38,10 @@ public class TestChronometer extends TextView implements Runnable {
         reset();
     }
 
+    public long getOverallDuration() {
+        return overallDuration;
+    }
+
     @Override
     public void run() {
         isRunning = true;

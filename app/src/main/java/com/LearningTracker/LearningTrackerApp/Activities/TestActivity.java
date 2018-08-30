@@ -1,8 +1,10 @@
 package com.LearningTracker.LearningTrackerApp.Activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +14,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Chronometer;
+import android.widget.ImageView;
 
 import com.LearningTracker.LearningTrackerApp.Activities.Tools.CustomAlertDialog;
 import com.LearningTracker.LearningTrackerApp.Activities.Tools.TestChronometer;
@@ -22,6 +25,7 @@ import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultip
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableIndividualQuestionForResult;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
 import java.util.LinkedHashMap;
@@ -35,18 +39,20 @@ public class TestActivity extends Activity {
     private Boolean reloadActivity = false;
 
     private RecyclerView mRecyclerView;
+
     public RecyclerView.Adapter getmAdapter() {
         return mAdapter;
     }
+
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
 
     private Test mTest;
+
     public Test getmTest() {
         return mTest;
     }
-
 
 
     @Override
@@ -110,8 +116,8 @@ public class TestActivity extends Activity {
 
         if (mTest.getMedalsInstructionsString().length() > 0 && LTApplication.currentTestActivitySingleton == null) {
             Vector<Vector<String>> instruc = mTest.getMedalsInstructions();
-            String message = "Gold medal\nTime: " + (instruc.get(2).get(0) != "0" ? instruc.get(2).get(0) : "no time limit;") + " \nScore: " + instruc.get(2).get(1) + "\n\n";
-            message += "Silver medal\nTime: " + (instruc.get(1).get(0) != "0" ? instruc.get(1).get(0) : "no time limit;") + " \nScore: " + instruc.get(1).get(1) + "\n\n";
+            String message = "Gold medal\nTime: " + (instruc.get(2).get(0) != "1000000" ? instruc.get(2).get(0) : "no time limit;") + " \nScore: " + instruc.get(2).get(1) + "\n\n";
+            message += "Silver medal\nTime: " + (instruc.get(1).get(0) != "1000000" ? instruc.get(1).get(0) : "no time limit;") + " \nScore: " + instruc.get(1).get(1) + "\n\n";
             message += "Bronze medal\nTime: " + (instruc.get(0).get(0) != "1000000" ? instruc.get(0).get(0) : "no time limit;") + " \nScore: " + instruc.get(0).get(1) + "\n\n";
             CustomAlertDialog customAlertDialog = new CustomAlertDialog(this);
             customAlertDialog.setTestInstructions(true);
@@ -139,11 +145,51 @@ public class TestActivity extends Activity {
             }
         }
 
-        return(super.onCreateOptionsMenu(menu));
+        return (super.onCreateOptionsMenu(menu));
+    }
+
+    public void checkIfTestFinished() {
+        if (mTest.getAnsweredQuestionIds().containsAll(mTest.getActiveQuestionIds()) &&
+                mTest.getActiveQuestionIds().containsAll(mTest.getAnsweredQuestionIds())) {
+            testChronometer.stop();
+            Long testDuration = testChronometer.getOverallDuration();
+
+            //calculate quantitative evaluation
+            Double quantEval = 0.0;
+            for (Double singleEval : mTest.getQuestionsScores()) {
+                quantEval += singleEval;
+            }
+            quantEval = quantEval / mTest.getQuestionsScores().size();
+
+            //check if medal won
+            String medal = "none";
+            String message = "You are a Champ!";
+            if (Long.valueOf(mTest.getMedalsInstructions().get(2).get(0)) >= testDuration &&
+                    Double.valueOf(mTest.getMedalsInstructions().get(2).get(1)) <= quantEval) {
+                message += "\nYou won the GOLD MEDAL";
+                medal = "gold-medal";
+            } else if (Long.valueOf(mTest.getMedalsInstructions().get(1).get(0)) >= testDuration &&
+                    Double.valueOf(mTest.getMedalsInstructions().get(1).get(1)) <= quantEval) {
+                medal = "silver-medal";
+                message += "\nYou won the SILVER MEDAL";
+            } else if (Long.valueOf(mTest.getMedalsInstructions().get(0).get(0)) >= testDuration &&
+                    Double.valueOf(mTest.getMedalsInstructions().get(0).get(1)) <= quantEval) {
+                medal = "bronze-medal";
+                message += "\nYou won the BRONZE MEDAL";
+            }
+            if (!medal.contentEquals("none")) {
+                CustomAlertDialog customAlertDialog = new CustomAlertDialog(this, message, medal);
+                customAlertDialog.show();
+            }
+            DbTableIndividualQuestionForResult.addIndividualTestForStudentResult(String.valueOf(mTest.getIdGlobal()),
+                    mTest.getTestName(), String.valueOf(testDuration), "FORMATIVE",
+                    quantEval, medal);
+        }
     }
 
     /**
      * method used to know if we send a disconnection signal to the server
+     *
      * @param hasFocus
      */
     public void onWindowFocusChanged(boolean hasFocus) {
