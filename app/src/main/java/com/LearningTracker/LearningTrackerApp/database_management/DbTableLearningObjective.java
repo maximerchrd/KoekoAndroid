@@ -313,16 +313,18 @@ public class DbTableLearningObjective {
 
             //fetch the formative results
             //fetch the certificative results
-            String query3 = "SELECT QUANTITATIVE_EVAL FROM individual_question_for_result " +
-                    " INNER JOIN question_objective_relation ON question_objective_relation.ID_GLOBAL = individual_question_for_result.ID_GLOBAL " +
-                    " WHERE question_objective_relation.OBJECTIVE = '" + objectives.lastElement() + "'";
-            Cursor cursor3 = DbHelper.dbase.rawQuery(query3, null);
             Vector<String> questionsResults = new Vector<>();
-            while (cursor3.moveToNext()) {
-                questionsResults.add(cursor3.getString(0));
-            }
-            cursor3.close();
+            if (objectives.size() > 0) {
+                String query3 = "SELECT QUANTITATIVE_EVAL FROM individual_question_for_result " +
+                        " INNER JOIN question_objective_relation ON question_objective_relation.ID_GLOBAL = individual_question_for_result.ID_GLOBAL " +
+                        " WHERE question_objective_relation.OBJECTIVE = '" + objectives.lastElement() + "'";
+                Cursor cursor3 = DbHelper.dbase.rawQuery(query3, null);
 
+                while (cursor3.moveToNext()) {
+                    questionsResults.add(cursor3.getString(0));
+                }
+                cursor3.close();
+            }
             Double resultsSum = 0.0;
             for (String questionResult : questionsResults) {
                 resultsSum += Double.valueOf(questionResult);
