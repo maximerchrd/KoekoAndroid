@@ -60,29 +60,39 @@ public class ResultsListActivity extends Activity {
         Collections.reverse(results);
         String[] questions = new String[results.size()];
         String[] evaluations = new String[results.size()];
+        String[] medalImages = new String[results.size()];
         final String[] types = new String[results.size()];
 
         for (int i = 0; i < results.size(); i++) {
-            if (results.get(i).get(4) == null || !results.get(i).get(4).contentEquals("2")) {
+            if (results.get(i).get(4) == null ||  (!results.get(i).get(4).contentEquals("2") &&
+                    !results.get(i).get(4).contentEquals("3"))) {
                 QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(results.get(i).get(0));
                 if (questionMultipleChoice.getQUESTION().length() == 0) {
                     QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(results.get(i).get(0));
                     questions[i] = questionShortAnswer.getQUESTION();
                     evaluations[i] = results.get(i).get(3);
+                    medalImages[i] = results.get(i).get(5);
                     types[i] = "1";
                 } else {
                     questions[i] = questionMultipleChoice.getQUESTION();
                     evaluations[i] = results.get(i).get(3);
+                    medalImages[i] = results.get(i).get(5);
                     types[i] = "0";
                 }
+            } else if (results.get(i).get(4).contentEquals("3")) {
+                questions[i] = results.get(i).get(6);
+                evaluations[i] = results.get(i).get(3);
+                medalImages[i] = results.get(i).get(5);
+                types[i] = "3";
             } else {
                 questions[i] = DbTableLearningObjective.getObjectiveWithID(results.get(i).get(0));
                 evaluations[i] = results.get(i).get(3);
+                medalImages[i] = results.get(i).get(5);
                 types[i] = "2";
             }
         }
 
-        mAdapter = new ResultsListAdapter(questions, evaluations);
+        mAdapter = new ResultsListAdapter(questions, evaluations, medalImages, this);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
