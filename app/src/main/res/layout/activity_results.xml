@@ -5,31 +5,47 @@
 
     <Button
         android:id="@+id/button"
+        android:drawableTop="@drawable/list_icon"
+        android:paddingTop="40dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:gravity="top|center"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/blue"
-        android:textColor="@color/white"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:background="@color/red"
+        android:text="Results List"
         android:onClick="showResultsList"
-        android:layout_margin="20dp"
-        android:text="Results List" />
+        android:textColor="@color/white" />
 
     <Button
         android:id="@+id/button2"
+        android:drawableTop="@drawable/chart_icon"
+        android:paddingTop="40dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:gravity="top|center"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="3"
         android:background="@color/blue"
-        android:textColor="@color/white"
+        android:text="Results Graph"
         android:onClick="showResultsGraph"
-        android:layout_margin="20dp"
-        android:text="Results Graph" />
+        android:textColor="@color/white" />
 
     <Button
         android:id="@+id/button4"
+        android:drawableTop="@drawable/city_icon"
+        android:paddingTop="40dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:gravity="top|center"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:background="@color/blue"
-        android:onClick="showCityRepresentation"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:background="@color/yellow"
         android:text="City Representation"
+        android:onClick="showCityRepresentation"
         android:textColor="@color/white" />
+
 </LinearLayout>
