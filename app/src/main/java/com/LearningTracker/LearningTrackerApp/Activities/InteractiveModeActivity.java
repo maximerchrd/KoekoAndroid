@@ -1,17 +1,26 @@
 package com.LearningTracker.LearningTrackerApp.Activities;
 
+import com.LearningTracker.LearningTrackerApp.Activities.CameraHandling.CameraActivity;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
-import com.LearningTracker.LearningTrackerApp.NetworkCommunication.WifiCommunication;
 import com.LearningTracker.LearningTrackerApp.R;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import static android.content.ContentValues.TAG;
 
 public class InteractiveModeActivity extends Activity {
     NetworkCommunication mNetCom;
@@ -20,6 +29,12 @@ public class InteractiveModeActivity extends Activity {
     private TextView logView = null;
     private MenuItem forwardButton;
     private InteractiveModeActivity interactiveModeActivity;
+
+    //launch scanning QR code
+    private Button scanQQButton;
+    private final static String DEBUG_TAG = "Interactive Mode";
+    private Camera camera;
+    private int cameraId = 0;
 
     /**
      * Called when the activity is first created.
@@ -108,13 +123,66 @@ public class InteractiveModeActivity extends Activity {
                 }
             }).start();
         }
+
+        // do we have a camera?
+        if (!getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            Toast.makeText(this, "No camera on this device", Toast.LENGTH_LONG)
+                    .show();
+        } else {
+            cameraId = findFrontFacingCamera();
+            if (cameraId < 0) {
+                Toast.makeText(this, "No front facing camera found.",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+
+        scanQQButton = findViewById(R.id.scanQRButton);
+        scanQQButton.setOnClickListener(e -> {
+            // Check if we have write permission
+            int permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                // We don't have permission so prompt the user
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{Manifest.permission.CAMERA},
+                        1
+                );
+            } else {
+                camera = Camera.open(cameraId);
+                Intent capturecodeIntent = new Intent(InteractiveModeActivity.this, CameraActivity.class);
+                startActivity(capturecodeIntent);
+            }
+        });
+    }
+
+    private int findFrontFacingCamera() {
+        int cameraId = -1;
+        // Search for the front facing camera
+        int numberOfCameras = Camera.getNumberOfCameras();
+        for (int i = 0; i < numberOfCameras; i++) {
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, info);
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                Log.d(DEBUG_TAG, "Camera found");
+                cameraId = i;
+                break;
+            }
+        }
+        return cameraId;
     }
 
     public void onStart() {
         super.onStart();
     }
 
-    public void onPause() {
+    @Override
+    protected void onPause() {
+        if (camera != null) {
+            camera.release();
+            camera = null;
+        }
         super.onPause();
     }
 
@@ -132,6 +200,10 @@ public class InteractiveModeActivity extends Activity {
             } else if (LTApplication.currentTestActivitySingleton != null) {
                 forwardButton.setTitle("Back To Test >");
             }
+        }
+
+        if (!LTApplication.qrCode.contentEquals("")) {
+            Log.d(TAG, "onResume: found valid qr code");
         }
     }
 

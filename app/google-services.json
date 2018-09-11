@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "319955085664",
+    "firebase_url": "https://koekoandroid.firebaseio.com",
+    "project_id": "koekoandroid",
+    "storage_bucket": "koekoandroid.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319955085664:android:f8bddb8ce6680bfb",
+        "android_client_info": {
+          "package_name": "com.LearningTracker.LearningTrackerApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "319955085664-5a36v1o0fjhin3e93f2nn7f7k9g2pa6v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.LearningTracker.LearningTrackerApp",
+            "certificate_hash": "2a3a0c45c2595a410b5601e82e9bf5f380a06552"
+          }
+        },
+        {
+          "client_id": "319955085664-r3ul6dlp27vohl8p94p2jgnoo23lo2kl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIrhnT2zZolkv9hHhVt54wjI4j22Pper8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "319955085664-r3ul6dlp27vohl8p94p2jgnoo23lo2kl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
