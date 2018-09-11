@@ -54,4 +54,9 @@
     <string name="ok_button">OK</string>
     <string name="answer_example">The answer is for example:</string>
     <string name="title_activity_corrected_question">Correction</string>
+    <string name="picture">picture</string>
+    <string name="description_info">Description</string>
+    <string name="request_permission">Request Camera Access</string>
+    <string name="intro_message">Intro message</string>
+    <string name="camera_error">Error with Camera</string>
 </resources>
