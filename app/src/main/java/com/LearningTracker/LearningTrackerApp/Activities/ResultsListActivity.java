@@ -10,24 +10,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.RecyclerTouchListener;
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.ResultsListAdapter;
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.TestListAdapter;
-import com.LearningTracker.LearningTrackerApp.LTApplication;
+import com.LearningTracker.LearningTrackerApp.Activities.ActivityTools.RecyclerTouchListener;
+import com.LearningTracker.LearningTrackerApp.Activities.ActivityTools.ResultsListAdapter;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
-import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableIndividualQuestionForResult;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableLearningObjective;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionMultipleChoice;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
-import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Vector;
 
 public class ResultsListActivity extends Activity {

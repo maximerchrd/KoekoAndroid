@@ -13,7 +13,7 @@
  */
 
 
-package com.LearningTracker.LearningTrackerApp.Activities.Tools;
+package com.LearningTracker.LearningTrackerApp.Activities.ActivityTools;
 
 import android.content.Context;
 import android.graphics.Color;

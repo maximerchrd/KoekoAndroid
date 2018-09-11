@@ -1,10 +1,8 @@
 package com.LearningTracker.LearningTrackerApp.Activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,13 +11,11 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Chronometer;
-import android.widget.ImageView;
 
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.CustomAlertDialog;
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.TestChronometer;
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.TestListAdapter;
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.RecyclerTouchListener;
+import com.LearningTracker.LearningTrackerApp.Activities.ActivityTools.CustomAlertDialog;
+import com.LearningTracker.LearningTrackerApp.Activities.ActivityTools.TestChronometer;
+import com.LearningTracker.LearningTrackerApp.Activities.ActivityTools.TestListAdapter;
+import com.LearningTracker.LearningTrackerApp.Activities.ActivityTools.RecyclerTouchListener;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;

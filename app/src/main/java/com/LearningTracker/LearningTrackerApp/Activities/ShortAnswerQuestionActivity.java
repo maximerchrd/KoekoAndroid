@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.CustomAlertDialog;
+import com.LearningTracker.LearningTrackerApp.Activities.ActivityTools.CustomAlertDialog;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;

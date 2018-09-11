@@ -1,9 +1,7 @@
-package com.LearningTracker.LearningTrackerApp.Activities.Tools;
+package com.LearningTracker.LearningTrackerApp.Activities.ActivityTools;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
-import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
-import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
 
 public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.ViewHolder> {

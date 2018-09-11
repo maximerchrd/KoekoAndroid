@@ -1,4 +1,4 @@
-package com.LearningTracker.LearningTrackerApp.Activities.Tools;
+package com.LearningTracker.LearningTrackerApp.Activities.ActivityTools;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;

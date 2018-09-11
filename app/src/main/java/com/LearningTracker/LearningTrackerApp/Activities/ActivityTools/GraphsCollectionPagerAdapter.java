@@ -1,4 +1,4 @@
-package com.LearningTracker.LearningTrackerApp.Activities.Tools;
+package com.LearningTracker.LearningTrackerApp.Activities.ActivityTools;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

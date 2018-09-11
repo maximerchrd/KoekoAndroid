@@ -1,6 +1,5 @@
 package com.LearningTracker.LearningTrackerApp.Activities;
 
-import com.LearningTracker.LearningTrackerApp.Activities.CameraHandling.CameraActivity;
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
 import com.LearningTracker.LearningTrackerApp.R;
@@ -35,6 +34,8 @@ public class InteractiveModeActivity extends Activity {
     private final static String DEBUG_TAG = "Interactive Mode";
     private Camera camera;
     private int cameraId = 0;
+    private Camera camer;
+    private int PERMISSION_REQUEST_CODE = 1;
 
     /**
      * Called when the activity is first created.
@@ -150,8 +151,7 @@ public class InteractiveModeActivity extends Activity {
                         1
                 );
             } else {
-                camera = Camera.open(cameraId);
-                Intent capturecodeIntent = new Intent(InteractiveModeActivity.this, CameraActivity.class);
+                Intent capturecodeIntent = new Intent(InteractiveModeActivity.this, QRCodeReaderActivity.class);
                 startActivity(capturecodeIntent);
             }
         });

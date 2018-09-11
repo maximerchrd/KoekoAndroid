@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 
-import com.LearningTracker.LearningTrackerApp.Activities.Tools.GraphsCollectionPagerAdapter;
+import com.LearningTracker.LearningTrackerApp.Activities.ActivityTools.GraphsCollectionPagerAdapter;
 import com.LearningTracker.LearningTrackerApp.R;
 
 /**
