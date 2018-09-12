@@ -26,7 +26,7 @@ public class LTApplication extends Application {
     public static WifiCommunication wifiCommunicationSingleton;
     private NetworkCommunication appNetwork;
     private Integer quitApp = 0;
-    public final long MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
+    public long MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
 
     public WifiCommunication getAppWifi() {return wifiCommunicationSingleton;}
     public NetworkCommunication getAppNetwork() {

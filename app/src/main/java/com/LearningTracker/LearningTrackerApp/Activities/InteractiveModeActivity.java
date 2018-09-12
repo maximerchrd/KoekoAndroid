@@ -2,7 +2,13 @@ package com.LearningTracker.LearningTrackerApp.Activities;
 
 import com.LearningTracker.LearningTrackerApp.LTApplication;
 import com.LearningTracker.LearningTrackerApp.NetworkCommunication.NetworkCommunication;
+import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionMultipleChoice;
+import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
+import com.LearningTracker.LearningTrackerApp.QuestionsManagement.Test;
 import com.LearningTracker.LearningTrackerApp.R;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionMultipleChoice;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableQuestionShortAnswer;
+import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
 import android.Manifest;
 import android.app.Activity;
@@ -151,6 +157,7 @@ public class InteractiveModeActivity extends Activity {
                         1
                 );
             } else {
+                ((LTApplication) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 1200;
                 Intent capturecodeIntent = new Intent(InteractiveModeActivity.this, QRCodeReaderActivity.class);
                 startActivity(capturecodeIntent);
             }
@@ -203,7 +210,31 @@ public class InteractiveModeActivity extends Activity {
         }
 
         if (!LTApplication.qrCode.contentEquals("")) {
-            Log.d(TAG, "onResume: found valid qr code");
+            launchResourceFromCode();
+            LTApplication.qrCode = "";
+        }
+    }
+
+    private void launchResourceFromCode() {
+        String[] codeArray = LTApplication.qrCode.split(":");
+        if (codeArray.length >= 3) {
+            String directCorrection = codeArray[2];
+            String resCodeString = codeArray[0];
+            Long resCode = Long.valueOf(resCodeString);
+            if (resCode < 0) {
+                resCode = -resCode;
+                LTApplication.wifiCommunicationSingleton.launchTestActivity(resCode, directCorrection);
+            } else {
+                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(resCodeString);
+                if (questionShortAnswer.getQUESTION().length() == 0 || questionShortAnswer.getQUESTION().contentEquals("none")) {
+                    QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(resCodeString);
+                    LTApplication.wifiCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
+                } else {
+                    LTApplication.wifiCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
+                }
+            }
+        } else {
+            Log.w(TAG,"Array from QR code string is too short");
         }
     }
 

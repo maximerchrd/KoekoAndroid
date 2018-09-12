@@ -4,11 +4,8 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -48,26 +45,12 @@ import static io.fotoapparat.log.LoggersKt.fileLogger;
 import static io.fotoapparat.log.LoggersKt.logcat;
 import static io.fotoapparat.log.LoggersKt.loggers;
 import static io.fotoapparat.result.transformer.ResolutionTransformersKt.scaled;
-import static io.fotoapparat.selector.AspectRatioSelectorsKt.standardRatio;
-import static io.fotoapparat.selector.FlashSelectorsKt.autoFlash;
-import static io.fotoapparat.selector.FlashSelectorsKt.autoRedEye;
-import static io.fotoapparat.selector.FlashSelectorsKt.off;
-import static io.fotoapparat.selector.FlashSelectorsKt.torch;
-import static io.fotoapparat.selector.FocusModeSelectorsKt.autoFocus;
-import static io.fotoapparat.selector.FocusModeSelectorsKt.continuousFocusPicture;
-import static io.fotoapparat.selector.FocusModeSelectorsKt.fixed;
 import static io.fotoapparat.selector.LensPositionSelectorsKt.back;
-import static io.fotoapparat.selector.LensPositionSelectorsKt.front;
-import static io.fotoapparat.selector.PreviewFpsRangeSelectorsKt.highestFps;
-import static io.fotoapparat.selector.ResolutionSelectorsKt.highestResolution;
-import static io.fotoapparat.selector.SelectorsKt.firstAvailable;
-import static io.fotoapparat.selector.SensorSensitivitySelectorsKt.highestSensorSensitivity;
 
 public class QRCodeReaderActivity extends AppCompatActivity {
 
-    private static final String LOGGING_TAG = "Fotoapparat Example";
-    private final PermissionsDelegate permissionsDelegate = new PermissionsDelegate(this);
-    private boolean hasCameraPermission;
+    private static final String LOGGING_TAG = "Fotoapparat";
+    //private final PermissionsDelegate permissionsDelegate = new PermissionsDelegate(this);
     private CameraView cameraView;
     private FocusView focusView;
     private View capture;
@@ -75,50 +58,20 @@ public class QRCodeReaderActivity extends AppCompatActivity {
 
     private Fotoapparat fotoapparat;
 
-    boolean activeCameraBack = true;
-
-    private CameraConfiguration cameraConfiguration = CameraConfiguration
-            .builder()
-            .photoResolution(standardRatio(
-                    highestResolution()
-            ))
-            .focusMode(firstAvailable(
-                    continuousFocusPicture(),
-                    autoFocus(),
-                    fixed()
-            ))
-            .flash(firstAvailable(
-                    autoRedEye(),
-                    autoFlash(),
-                    torch(),
-                    off()
-            ))
-            .previewFpsRange(highestFps())
-            .sensorSensitivity(highestSensorSensitivity())
-            .frameProcessor(new SampleFrameProcessor())
-            .build();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_qrcodereader);
 
         cameraView = findViewById(R.id.cameraView);
         focusView = findViewById(R.id.focusView);
         capture = findViewById(R.id.capture);
-        hasCameraPermission = permissionsDelegate.hasCameraPermission();
-
-        if (hasCameraPermission) {
-            cameraView.setVisibility(View.VISIBLE);
-        } else {
-            permissionsDelegate.requestCameraPermission();
-        }
+        cameraView.setVisibility(View.VISIBLE);
 
         fotoapparat = createFotoapparat();
-
         takePictureOnClick();
-        switchCameraOnClick();
-        toggleTorchOnSwitch();
         zoomSeekBar();
     }
 
@@ -154,50 +107,6 @@ public class QRCodeReaderActivity extends AppCompatActivity {
         });
     }
 
-    private void switchCameraOnClick() {
-        View switchCameraButton = findViewById(R.id.switchCamera);
-
-        boolean hasFrontCamera = fotoapparat.isAvailable(front());
-
-        switchCameraButton.setVisibility(
-                hasFrontCamera ? View.VISIBLE : View.GONE
-        );
-
-        if (hasFrontCamera) {
-            switchCameraOnClick(switchCameraButton);
-        }
-    }
-
-    private void toggleTorchOnSwitch() {
-        SwitchCompat torchSwitch = findViewById(R.id.torchSwitch);
-
-        torchSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                fotoapparat.updateConfiguration(
-                        UpdateConfiguration.builder()
-                                .flash(
-                                        isChecked ? torch() : off()
-                                )
-                                .build()
-                );
-            }
-        });
-    }
-
-    private void switchCameraOnClick(View view) {
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activeCameraBack = !activeCameraBack;
-                fotoapparat.switchTo(
-                        activeCameraBack ? back() : front(),
-                        cameraConfiguration
-                );
-            }
-        });
-    }
-
     private void takePictureOnClick() {
         capture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -223,15 +132,11 @@ public class QRCodeReaderActivity extends AppCompatActivity {
                             Log.e(LOGGING_TAG, "Couldn't capture photo.");
                             return;
                         }
-                        ImageView imageView = findViewById(R.id.result);
-
-                        imageView.setImageBitmap(bitmapPhoto.bitmap);
-                        imageView.setRotation(-bitmapPhoto.rotationDegrees);
 
                         Bitmap bitmap = bitmapPhoto.bitmap;
                         FirebaseVisionBarcodeDetectorOptions options =
                                 new FirebaseVisionBarcodeDetectorOptions.Builder()
-                                        .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_ALL_FORMATS)
+                                        .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_QR_CODE)
                                         .build();
                         FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance()
                                 .getVisionBarcodeDetector(options);
@@ -241,14 +146,15 @@ public class QRCodeReaderActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
                                         String code = getQuestionCode(barcodes);
-                                        if (barcodes.size() == 0) {
-                                            code = "no detection";
+                                        if (code.length() == 0) {
+                                            Toast.makeText(QRCodeReaderActivity.this,
+                                                    "No question detected. Please try again.", Toast.LENGTH_LONG).show();
                                         } else {
-                                            code = barcodes.get(0).getRawValue();
+                                            Log.d(TAG, "onSuccess: " + code);
+                                            LTApplication.qrCode = code;
+                                            finish();
+                                            invalidateOptionsMenu();
                                         }
-                                        Toast.makeText(QRCodeReaderActivity.this, "code: " + code, Toast.LENGTH_LONG).show();
-                                        Log.d(TAG, "onSuccess: " + code);
-                                        LTApplication.qrCode = code;
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -266,9 +172,6 @@ public class QRCodeReaderActivity extends AppCompatActivity {
         for (FirebaseVisionBarcode barcode: barcodes) {
             String rawValue = barcode.getRawValue();
             return rawValue;
-            /*if (rawValue.split(":").length == 4) {
-                return rawValue;
-            }*/
         }
         return "";
     }
@@ -276,29 +179,13 @@ public class QRCodeReaderActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (hasCameraPermission) {
-            fotoapparat.start();
-        }
+        fotoapparat.start();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (hasCameraPermission) {
-            fotoapparat.stop();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (permissionsDelegate.resultGranted(requestCode, permissions, grantResults)) {
-            hasCameraPermission = true;
-            fotoapparat.start();
-            cameraView.setVisibility(View.VISIBLE);
-        }
+        fotoapparat.stop();
     }
 
     private class SampleFrameProcessor implements FrameProcessor {
@@ -308,4 +195,19 @@ public class QRCodeReaderActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * method used to know if we send a disconnection signal to the server
+     * @param hasFocus
+     */
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (!hasFocus) {
+            Log.v("QRCodeReader: ", "focus lost");
+            ((LTApplication) this.getApplication()).startActivityTransitionTimer();
+        } else {
+            ((LTApplication) this.getApplication()).stopActivityTransitionTimer();
+            ((LTApplication) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
+            Log.v("QRCodeReader: ", "has focus");
+        }
+    }
 }
