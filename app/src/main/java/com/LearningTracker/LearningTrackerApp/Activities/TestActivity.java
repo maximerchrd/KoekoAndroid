@@ -110,15 +110,19 @@ public class TestActivity extends Activity {
             }
         }));
 
-        if (mTest.getMedalsInstructionsString().length() > 0 && LTApplication.currentTestActivitySingleton == null) {
+        if (mTest.getMedalsInstructionsString().length() > 0
+                && !mTest.getMedalsInstructionsString().contentEquals("null")
+                && LTApplication.currentTestActivitySingleton == null) {
             Vector<Vector<String>> instruc = mTest.getMedalsInstructions();
-            String message = "Gold medal\nTime: " + (instruc.get(2).get(0) != "1000000" ? instruc.get(2).get(0) : "no time limit;") + " \nScore: " + instruc.get(2).get(1) + "\n\n";
-            message += "Silver medal\nTime: " + (instruc.get(1).get(0) != "1000000" ? instruc.get(1).get(0) : "no time limit;") + " \nScore: " + instruc.get(1).get(1) + "\n\n";
-            message += "Bronze medal\nTime: " + (instruc.get(0).get(0) != "1000000" ? instruc.get(0).get(0) : "no time limit;") + " \nScore: " + instruc.get(0).get(1) + "\n\n";
-            CustomAlertDialog customAlertDialog = new CustomAlertDialog(this);
-            customAlertDialog.setTestInstructions(true);
-            customAlertDialog.show();
-            customAlertDialog.setProperties(message, this);
+            if (instruc.size() >=3) {
+                String message = "Gold medal\nTime: " + (instruc.get(2).get(0) != "1000000" ? instruc.get(2).get(0) : "no time limit;") + " \nScore: " + instruc.get(2).get(1) + "\n\n";
+                message += "Silver medal\nTime: " + (instruc.get(1).get(0) != "1000000" ? instruc.get(1).get(0) : "no time limit;") + " \nScore: " + instruc.get(1).get(1) + "\n\n";
+                message += "Bronze medal\nTime: " + (instruc.get(0).get(0) != "1000000" ? instruc.get(0).get(0) : "no time limit;") + " \nScore: " + instruc.get(0).get(1) + "\n\n";
+                CustomAlertDialog customAlertDialog = new CustomAlertDialog(this);
+                customAlertDialog.setTestInstructions(true);
+                customAlertDialog.show();
+                customAlertDialog.setProperties(message, this);
+            }
         }
 
         LTApplication.currentTestActivitySingleton = this;
