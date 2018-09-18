@@ -1,5 +1,7 @@
 package com.LearningTracker.LearningTrackerApp.database_management;
 
+import android.database.SQLException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -27,18 +29,17 @@ public class DbTableRelationQuestionAnserOption {
     /**
      * Method that adds a relation between a question and an answer option
      * @param questionID, option
-     * @throws Exception
+     * @throws SQLException
      */
-    static public void addRelationQuestionAnserOption(String questionID, String option) throws Exception {
+    static public void addRelationQuestionAnserOption(String questionID, String option) {
         try {
             String sql = "INSERT OR REPLACE INTO question_answeroption_relation (ID_GLOBAL, ID_ANSWEROPTION_GLOBAL) " +
                     "SELECT t1.ID_GLOBAL,t2.ID_ANSWEROPTION_GLOBAL FROM short_answer_questions t1, answer_options t2 " +
                     "WHERE t1.ID_GLOBAL = '"+ questionID + "' " +
                     "AND t2.OPTION='" + option + "';";
             DbHelper.dbase.execSQL(sql);
-        } catch ( Exception e ) {
+        } catch ( SQLException e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
         }
     }
 }

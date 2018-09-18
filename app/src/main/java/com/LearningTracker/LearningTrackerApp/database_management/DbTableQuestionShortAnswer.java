@@ -1,6 +1,7 @@
 package com.LearningTracker.LearningTrackerApp.database_management;
 
 import android.database.Cursor;
+import android.database.SQLException;
 import android.util.Log;
 
 import com.LearningTracker.LearningTrackerApp.QuestionsManagement.QuestionShortAnswer;
@@ -32,7 +33,7 @@ public class DbTableQuestionShortAnswer {
      * @param quest
      * @throws Exception
      */
-    static public void addShortAnswerQuestion(QuestionShortAnswer quest) throws Exception {
+    static public void addShortAnswerQuestion(QuestionShortAnswer quest) {
         try {
             String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL) " +
                     "VALUES (?,?,?,?)";
@@ -48,9 +49,8 @@ public class DbTableQuestionShortAnswer {
             for (int i = 0; i < quest.getAnswers().size(); i++) {
                 DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getID()),quest.getAnswers().get(i));
             }
-        } catch ( Exception e ) {
+        } catch ( SQLException e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
         }
     }
     static public QuestionShortAnswer getShortAnswerQuestionWithId(String globalID) {

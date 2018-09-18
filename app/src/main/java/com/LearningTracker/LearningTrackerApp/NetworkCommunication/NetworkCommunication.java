@@ -75,14 +75,14 @@ public class NetworkCommunication {
                 DbHelper db_for_name = new DbHelper(mContextNetCom);
                 String name = DbTableSettings.getName();
                 String signal = "DISC///" + MacAddress + "///" + name + "///";
-                mWifiCom.sendDisconnectionSignal(signal);
+                mWifiCom.sendStringToServer(signal);
             }
 		} else {
 			String MacAddress = Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
 			DbHelper db_for_name = new DbHelper(mContextNetCom);
 			String name = DbTableSettings.getName();
 			String signal = "DISC///" + MacAddress + "///" + name + "///Android///";
-			mWifiCom.sendDisconnectionSignal(signal);
+			mWifiCom.sendStringToServer(signal);
 			Log.w("sending disc sign:","Too old API doesn't allow to check for disconnection because of screen turned off");
 		}
 	}

@@ -4,6 +4,7 @@ package com.LearningTracker.LearningTrackerApp.database_management;
  * Created by maximerichard on 21.02.18.
  */
 import android.content.ContentValues;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,7 +25,7 @@ public class DbTableAnswerOptions {
         }
     }
 
-    static public void addAnswerOption(String questionID, String option) throws Exception {
+    static public void addAnswerOption(String questionID, String option) {
         try {
             String sql;
             ContentValues initialValues = new ContentValues();
@@ -38,7 +39,7 @@ public class DbTableAnswerOptions {
                 System.out.println(option + "not added");
             }
             DbTableRelationQuestionAnserOption.addRelationQuestionAnserOption(questionID, option);
-        } catch ( Exception e ) {
+        } catch ( SQLException e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }

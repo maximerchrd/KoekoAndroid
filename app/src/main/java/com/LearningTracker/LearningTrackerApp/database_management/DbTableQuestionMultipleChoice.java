@@ -44,7 +44,7 @@ public class DbTableQuestionMultipleChoice {
      * @param quest
      * @throws Exception
      */
-    static public void addMultipleChoiceQuestion(QuestionMultipleChoice quest) throws Exception {
+    static public void addMultipleChoiceQuestion(QuestionMultipleChoice quest) {
         try {
             String sql = 	"INSERT OR REPLACE INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
@@ -72,7 +72,6 @@ public class DbTableQuestionMultipleChoice {
             Log.v("insert multQuest, ID: ", String.valueOf(quest.getID()));
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
         }
     }
     static public QuestionMultipleChoice getQuestionWithId(String globalID) {

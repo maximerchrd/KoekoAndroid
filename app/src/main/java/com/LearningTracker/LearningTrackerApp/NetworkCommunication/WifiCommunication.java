@@ -34,6 +34,7 @@ import com.LearningTracker.LearningTrackerApp.database_management.DbTableRelatio
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableRelationTestObjective;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableSettings;
 import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
+import com.google.android.gms.common.util.ArrayUtils;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;
@@ -157,17 +158,17 @@ public class WifiCommunication {
         answer = "";
     }
 
-    public void sendDisconnectionSignal(String signal) {
-        byte[] sigBuffer = signal.getBytes();
+    public void sendStringToServer(String message) {
+        byte[] sigBuffer = message.getBytes();
         try {
             if (mOutputStream != null) {
                 mOutputStream.write(sigBuffer, 0, sigBuffer.length);
                 mOutputStream.flush();
             } else {
-                Log.v("disconnection: ", "tries to send signal to null output stream");
+                Log.v("SendStringToServer", "tries to send signal to null output stream");
             }
         } catch (IOException e) {
-            String msg = "In sendDisconnectionSignal() and an exception occurred during write: " + e.getMessage();
+            String msg = "In sendStringToServer() and an IOexception occurred during write: " + e.getMessage();
             Log.e("Fatal Error", msg);
         }
     }
@@ -176,263 +177,95 @@ public class WifiCommunication {
         final WifiCommunication selfWifiCommunication = this;
         new Thread(new Runnable() {
             public void run() {
-                Boolean able_to_read = true;
-                while (able_to_read && mInputStream != null) {
-                    current = 0;
-                    byte[] prefix_buffer = new byte[80];
-                    String sizes = "";
-                    String byteread = "";
-                    try {
-                        bytes_read = mInputStream.read(prefix_buffer, 0, 80);
-                        if (bytes_read < 0) {
-                            able_to_read = false;
-                        }
-                        sizes = new String(prefix_buffer, "UTF-8");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        able_to_read = false;
-                    }
-                    Log.v("WifiCommunication", "received string: " + sizes);
-                    if (sizes.split("///")[0].split(":")[0].contentEquals("MULTQ")) {
-                        int size_of_image = Integer.parseInt(sizes.split(":")[1]);
-                        int size_of_text = Integer.parseInt(sizes.split(":")[2].replaceAll("\\D+", ""));
-                        byte[] whole_question_buffer = new byte[80 + size_of_image + size_of_text];
-                        for (int i = 0; i < 80; i++) {
-                            whole_question_buffer[i] = prefix_buffer[i];
-                        }
-                        current = 80;
-                        do {
-                            try {
-                                //Log.v("read input stream", "second");
+                try {
+                    Boolean able_to_read = true;
+                    while (able_to_read && mInputStream != null) {
+                        current = 0;
+                        byte[] prefix_buffer = readDataIntoArray(80, able_to_read);
+                        String sizesPrefix = null;
+                        sizesPrefix = new String(prefix_buffer, "UTF-8");
+                        Log.v("WifiCommunication", "received string: " + sizesPrefix);
+                        if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("MULTQ")) {
+                            //read question data
+                            int size_of_image = Integer.parseInt(sizesPrefix.split(":")[1]);
+                            int size_of_text = Integer.parseInt(sizesPrefix.split(":")[2].replaceAll("\\D+", ""));
+                            byte[] question_buffer = readDataIntoArray(size_of_image + size_of_text, able_to_read);
+                            byte[] whole_question_buffer = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
 
-                                bytes_read = mInputStream.read(whole_question_buffer, current, (80 + size_of_image + size_of_text - current));
-                                Log.v("number of bytes read:", Integer.toString(bytes_read));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                able_to_read = false;
-                            }
-                            if (bytes_read >= 0) {
-                                current += bytes_read;
-                                if (able_to_read == false) {
-                                    bytes_read = -1;
-                                    able_to_read = true;
-                                }
-                            }
-                        }
-                        while (bytes_read > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on server side
-                        bytes_read = 1;
-                        DataConversion convert_question = new DataConversion(mContextWifCom);
-                        QuestionMultipleChoice multquestion_to_save = convert_question.bytearrayvectorToMultChoiceQuestion(whole_question_buffer);
-                        try {
+                            //Convert data and save question
+                            DataConversion convert_question = new DataConversion(mContextWifCom);
+                            QuestionMultipleChoice multquestion_to_save = convert_question.bytearrayvectorToMultChoiceQuestion(whole_question_buffer);
                             DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(multquestion_to_save);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
 
-                        if (multquestion_to_save.getQUESTION().contains("7492qJfzdDSB")) {
-                            byte[] ansBuffer = "ACCUSERECEPTION".getBytes();
-                            try {
-                                mOutputStream.write(ansBuffer, 0, ansBuffer.length);
-                                Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
-                                mOutputStream.flush();
-                            } catch (IOException e) {
-                                String msg = "Sending accuse reception: an exception occurred during write: " + e.getMessage();
-                                Log.e("Fatal Error", msg);
-                            }
-                        }
-                    } else if (sizes.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
-                        int size_of_image = Integer.parseInt(sizes.split(":")[1]);
-                        int size_of_text = Integer.parseInt(sizes.split(":")[2].replaceAll("\\D+", ""));
-                        byte[] whole_question_buffer = new byte[80 + size_of_image + size_of_text];
-                        for (int i = 0; i < 80; i++) {
-                            whole_question_buffer[i] = prefix_buffer[i];
-                        }
-                        current = 80;
-                        do {
-                            try {
-                                //Log.v("read input stream", "second");
+                            sendStringToServer("OK///" + multquestion_to_save.getID() + "///");
 
-                                bytes_read = mInputStream.read(whole_question_buffer, current, (80 + size_of_image + size_of_text - current));
-                                Log.v("WifiCommunication", "number of bytes read:" + Integer.toString(bytes_read));
-//                                    for (int k = 0; k < 80 && current > 80; k++) {
-//                                        byteread += whole_question_buffer[current -21 + k];
-//                                    }
-//                                    Log.v("last bytes read: ", byteread);
-//                                    byteread = "";
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                able_to_read = false;
+                            if (multquestion_to_save.getQUESTION().contains("7492qJfzdDSB")) {
+                                sendStringToServer("ACCUSERECEPTION");
                             }
-                            if (bytes_read >= 0) {
-                                current += bytes_read;
-                                if (able_to_read == false) {
-                                    bytes_read = -1;
-                                    able_to_read = true;
-                                }
-                            }
-                        }
-                        while (bytes_read > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on server side
-                        bytes_read = 1;
-                        DataConversion convert_question = new DataConversion(mContextWifCom);
-                        QuestionShortAnswer shrtquestion_to_save = convert_question.bytearrayvectorToShortAnswerQuestion(whole_question_buffer);
-                        try {
+                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
+                            //read question data
+                            int size_of_image = Integer.parseInt(sizesPrefix.split(":")[1]);
+                            int size_of_text = Integer.parseInt(sizesPrefix.split(":")[2].replaceAll("\\D+", ""));
+                            byte[] question_buffer = readDataIntoArray(size_of_image + size_of_text, able_to_read);
+                            byte[] whole_question_buffer = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
+
+                            DataConversion convert_question = new DataConversion(mContextWifCom);
+                            QuestionShortAnswer shrtquestion_to_save = convert_question.bytearrayvectorToShortAnswerQuestion(whole_question_buffer);
                             DbTableQuestionShortAnswer.addShortAnswerQuestion(shrtquestion_to_save);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else if (sizes.split("///")[0].split(":")[0].contentEquals("QID")) {
-                        if (sizes.split(":")[1].contains("MLT")) {
-                            String id_global = sizes.split("///")[1];
 
-                            //reinitializing all types of displays
-                            LTApplication.currentTestActivitySingleton = null;
-                            LTApplication.shrtaqActivityState = null;
-                            LTApplication.qmcActivityState = null;
+                            sendStringToServer("OK///" + shrtquestion_to_save.getID() + "///");
+                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
+                            if (sizesPrefix.split(":")[1].contains("MLT")) {
+                                String id_global = sizesPrefix.split("///")[1];
 
-                            if (Long.valueOf(id_global) < 0) {
-                                //setup test and show it
-                                Long testId = -(Long.valueOf(sizes.split("///")[1]));
-                                directCorrection = sizes.split("///")[2];
-                                launchTestActivity(testId, directCorrection);
+                                //reinitializing all types of displays
+                                LTApplication.currentTestActivitySingleton = null;
                                 LTApplication.shrtaqActivityState = null;
                                 LTApplication.qmcActivityState = null;
-                            } else {
-                                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
-                                if (questionMultipleChoice.getQUESTION().length() > 0) {
-                                    questionMultipleChoice.setID(id_global);
-                                    directCorrection = sizes.split("///")[2];
-                                    launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
+
+                                if (Long.valueOf(id_global) < 0) {
+                                    //setup test and show it
+                                    Long testId = -(Long.valueOf(sizesPrefix.split("///")[1]));
+                                    directCorrection = sizesPrefix.split("///")[2];
+                                    launchTestActivity(testId, directCorrection);
                                     LTApplication.shrtaqActivityState = null;
-                                    LTApplication.currentTestActivitySingleton = null;
-                                } else {
-                                    QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
-                                    questionShortAnswer.setID(id_global);
-                                    directCorrection = sizes.split("///")[2];
-                                    launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
                                     LTApplication.qmcActivityState = null;
-                                    LTApplication.currentTestActivitySingleton = null;
-                                }
-                            }
-                        }
-                    } else if (sizes.split("///")[0].split(":")[0].contentEquals("EVAL")) {
-                        DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizes.split("///")[2], sizes.split("///")[1], lastAnswer);
-                    } else if (sizes.split("///")[0].split(":")[0].contentEquals("UPDEV")) {
-                        DbTableIndividualQuestionForResult.setEvalForQuestion(Double.valueOf(sizes.split("///")[1]), sizes.split("///")[2]);
-                    } else if (sizes.split("///")[0].split(":")[0].contentEquals("CORR")) {
-                        Intent mIntent = new Intent(mContextWifCom, CorrectedQuestionActivity.class);
-                        Bundle bun = new Bundle();
-                        bun.putString("questionID", sizes.split("///")[1]);
-                        mIntent.putExtras(bun);
-                        mContextWifCom.startActivity(mIntent);
-                    } else if (sizes.split("///")[0].split(":")[0].contentEquals("TEST")) {
-                        //2000001///test1///2000005;;;2000006:::EVALUATION<60|||2000006;;;2000007:::EVALUATION<60|||2000007|||///objectives///TESTMODE///
-                        //first, fetch the size we'll have to read
-                        Integer textBytesSize = 0;
-                        try {
-                            textBytesSize = Integer.valueOf(sizes.split("///")[0].split(":")[1]);
-                        } catch (NumberFormatException e) {
-                            textBytesSize = 0;
-                            Log.e("WifiCommunication", "error reading size when receiving TEST");
-                        }
-
-                        byte[] wholeDataBuffer = new byte[textBytesSize];
-                        current = 0;
-                        do {
-                            try {
-                                //Log.v("read input stream", "second");
-
-                                bytes_read = mInputStream.read(wholeDataBuffer, current, (textBytesSize - current));
-                                Log.v("WifiCommunication", "number of bytes read:" + Integer.toString(bytes_read));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                able_to_read = false;
-                            }
-                            if (bytes_read >= 0) {
-                                current += bytes_read;
-                                if (able_to_read == false) {
-                                    bytes_read = -1;
-                                    able_to_read = true;
-                                }
-                            }
-                        } while (bytes_read > 0);
-                        bytes_read = 1;
-
-                        //chop the first bytes
-                        //byte[] testDataBuffer = Arrays.copyOfRange(wholeDataBuffer, 80, wholeDataBuffer.length);
-                        String testString = "";
-                        try {
-                            testString = new String(wholeDataBuffer, "UTF-8");
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-
-                        Test newTest = new Test();
-                        newTest.setIdGlobal(Long.valueOf(testString.split("///")[0]));
-                        newTest.setTestName(testString.split("///")[1]);
-
-                        //read objectives
-                        try {
-                            String[] objectives = testString.split("///")[3].split("\\|\\|\\|");
-                            for (String objective : objectives) {
-                                DbTableRelationTestObjective.insertRelationTestObjective(String.valueOf(newTest.getIdGlobal()), objective);
-                            }
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            Log.e("WifiCommunication", "ArrayOutOfBound when parsing objectives from: " + testString);
-                            e.printStackTrace();
-                        }
-
-                        String[] questionRelation = testString.split("///")[2].split("\\|\\|\\|");
-                        for (String relation : questionRelation) {
-                            String[] relationSplit = relation.split(";;;");
-                            String questionId = relationSplit[0];
-                            newTest.getQuestionsIDs().add(questionId);
-                            for (int i = 1; i < relationSplit.length; i++) {
-                                try {
-                                    String[] array = relationSplit[i].split(":::");
-                                    DbTableRelationQuestionQuestion.insertRelationQuestionQuestion(StringTools.stringToLongID(questionId),
-                                            StringTools.stringToLongID(array[0]), newTest.getTestName(),
-                                            array[1]);
-                                } catch (ArrayIndexOutOfBoundsException e) {
-                                    //ERROR HERE
-                                    Log.e("WifiCommunication", "Array out of bound when inserting the condition for insertRelationQuestionQuestion");
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        newTest.setMedalsInstructionsString(testString.split("///")[5]);
-                        DbTableTest.insertTest(newTest);
-                    } else if (sizes.split(":")[0].contentEquals("OEVAL")) {
-                        if (sizes.split(":").length > 1) {
-                            //Read text data into array
-                            Integer textBytesSize = 0;
-                            try {
-                                textBytesSize = Integer.valueOf(sizes.split("///")[0].split(":")[1]);
-                            } catch (NumberFormatException e) {
-                                textBytesSize = 0;
-                                Log.e("WifiCommunication", "error reading size when receiving OEVAL");
-                            }
-
-                            byte[] wholeDataBuffer = new byte[textBytesSize];
-                            current = 0;
-                            do {
-                                try {
-                                    bytes_read = mInputStream.read(wholeDataBuffer, current, (textBytesSize - current));
-                                    Log.v("WifiCommunication", "number of bytes read:" + Integer.toString(bytes_read));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    able_to_read = false;
-                                }
-                                if (bytes_read >= 0) {
-                                    current += bytes_read;
-                                    if (able_to_read == false) {
-                                        bytes_read = -1;
-                                        able_to_read = true;
+                                } else {
+                                    QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
+                                    if (questionMultipleChoice.getQUESTION().length() > 0) {
+                                        questionMultipleChoice.setID(id_global);
+                                        directCorrection = sizesPrefix.split("///")[2];
+                                        launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
+                                        LTApplication.shrtaqActivityState = null;
+                                        LTApplication.currentTestActivitySingleton = null;
+                                    } else {
+                                        QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
+                                        questionShortAnswer.setID(id_global);
+                                        directCorrection = sizesPrefix.split("///")[2];
+                                        launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
+                                        LTApplication.qmcActivityState = null;
+                                        LTApplication.currentTestActivitySingleton = null;
                                     }
                                 }
-                            } while (bytes_read > 0);
-                            bytes_read = 1;
+                            }
+                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("EVAL")) {
+                            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizesPrefix.split("///")[2], sizesPrefix.split("///")[1], lastAnswer);
+                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("UPDEV")) {
+                            DbTableIndividualQuestionForResult.setEvalForQuestion(Double.valueOf(sizesPrefix.split("///")[1]), sizesPrefix.split("///")[2]);
+                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("CORR")) {
+                            Intent mIntent = new Intent(mContextWifCom, CorrectedQuestionActivity.class);
+                            Bundle bun = new Bundle();
+                            bun.putString("questionID", sizesPrefix.split("///")[1]);
+                            mIntent.putExtras(bun);
+                            mContextWifCom.startActivity(mIntent);
+                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("TEST")) {
+                            //2000001///test1///2000005;;;2000006:::EVALUATION<60|||2000006;;;2000007:::EVALUATION<60|||2000007|||///objectives///TESTMODE///
+                            //first, fetch the size we'll have to read
+                            Integer textBytesSize = 0;
+                            textBytesSize = Integer.valueOf(sizesPrefix.split("///")[0].split(":")[1]);
 
-                            //Convert data to string
+                            byte[] wholeDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
+
                             String testString = "";
                             try {
                                 testString = new String(wholeDataBuffer, "UTF-8");
@@ -440,28 +273,108 @@ public class WifiCommunication {
                                 e.printStackTrace();
                             }
 
-                            if (testString.split("///").length > 4) {
-                                String testID = testString.split("///")[0];
-                                String testName = testString.split("///")[1];
-                                String objectiveID = testString.split("///")[2];
-                                String objective = testString.split("///")[3];
-                                String evaluation = testString.split("///")[4];
+                            Test newTest = new Test();
+                            newTest.setIdGlobal(Long.valueOf(testString.split("///")[0]));
+                            newTest.setTestName(testString.split("///")[1]);
 
-                                DbTableLearningObjective.addLearningObjective(objectiveID, objective, 0);
-                                DbTableRelationTestObjective.insertRelationTestObjective(testID, objectiveID);
-                                Test certificativeTest = new Test();
-                                certificativeTest.setTestName(testName);
-                                certificativeTest.setTestType("CERTIF");
-                                certificativeTest.setIdGlobal(Long.getLong(testID));
-                                DbTableTest.insertTest(certificativeTest);
-                                DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(objectiveID, evaluation, 2, testName);
-                                Log.d("INFO", "received OEVAL");
+                            //read objectives
+                            try {
+                                String[] objectives = testString.split("///")[3].split("\\|\\|\\|");
+                                for (String objective : objectives) {
+                                    DbTableRelationTestObjective.insertRelationTestObjective(String.valueOf(newTest.getIdGlobal()), objective);
+                                }
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                Log.e("WifiCommunication", "ArrayOutOfBound when parsing objectives from: " + testString);
+                                e.printStackTrace();
+                            }
+
+                            String[] questionRelation = testString.split("///")[2].split("\\|\\|\\|");
+                            for (String relation : questionRelation) {
+                                String[] relationSplit = relation.split(";;;");
+                                String questionId = relationSplit[0];
+                                newTest.getQuestionsIDs().add(questionId);
+                                for (int i = 1; i < relationSplit.length; i++) {
+                                    try {
+                                        String[] array = relationSplit[i].split(":::");
+                                        DbTableRelationQuestionQuestion.insertRelationQuestionQuestion(StringTools.stringToLongID(questionId),
+                                                StringTools.stringToLongID(array[0]), newTest.getTestName(),
+                                                array[1]);
+                                    } catch (ArrayIndexOutOfBoundsException e) {
+                                        //ERROR HERE
+                                        Log.e("WifiCommunication", "Array out of bound when inserting the condition for insertRelationQuestionQuestion");
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                            newTest.setMedalsInstructionsString(testString.split("///")[5]);
+                            DbTableTest.insertTest(newTest);
+                        } else if (sizesPrefix.split(":")[0].contentEquals("OEVAL")) {
+                            if (sizesPrefix.split(":").length > 1) {
+                                //Read text data into array
+                                Integer textBytesSize = 0;
+                                textBytesSize = Integer.valueOf(sizesPrefix.split("///")[0].split(":")[1]);
+
+                                byte[] wholeDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
+
+                                //Convert data to string
+                                String testString = "";
+                                try {
+                                    testString = new String(wholeDataBuffer, "UTF-8");
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+
+                                if (testString.split("///").length > 4) {
+                                    String testID = testString.split("///")[0];
+                                    String testName = testString.split("///")[1];
+                                    String objectiveID = testString.split("///")[2];
+                                    String objective = testString.split("///")[3];
+                                    String evaluation = testString.split("///")[4];
+
+                                    DbTableLearningObjective.addLearningObjective(objectiveID, objective, 0);
+                                    DbTableRelationTestObjective.insertRelationTestObjective(testID, objectiveID);
+                                    Test certificativeTest = new Test();
+                                    certificativeTest.setTestName(testName);
+                                    certificativeTest.setTestType("CERTIF");
+                                    certificativeTest.setIdGlobal(Long.getLong(testID));
+                                    DbTableTest.insertTest(certificativeTest);
+                                    DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(objectiveID, evaluation, 2, testName);
+                                    Log.d("INFO", "received OEVAL");
+                                }
                             }
                         }
                     }
+                } catch (UnsupportedEncodingException e) {
+                    Log.e("ListenToServer", "not able to read prefix:" + e.getMessage());
+                } catch (NumberFormatException e) {
+                    Log.e("ListenToServer", "not able to read sizes from prefix:" + e.getMessage());
                 }
             }
         }).start();
+    }
+
+    private byte[] readDataIntoArray(int expectedSize, Boolean able_to_read) {
+        byte[] arrayToReadInto = new byte[expectedSize];
+        int bytesReadAlready = 0;
+        int totalBytesRead = 0;
+        do {
+            try {
+                bytesReadAlready = mInputStream.read(arrayToReadInto, totalBytesRead, expectedSize - totalBytesRead);
+                Log.v("number of bytes read:", Integer.toString(bytesReadAlready));
+            } catch (IOException e) {
+                able_to_read = false;
+                e.printStackTrace();
+            }
+            if (bytesReadAlready >= 0) {
+                totalBytesRead += bytesReadAlready;
+                if (able_to_read == false) {
+                    bytesReadAlready = -1;
+                    able_to_read = true;
+                }
+            }
+        } while (bytesReadAlready > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on server side
+
+        return arrayToReadInto;
     }
 
     public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display, String directCorrection) {
@@ -538,26 +451,5 @@ public class WifiCommunication {
                 }
             }
         }).start();
-    }
-
-    /**
-     * WORK IN PROGRESS
-     * method used to scan the wifi network to which the smartphone is connected
-     * and try to connect to the "interesting" ip addresses (e.g. 192.168.x.xx, 127.0.x.x)
-     */
-    public void scanAndConnectToIP() {
-        try {
-            Enumeration nis = NetworkInterface.getNetworkInterfaces();
-            while (nis.hasMoreElements()) {
-                NetworkInterface ni = (NetworkInterface) nis.nextElement();
-                Enumeration ias = ni.getInetAddresses();
-                while (ias.hasMoreElements()) {
-                    InetAddress ia = (InetAddress) ias.nextElement();
-                    Log.d("address found:", ia.getHostAddress());
-                }
-
-            }
-        } catch (SocketException ex) {
-        }
     }
 }
