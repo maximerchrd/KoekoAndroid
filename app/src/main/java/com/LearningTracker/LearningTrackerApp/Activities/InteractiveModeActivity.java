@@ -18,6 +18,8 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,7 +29,7 @@ import android.widget.Toast;
 
 import static android.content.ContentValues.TAG;
 
-public class InteractiveModeActivity extends Activity {
+public class InteractiveModeActivity extends AppCompatActivity {
     NetworkCommunication mNetCom;
     public TextView intmod_out;
     private TextView intmod_wait_for_question;
@@ -60,7 +62,7 @@ public class InteractiveModeActivity extends Activity {
         mNetCom = new NetworkCommunication(this, getApplication(), intmod_out, logView);
         mNetCom.ConnectToMaster();
 
-        intmod_wait_for_question.setText("Connecting...");
+        intmod_wait_for_question.setText(getString(R.string.connecting));
 
         new Thread(new Runnable() {
             public void run() {
@@ -87,8 +89,7 @@ public class InteractiveModeActivity extends Activity {
                         interactiveModeActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                intmod_wait_for_question.setText("Automatic connection failed. If it keeps failing, " +
-                                        "try to set the teachers'IP address manually in \"Settings\"");
+                                intmod_wait_for_question.setText(getString(R.string.automatic_connection_failed));
                             }
                         });
                         connectionInfo = true;
@@ -203,9 +204,9 @@ public class InteractiveModeActivity extends Activity {
 
         if (forwardButton != null) {
             if (LTApplication.qmcActivityState != null || LTApplication.shrtaqActivityState != null) {
-                forwardButton.setTitle("Back To Question >");
+                forwardButton.setTitle(getString(R.string.back_to_question) + " >");
             } else if (LTApplication.currentTestActivitySingleton != null) {
-                forwardButton.setTitle("Back To Test >");
+                forwardButton.setTitle(getString(R.string.back_to_test) + " >");
             }
         }
 

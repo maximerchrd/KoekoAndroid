@@ -4,6 +4,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,7 +32,7 @@ import java.util.Vector;
 
 import static android.content.ContentValues.TAG;
 
-public class EvaluationResultsActivity extends Activity {
+public class EvaluationResultsActivity extends AppCompatActivity {
 
     private Spinner menuSubjectSpinner;
     private Spinner menuTestSpinner;
@@ -54,7 +55,7 @@ public class EvaluationResultsActivity extends Activity {
         //setup the spinner for subject choice
         MenuItem menuSubject = menu.findItem(R.id.menu_subject);
 
-        menuSubjectSpinner = (Spinner) MenuItemCompat.getActionView(menuSubject);
+        menuSubjectSpinner = (Spinner) menuSubject.getActionView();
         Vector <String> subjectsVector = DbTableSubject.getAllSubjects();
         subjectsVector.insertElementAt(getString(R.string.all_subjects),0);
         String[] arraySpinner = subjectsVector.toArray(new String[subjectsVector.size()]);

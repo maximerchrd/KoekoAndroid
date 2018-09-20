@@ -3,6 +3,7 @@ package com.LearningTracker.LearningTrackerApp.Activities;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,7 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
-public class TestActivity extends Activity {
+public class TestActivity extends AppCompatActivity {
     public Map<String, String> mcqActivitiesStates;
     public Map<String, String> shrtaqActivitiesStates;
     public TestChronometer testChronometer;

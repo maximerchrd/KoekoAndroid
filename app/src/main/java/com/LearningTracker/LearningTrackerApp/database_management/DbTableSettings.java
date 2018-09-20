@@ -19,7 +19,7 @@ public class DbTableSettings {
                 KEY_AUTOMATIC_CONNECTION +" INTEGER)";
         DbHelper.dbase.execSQL(sql);
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, "Anonyme");
+        values.put(KEY_NAME, "@string/no-name");
         values.put(KEY_MASTER, "192.168.1.100");
         values.put(KEY_AUTOMATIC_CONNECTION, 1);
         // Inserting of Replacing Row

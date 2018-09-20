@@ -46,4 +46,13 @@
     <string name="ok_button">OK</string>
     <string name="answer_example">La réponse est par exemple: </string>
     <string name="title_activity_corrected_question">Correction</string>
+    <string name="results_list">Liste</string>
+    <string name="results_graph">Graphique</string>
+    <string name="results_city">Ta ville</string>
+    <string name="connecting">J\'attends une connection...</string>
+    <string name="automatic_connection_failed">La connection automatique a échoué. Si cela continue, entre manuellement l\'adresse IP de l\'ordinateur de l\'enseignant dans les \"Paramètres\"</string>
+    <string name="automatic_connection">Connection Automatique</string>
+    <string name="no_name">Anonyme</string>
+    <string name="back_to_question">Retour à la question</string>
+    <string name="back_to_test">Retour au Test</string>
 </resources>

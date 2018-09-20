@@ -60,16 +60,16 @@
             android:label="Test"></activity>
         <activity
             android:name="com.LearningTracker.LearningTrackerApp.Activities.ResultsActivtity"
-            android:label="Test"></activity>
+            android:label="@string/title_activity_evaluation_results"></activity>
         <activity
             android:name="com.LearningTracker.LearningTrackerApp.Activities.ResultsListActivity"
-            android:label="Test"></activity>
+            android:label="@string/title_activity_evaluation_results"></activity>
         <activity
             android:name="com.LearningTracker.LearningTrackerApp.Activities.ResultsFullViewActivity"
-            android:label="Test"></activity>
+            android:label="@string/title_activity_evaluation_results"></activity>
         <activity
             android:name="com.LearningTracker.LearningTrackerApp.Activities.EvaluationCityRepresentationActivity"
-            android:label="City Representation"></activity>
+            android:label="@string/title_activity_evaluation_results"></activity>
         <activity
             android:name="com.LearningTracker.LearningTrackerApp.Activities.QRCodeReaderActivity"
             android:label="Read QR Code"></activity>

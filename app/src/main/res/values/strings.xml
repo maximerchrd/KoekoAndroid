@@ -54,4 +54,13 @@
     <string name="ok_button">OK</string>
     <string name="answer_example">The answer is for example:</string>
     <string name="title_activity_corrected_question">Correction</string>
+    <string name="results_list">List</string>
+    <string name="results_graph">Graph</string>
+    <string name="results_city">Your City</string>
+    <string name="connecting">Connecting...</string>
+    <string name="automatic_connection_failed">Automatic connection failed. If it keeps failing, set the teacher\'s IP address manually in \"Settings\"</string>
+    <string name="automatic_connection">Automatic Connection</string>
+    <string name="no_name">No Name</string>
+    <string name="back_to_question">Back to Question</string>
+    <string name="back_to_test">Back to Test</string>
 </resources>

@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +27,7 @@ import com.LearningTracker.LearningTrackerApp.database_management.DbTableTest;
 
 import java.util.Vector;
 
-public class EvaluationCityRepresentationActivity extends Activity {
+public class EvaluationCityRepresentationActivity extends AppCompatActivity {
 
     private Spinner menuSubjectSpinner;
     private Spinner menuTestSpinner;

@@ -46,4 +46,13 @@
     <string name="ok_button">դեռ չի թարգմանվել</string>
     <string name="answer_example">դեռ չի թարգմանվել</string>
     <string name="title_activity_corrected_question">դեռ չի թարգմանվել</string>
+    <string name="results_list">դեռ չի թարգմանվել</string>
+    <string name="results_graph">դեռ չի թարգմանվել</string>
+    <string name="results_city">դեռ չի թարգմանվել</string>
+    <string name="connecting">դեռ չի թարգմանվել</string>
+    <string name="automatic_connection_failed">դեռ չի թարգմանվել</string>
+    <string name="automatic_connection">դեռ չի թարգմանվել</string>
+    <string name="no_name">դեռ չի թարգմանվել</string>
+    <string name="back_to_question">դեռ չի թարգմանվել</string>
+    <string name="back_to_test">դեռ չի թարգմանվել</string>
 </resources>

@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/linearLayoutSettingsName"
             android:layout_marginBottom="5dp"
-            android:text="Automatic Connection"
+            android:text="@string/automatic_connection"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/black"
             android:layout_weight="1"/>
