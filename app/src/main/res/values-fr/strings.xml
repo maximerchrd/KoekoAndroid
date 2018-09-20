@@ -13,7 +13,7 @@
     <string name="title_activity_bluetoothclient">Commencer</string>
     <string name="title_activity_client">Réseau</string>
     <string name="title_activity_evaluation_results">Résultats</string>
-    <string name="title_activity_interactivemode">Activité en classe</string>
+    <string name="title_activity_interactivemode">Activité</string>
     <string name="title_activity_question">Question</string>
     <string name="title_activity_quiz">Quiz</string>
     <string name="title_activity_result">Résultats</string>
