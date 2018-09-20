@@ -2,71 +2,111 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:layout_marginLeft="15dp"
+    android:layout_marginRight="15dp"
     tools:context=".Activities.MenuActivity">
 
-    <TextView
-        android:id="@+id/textViewNom"
+    <LinearLayout
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="200dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/settings_name"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/black" />
-
-    <EditText
-        android:id="@+id/edittextnom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textViewNom"
-        android:ems="10"
-        android:layout_marginBottom="20dp"
-        android:inputType="textPersonName"
-        android:textColor="@color/black">
-
-        <requestFocus />
-    </EditText>
-
-    <Switch
-        android:id="@+id/automaticConnectionSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/edittextnom"
-        android:text="Automatic Connection"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/black"/>
-
-    <TextView
-        android:id="@+id/textViewMaster"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/automaticConnectionSwitch"
-        android:text="@string/settings_master"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/black" />
-
-    <EditText
-        android:id="@+id/edittextmaster"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textViewMaster"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:textColor="@color/black">
-
-        <requestFocus />
-    </EditText>
-
-    <Button
-        android:id="@+id/buttonsaveandback"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/edittextmaster"
-        android:text="@string/button_settings_back"
-        android:textColor="@color/white" />
+        android:layout_alignParentTop="true"
+        android:orientation="vertical"
+        android:weightSum="8">
+
+        <LinearLayout
+            android:id="@+id/linearLayoutSettingsName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_weight="3"
+            android:weightSum="10"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewNom"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_name"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:layout_weight="3"/>
+
+            <EditText
+                android:id="@+id/edittextnom"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/textViewNom"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:textColor="@color/black"
+                android:layout_weight="7">
+
+                <requestFocus />
+            </EditText>
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/automaticConnectionSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linearLayoutSettingsName"
+            android:layout_marginBottom="5dp"
+            android:text="Automatic Connection"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/black"
+            android:layout_weight="1"/>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutSettingsIPAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_below="@+id/automaticConnectionSwitch"
+            android:orientation="horizontal"
+            android:layout_weight="3"
+            android:weightSum="10">
+
+            <TextView
+                android:id="@+id/textViewMaster"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/automaticConnectionSwitch"
+                android:text="@string/settings_master"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:layout_weight="5"/>
+
+            <EditText
+                android:id="@+id/edittextmaster"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/textViewMaster"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:textColor="@color/black"
+                android:layout_weight="5">
+
+                <requestFocus />
+            </EditText>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonsaveandback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linearLayoutSettingsIPAddress"
+            android:backgroundTint="@color/blue"
+            android:text="@string/button_settings_back"
+            android:textColor="@color/white"
+            android:layout_weight="1"
+            android:layout_gravity="right"/>
+    </LinearLayout>
 
 </RelativeLayout>

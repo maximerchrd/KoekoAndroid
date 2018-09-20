@@ -7,7 +7,7 @@
     <string name="menu_level">niveau:</string>
     <string name="menu_score">score:</string>
     <string name="menu_settings">Paramètres</string>
-    <string name="settings_master">Adresse ip du serveur</string>
+    <string name="settings_master">Adresse du serveur</string>
     <string name="settings_name">Nom</string>
     <string name="str_next">Suivant</string>
     <string name="title_activity_bluetoothclient">Commencer</string>
