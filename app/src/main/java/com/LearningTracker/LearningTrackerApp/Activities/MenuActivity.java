@@ -78,7 +78,9 @@ public class MenuActivity extends Activity {
 		});
 
 		Button button = (Button)findViewById(R.id.dbBrowsingButton);
-		//button.setVisibility(View.GONE);
+		if (!DbTableSettings.getName().contentEquals("secretcode")) {
+			button.setVisibility(View.GONE);
+		}
 
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
