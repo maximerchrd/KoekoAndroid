@@ -1,7 +1,10 @@
 package com.LearningTracker.LearningTrackerApp.database_management;
 
 import android.content.ContentValues;
+import android.content.res.Resources;
 import android.database.Cursor;
+
+import com.LearningTracker.LearningTrackerApp.R;
 
 public class DbTableSettings {
     private static final String TABLE_SETTINGS = "settings";
@@ -11,7 +14,7 @@ public class DbTableSettings {
     private static final String KEY_MASTER = "master";
     private static final String KEY_AUTOMATIC_CONNECTION = "automatic_connection";
 
-    static public void createTable() {
+    static public void createTable(String noName) {
         String sql = "CREATE TABLE IF NOT EXISTS " + TABLE_SETTINGS + " ( "
                 + KEY_IDsettings + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + KEY_NAME +" TEXT,"
@@ -19,7 +22,7 @@ public class DbTableSettings {
                 KEY_AUTOMATIC_CONNECTION +" INTEGER)";
         DbHelper.dbase.execSQL(sql);
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, "@string/no-name");
+        values.put(KEY_NAME, noName);
         values.put(KEY_MASTER, "192.168.1.100");
         values.put(KEY_AUTOMATIC_CONNECTION, 1);
         // Inserting of Replacing Row

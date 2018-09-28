@@ -11,11 +11,13 @@ import com.LearningTracker.LearningTrackerApp.database_management.DbTableSetting
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MenuActivity extends Activity {
 	Button  scoresButton, exerciceButton, buttonChangeSettings, interactiveModeButton;
@@ -36,8 +38,15 @@ public class MenuActivity extends Activity {
 		interactiveModeButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MenuActivity.this, InteractiveModeActivity.class);
-				startActivity(intent);
+				//check if the user changed the default name
+				if (DbTableSettings.getName().contentEquals(getString(R.string.no_name))) {
+					Toast toast = Toast.makeText(getApplicationContext(), R.string.please_change_name, Toast.LENGTH_LONG);
+					toast.setGravity(Gravity.TOP,0,100);
+					toast.show();
+				} else {
+					Intent intent = new Intent(MenuActivity.this, InteractiveModeActivity.class);
+					startActivity(intent);
+				}
 			}
 		});
 

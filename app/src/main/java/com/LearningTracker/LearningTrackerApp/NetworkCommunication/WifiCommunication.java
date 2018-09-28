@@ -81,8 +81,6 @@ public class WifiCommunication {
 
     public void connectToServer(String connectionString) {
         try {
-            //Reinitialize IP to detect automatic connection failure
-
             //Automatic connection
             Integer automaticConnection = DbTableSettings.getAutomaticConnection();
             if (automaticConnection == 1) {

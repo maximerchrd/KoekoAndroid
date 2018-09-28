@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.LearningTracker.LearningTrackerApp.R;
+
 import java.util.ArrayList;
 
 public class DbHelper extends SQLiteOpenHelper {
@@ -23,12 +25,12 @@ public class DbHelper extends SQLiteOpenHelper {
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         DbHelper.dbase = getWritableDatabase();
-        createTables();
+        createTables(context);
         Log.v("DbHelper", "Constructor");
     }
 
-    private void createTables() {
-        DbTableSettings.createTable();
+    private void createTables(Context context) {
+        DbTableSettings.createTable(context.getString(R.string.no_name));
         DbTableQuestionMultipleChoice.createTableQuestionMultipleChoice();
         DbTableLearningObjective.createTableLearningObjectives();
         DbTableRelationQuestionObjective.createTableRelationQuestionObjectives();
