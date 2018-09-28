@@ -40,11 +40,15 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.widget.TextView;
+
+import static android.content.Context.WIFI_SERVICE;
 
 public class WifiCommunication {
     final private int PORTNUMBER = 9090;
@@ -74,66 +78,119 @@ public class WifiCommunication {
         mApplication = arg_application;
         ((LTApplication) mApplication).setAppWifi(this);
         mContextWifCom = arg_context;
-        mWifi = (WifiManager) mContextWifCom.getSystemService(Context.WIFI_SERVICE);
+        mWifi = (WifiManager) mContextWifCom.getSystemService(WIFI_SERVICE);
         this.logView = logView;
     }
 
 
     public void connectToServer(String connectionString) {
         try {
-            //Reinitialize IP to detect automatic connection failure
 
-            //Automatic connection
-            Integer automaticConnection = DbTableSettings.getAutomaticConnection();
-            if (automaticConnection == 1) {
-                listenForIPThroughUDP();
-                for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 40; j++) {
+                String ssid = "koeko-hotspot";
+                String password = "12345678";
+                /*if (j%2 != 0) {
+                    ssid = "Ucom-CE56";
+                    password = "10226346";
+                }*/
+                WifiConfiguration wfc = new WifiConfiguration();
+
+                wfc.SSID = "\"".concat(ssid).concat("\"");
+                wfc.status = WifiConfiguration.Status.DISABLED;
+                wfc.priority = 4000;
+                wfc.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                wfc.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                wfc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                wfc.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+                wfc.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+                wfc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+                wfc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+                wfc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+                wfc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+
+                wfc.preSharedKey = "\"".concat(password).concat("\"");
+                WifiManager wfMgr = (WifiManager) mContextWifCom.getSystemService(Context.WIFI_SERVICE);
+                int oldNetID = wfMgr.getConnectionInfo().getNetworkId();
+                int networkId = wfMgr.addNetwork(wfc);
+                wfMgr.disconnect();
+                wfMgr.disableNetwork(oldNetID);
+                wfMgr.enableNetwork(networkId, true);
+                //wfMgr.reconnect();
+
+                //Automatic connection
+                Integer automaticConnection = DbTableSettings.getAutomaticConnection();
+                if (automaticConnection == 1) {
+                    listenForIPThroughUDP();
+                    for (int i = 0; i < 10; i++) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (!ip_address.contentEquals("no IP")) {
+                            break;
+                        }
+                    }
+
+                    if (ip_address.contentEquals("no IP")) {
+                        ip_address = DbTableSettings.getMaster();
+                        connectionSuccess = -2;
+                    }
+                } else {
+                    ip_address = DbTableSettings.getMaster();
+                }
+                //while (!wfMgr.getConnectionInfo().getSupplicantState() == SupplicantState.) {
+                for (int i = 0; i < 5; i++) {
+                    Log.v("coninfo bef", wfMgr.getConnectionInfo().toString());
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(400);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if (!ip_address.contentEquals("no IP")) {
-                        break;
+                }
+                //}
+                Log.v("coninfo aft", wfMgr.getConnectionInfo().toString());
+
+                Log.v("networkid", String.valueOf(wfMgr.getConnectionInfo().getNetworkId()));
+                if (true) {
+                    Log.v("connectToServer", "beginning");
+                    Socket s = new Socket(ip_address, PORTNUMBER);
+                    connectionSuccess = 1;
+                    //outgoing stream redirect to socket
+                    mOutputStream = s.getOutputStream();
+                    mInputStream = s.getInputStream();
+
+                    byte[] conBuffer = connectionString.getBytes();
+                    try {
+                        mOutputStream.write(conBuffer, 0, conBuffer.length);
+                        mOutputStream.flush();
+                    } catch (IOException e) {
+                        String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
+                        Log.e("Fatal Error", msg);
                     }
+                    //listenForQuestions();
                 }
-
-                if (ip_address.contentEquals("no IP")) {
-                    ip_address = DbTableSettings.getMaster();
-                    connectionSuccess = -2;
+                wfMgr.disconnect();
+                wfMgr.disableNetwork(networkId);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } else {
-                ip_address = DbTableSettings.getMaster();
             }
 
-            Log.v("connectToServer", "beginning");
-            Socket s = new Socket(ip_address, PORTNUMBER);
-            connectionSuccess = 1;
-            //outgoing stream redirect to socket
-            mOutputStream = s.getOutputStream();
-            mInputStream = s.getInputStream();
 
-            byte[] conBuffer = connectionString.getBytes();
-            try {
-                mOutputStream.write(conBuffer, 0, conBuffer.length);
-                mOutputStream.flush();
-            } catch (IOException e) {
-                String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
-                Log.e("Fatal Error", msg);
-            }
-
-            listenForQuestions();
 
 
         } catch (UnknownHostException e) {
-            Log.v("connection to server", ": failure, unknown host");
+            Log.v("connection to server", "failure, unknown host");
 
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
             }
             e.printStackTrace();
         } catch (IOException e) {
-            Log.v("connection to server", ": failure, i/o exception");
+            Log.v("connection to server", "failure, i/o exception");
 
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
@@ -372,7 +429,8 @@ public class WifiCommunication {
                     able_to_read = true;
                 }
             }
-        } while (bytesReadAlready > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on server side
+        }
+        while (bytesReadAlready > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on server side
 
         return arrayToReadInto;
     }
