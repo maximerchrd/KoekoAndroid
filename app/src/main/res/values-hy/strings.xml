@@ -56,4 +56,10 @@
     <string name="back_to_question">դեռ չի թարգմանվել</string>
     <string name="back_to_test">դեռ չի թարգմանվել</string>
     <string name="please_change_name">դեռ չի թարգմանվել</string>
+    <string name="formative">դեռ չի թարգմանվել</string>
+    <string name="certificative">դեռ չի թարգմանվել</string>
+    <string name="candobetter">դեռ չի թարգմանվել</string>
+    <string name="ok">դեռ չի թարգմանվել</string>
+    <string name="good">դեռ չի թարգմանվել</string>
+    <string name="excellent">դեռ չի թարգմանվել</string>
 </resources>

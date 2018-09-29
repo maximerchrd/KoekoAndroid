@@ -56,4 +56,10 @@
     <string name="back_to_question">Retour à la question</string>
     <string name="back_to_test">Retour au Test</string>
     <string name="please_change_name">Avant de démarrer l\'activité en classe, modifie le nom dans \"Paramètres\"</string>
+    <string name="formative">Formatif</string>
+    <string name="certificative">Certificatif</string>
+    <string name="candobetter">Tu peux mieux</string>
+    <string name="ok">OK</string>
+    <string name="good">Bien</string>
+    <string name="excellent">Excellent</string>
 </resources>

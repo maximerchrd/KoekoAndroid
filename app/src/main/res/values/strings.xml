@@ -64,4 +64,10 @@
     <string name="back_to_question">Back to Question</string>
     <string name="back_to_test">Back to Test</string>
     <string name="please_change_name">Please change the user name in \"Settings\" before starting a classroom activity</string>
+    <string name="formative">Formative</string>
+    <string name="certificative">Certificative</string>
+    <string name="candobetter">Can do better</string>
+    <string name="ok">OK</string>
+    <string name="good">Good</string>
+    <string name="excellent">Excellent</string>
 </resources>

@@ -249,16 +249,16 @@ public class EvaluationCityRepresentationActivity extends AppCompatActivity {
                 }
                 if (Double.valueOf(result) < 50) {
                     imageView.setImageResource(R.drawable.building_worst);
-                    qualitativeResult = "Can do better";
+                    qualitativeResult = getResources().getString(R.string.candobetter);
                 } else if (Double.valueOf(result) < 70) {
                     imageView.setImageResource(R.drawable.building_best);
-                    qualitativeResult = "OK";
+                    qualitativeResult = getResources().getString(R.string.ok);
                 } else if (Double.valueOf(result) < 90) {
                     imageView.setImageResource(R.drawable.building_best);
-                    qualitativeResult = "Good!";
+                    qualitativeResult = getResources().getString(R.string.good) + "!";
                 } else {
                     imageView.setImageResource(R.drawable.building_best);
-                    qualitativeResult = "Excellent!!!";
+                    qualitativeResult = getResources().getString(R.string.excellent) + "!!!";
                 }
 
                 //setting image position
@@ -273,9 +273,9 @@ public class EvaluationCityRepresentationActivity extends AppCompatActivity {
                 // Creating a new TextView
                 TextView subText = new TextView(this);
                 if (i == 0) {
-                    subText.setText("Formative: " + qualitativeResult);
+                    subText.setText(getResources().getString(R.string.formative) + ": " + qualitativeResult);
                 } else {
-                    subText.setText("Certificative: " + qualitativeResult);
+                    subText.setText(getResources().getString(R.string.certificative) + ": " + qualitativeResult);
                 }
 
                 // Defining the layout parameters of the TextView
