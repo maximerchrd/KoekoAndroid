@@ -40,7 +40,7 @@ public class DbTableSubject {
             }
         }
     }
-    static public Vector<String> getSubjectsForQuestionID(int questionID) {
+    static public Vector<String> getSubjectsForQuestionID(Long questionID) {
         Vector<String> subjects = new Vector<>();
         try {
             String query = "SELECT SUBJECT FROM subjects " +
@@ -127,7 +127,7 @@ public class DbTableSubject {
             //get the subjects for the remaining questions IDs
             for (int i = 0; i < questionIDs.size(); i++) {
                 Vector<String> tempSubjectVector = new Vector<>();
-                tempSubjectVector = getSubjectsForQuestionID(Integer.valueOf(questionIDs.get(i)));
+                tempSubjectVector = getSubjectsForQuestionID(Long.valueOf(questionIDs.get(i)));
                 for (int j = 0; j < tempSubjectVector.size(); j++) {
                     subjects.add(tempSubjectVector.get(j));
                 }

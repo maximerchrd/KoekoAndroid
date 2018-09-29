@@ -52,16 +52,16 @@ public class ExerciseActivity extends Activity {
             public void onClick(View v) {
                 //implements the practice button
                 Vector<String> questionIDsVector =  DbTableSubject.getSubjectsAndQuestionsNeedingPractice().get(0);
-                final ArrayList<Integer> questionIDsArray = new ArrayList<>();
+                final ArrayList<String> questionIDsArray = new ArrayList<>();
                 for (int i = 0; i < questionIDsVector.size(); i++) {
-                    questionIDsArray.add(Integer.valueOf(questionIDsVector.get(i)));
+                    questionIDsArray.add(questionIDsVector.get(i));
                 }
                 //ArrayList<Integer> questionIDsArrayCopy = (ArrayList<Integer>) questionIDsArray.clone();
                 String selectedSubject = subjectsSpinner.getSelectedItem().toString();
                 if (!selectedSubject.contentEquals(getString(R.string.all_subjects))) {
                     int arraySize = questionIDsArray.size();
                     for (int i = 0; i < arraySize; i++) {
-                        Vector<String> subjectForQuestion = DbTableSubject.getSubjectsForQuestionID(questionIDsArray.get(i));
+                        Vector<String> subjectForQuestion = DbTableSubject.getSubjectsForQuestionID(Long.valueOf(questionIDsArray.get(i)));
                         if (!subjectForQuestion.contains(selectedSubject)) {
                             questionIDsArray.remove(i);
                             i--;
@@ -75,7 +75,7 @@ public class ExerciseActivity extends Activity {
                     alertDialog.show();
                 } else {
                     Bundle bundle = new Bundle();
-                    bundle.putIntegerArrayList("IDsArray", questionIDsArray);
+                    bundle.putStringArrayList("IDsArray", questionIDsArray);
                     Intent myIntent = new Intent(mContext, QuestionSetActivity.class);
                     myIntent.putExtras(bundle);
                     mContext.startActivity(myIntent);
