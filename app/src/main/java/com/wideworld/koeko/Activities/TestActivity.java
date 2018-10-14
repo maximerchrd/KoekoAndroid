@@ -1,6 +1,7 @@
 package com.wideworld.koeko.Activities;
 
 import android.graphics.Color;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -45,6 +46,8 @@ public class TestActivity extends AppCompatActivity {
 
 
     private Test mTest;
+
+    private String TAG = "TestActivity";
 
     public Test getmTest() {
         return mTest;
@@ -164,18 +167,22 @@ public class TestActivity extends AppCompatActivity {
             //check if medal won
             String medal = "none";
             String message = "You are a Champ!";
-            if (Long.valueOf(mTest.getMedalsInstructions().get(2).get(0)) >= testDuration &&
-                    Double.valueOf(mTest.getMedalsInstructions().get(2).get(1)) <= quantEval) {
-                message += "\nYou won the GOLD MEDAL";
-                medal = "gold-medal";
-            } else if (Long.valueOf(mTest.getMedalsInstructions().get(1).get(0)) >= testDuration &&
-                    Double.valueOf(mTest.getMedalsInstructions().get(1).get(1)) <= quantEval) {
-                medal = "silver-medal";
-                message += "\nYou won the SILVER MEDAL";
-            } else if (Long.valueOf(mTest.getMedalsInstructions().get(0).get(0)) >= testDuration &&
-                    Double.valueOf(mTest.getMedalsInstructions().get(0).get(1)) <= quantEval) {
-                medal = "bronze-medal";
-                message += "\nYou won the BRONZE MEDAL";
+            try {
+                if (Long.valueOf(mTest.getMedalsInstructions().get(2).get(0)) >= testDuration &&
+                        Double.valueOf(mTest.getMedalsInstructions().get(2).get(1)) <= quantEval) {
+                    message += "\nYou won the GOLD MEDAL";
+                    medal = "gold-medal";
+                } else if (Long.valueOf(mTest.getMedalsInstructions().get(1).get(0)) >= testDuration &&
+                        Double.valueOf(mTest.getMedalsInstructions().get(1).get(1)) <= quantEval) {
+                    medal = "silver-medal";
+                    message += "\nYou won the SILVER MEDAL";
+                } else if (Long.valueOf(mTest.getMedalsInstructions().get(0).get(0)) >= testDuration &&
+                        Double.valueOf(mTest.getMedalsInstructions().get(0).get(1)) <= quantEval) {
+                    medal = "bronze-medal";
+                    message += "\nYou won the BRONZE MEDAL";
+                }
+            } catch (NumberFormatException e) {
+                Log.w(TAG, "NumberFormatException in medals instructions when checking if medal won.");
             }
             if (!medal.contentEquals("none")) {
                 CustomAlertDialog customAlertDialog = new CustomAlertDialog(this, message, medal);
