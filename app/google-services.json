@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:319955085664:android:f8bddb8ce6680bfb",
         "android_client_info": {
-          "package_name": "com.LearningTracker.LearningTrackerApp"
+          "package_name": "com.wideworld.koeko"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "319955085664-5a36v1o0fjhin3e93f2nn7f7k9g2pa6v.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.LearningTracker.LearningTrackerApp",
+            "package_name": "com.wideworld.koeko",
             "certificate_hash": "2a3a0c45c2595a410b5601e82e9bf5f380a06552"
           }
         },

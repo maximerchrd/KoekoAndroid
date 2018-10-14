@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Learning Tracker</string>
+    <string name="app_name">Koeko</string>
     <string name="button_menu_settings">Paramètres</string>
     <string name="button_result_back">Retourner au menu</string>
     <string name="button_settings_back">Sauver et retourner au menu</string>

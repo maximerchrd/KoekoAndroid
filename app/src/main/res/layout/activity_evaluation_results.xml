@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.LearningTracker.LearningTrackerApp.Activities.EvaluationResultsActivity">
+    tools:context="com.wideworld.koeko.Activities.EvaluationResultsActivity">
 
     <com.github.mikephil.charting.charts.HorizontalBarChart
     android:id="@+id/chart"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Learning Tracker</string>
+    <string name="app_name">Koeko</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Parameters</string>
     <string name="str_next">Next</string>

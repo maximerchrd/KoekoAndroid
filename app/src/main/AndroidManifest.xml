@@ -1,8 +1,8 @@
 <?xml version="1.1" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.LearningTracker.LearningTrackerApp"
-    android:versionCode="6"
-    android:versionName="1.3.1">
+    package="com.wideworld.koeko"
+    android:versionCode="5"
+    android:versionName="0.1">
 
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -14,13 +14,13 @@
     <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
-        android:name="com.LearningTracker.LearningTrackerApp.LTApplication"
+        android:name="com.wideworld.koeko.Koeko"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.Light">
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.MenuActivity"
+            android:name="com.wideworld.koeko.Activities.MenuActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,52 +29,52 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.SettingsActivity"
+            android:name="com.wideworld.koeko.Activities.SettingsActivity"
             android:label="@string/title_activity_settings"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.MultChoiceQuestionActivity"
+            android:name="com.wideworld.koeko.Activities.MultChoiceQuestionActivity"
             android:label="@string/title_activity_question"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.ShortAnswerQuestionActivity"
+            android:name="com.wideworld.koeko.Activities.ShortAnswerQuestionActivity"
             android:label="@string/title_activity_question"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.InteractiveModeActivity"
+            android:name="com.wideworld.koeko.Activities.InteractiveModeActivity"
             android:label="@string/title_activity_interactivemode"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.EvaluationResultsActivity"
+            android:name="com.wideworld.koeko.Activities.EvaluationResultsActivity"
             android:label="@string/title_activity_evaluation_results"></activity>
         <activity
             android:name=".Activities.ExerciseActivity"
             android:label="@string/title_exercice_activity"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.QuestionSetActivity"
+            android:name="com.wideworld.koeko.Activities.QuestionSetActivity"
             android:label="@string/questionsetactivity"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.EvaluationsGraphsActivity"
+            android:name="com.wideworld.koeko.Activities.EvaluationsGraphsActivity"
             android:label="@string/title_activity_evaluation_results"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.CorrectedQuestionActivity"
+            android:name="com.wideworld.koeko.Activities.CorrectedQuestionActivity"
             android:label="@string/title_activity_corrected_question"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.TestActivity"
+            android:name="com.wideworld.koeko.Activities.TestActivity"
             android:label="Test"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.ResultsActivtity"
+            android:name="com.wideworld.koeko.Activities.ResultsActivtity"
             android:label="@string/title_activity_evaluation_results"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.ResultsListActivity"
+            android:name="com.wideworld.koeko.Activities.ResultsListActivity"
             android:label="@string/title_activity_evaluation_results"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.ResultsFullViewActivity"
+            android:name="com.wideworld.koeko.Activities.ResultsFullViewActivity"
             android:label="@string/title_activity_evaluation_results"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.EvaluationCityRepresentationActivity"
+            android:name="com.wideworld.koeko.Activities.EvaluationCityRepresentationActivity"
             android:label="@string/title_activity_evaluation_results"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.Activities.QRCodeReaderActivity"
+            android:name="com.wideworld.koeko.Activities.QRCodeReaderActivity"
             android:label="Read QR Code"></activity>
         <activity
-            android:name="com.LearningTracker.LearningTrackerApp.AndroidDatabaseManager"
+            android:name="com.wideworld.koeko.AndroidDatabaseManager"
             android:label="DB Browsing"></activity>
     </application>
     <meta-data
