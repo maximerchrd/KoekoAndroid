@@ -59,16 +59,18 @@ public class WifiCommunication {
     private String lastAnswer = "";
     private TextView logView = null;
     private DatagramSocket socket;
+    public NetworkCommunication mNetworkCommunication;
 
     private String TAG = "WifiCommunication";
 
-    public WifiCommunication(Context arg_context, Application arg_application, TextView logView) {
+    public WifiCommunication(Context arg_context, Application arg_application, TextView logView, NetworkCommunication networkCommunication) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         mApplication = arg_application;
         ((Koeko) mApplication).setAppWifi(this);
         mContextWifCom = arg_context;
         mWifi = (WifiManager) mContextWifCom.getSystemService(Context.WIFI_SERVICE);
+        mNetworkCommunication = networkCommunication;
         this.logView = logView;
     }
 
@@ -336,6 +338,9 @@ public class WifiCommunication {
                                     Log.d("INFO", "received OEVAL");
                                 }
                             }
+                        } else {
+                            mNetworkCommunication.sendDisconnectionSignal();
+                            Log.d(TAG, "not byte read or prefix not supported");
                         }
                     }
                 } catch (UnsupportedEncodingException e) {
@@ -354,7 +359,7 @@ public class WifiCommunication {
         do {
             try {
                 bytesReadAlready = mInputStream.read(arrayToReadInto, totalBytesRead, expectedSize - totalBytesRead);
-                Log.v("number of bytes read:", Integer.toString(bytesReadAlready));
+                Log.v(TAG, "number of bytes read:" + Integer.toString(bytesReadAlready));
             } catch (IOException e) {
                 able_to_read = false;
                 NetworkCommunication.connected = false;
@@ -461,6 +466,11 @@ public class WifiCommunication {
             if (mInputStream != null) {
                 mInputStream.close();
                 mInputStream = null;
+            }
+
+            //close udp socket
+            if (socket != null) {
+                socket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

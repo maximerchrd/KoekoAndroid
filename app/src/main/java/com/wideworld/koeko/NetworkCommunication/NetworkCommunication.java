@@ -10,6 +10,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.wideworld.koeko.Activities.InteractiveModeActivity;
 import com.wideworld.koeko.database_management.DbHelper;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
@@ -25,15 +26,18 @@ public class NetworkCommunication {
 	static public Boolean connected = false;
 	public Boolean connectedThroughBT = false;
 	private int network_solution = 0; //0: all devices connected to same wifi router
+	private InteractiveModeActivity mInteractiveModeActivity;
 
 
 
-	public NetworkCommunication(Context arg_context, Application application, TextView textOut, TextView logView) {
+	public NetworkCommunication(Context arg_context, Application application, TextView textOut, TextView logView,
+								InteractiveModeActivity interactiveModeActivity) {
 		mNetwork_addresses = new ArrayList<ArrayList<String>>();
 		mContextNetCom = arg_context;
 		mApplication = application;
 		mTextOut = textOut;
-		mWifiCom = new WifiCommunication(arg_context, application, logView);
+		mWifiCom = new WifiCommunication(arg_context, application, logView, this);
+		mInteractiveModeActivity = interactiveModeActivity;
 		//((Koeko) mApplication).setAppWifi(mWifiCom);
 		((Koeko) mApplication).setAppNetwork(this);
 	}
@@ -79,6 +83,7 @@ public class NetworkCommunication {
                 String signal = "DISC///" + MacAddress + "///" + name + "///";
                 mWifiCom.sendStringToServer(signal);
                 mWifiCom.closeConnection();
+                mInteractiveModeActivity.showDisconnected();
                 NetworkCommunication.connected = false;
             }
 		} else {
@@ -88,6 +93,7 @@ public class NetworkCommunication {
 			String signal = "DISC///" + MacAddress + "///" + name + "///Android///";
 			mWifiCom.sendStringToServer(signal);
 			mWifiCom.closeConnection();
+			mInteractiveModeActivity.showDisconnected();
 			NetworkCommunication.connected = false;
 			Log.w("sending disc sign:","Too old API doesn't allow to check for disconnection because of screen turned off");
 		}

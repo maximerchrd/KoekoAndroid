@@ -70,4 +70,5 @@
     <string name="ok">OK</string>
     <string name="good">Good</string>
     <string name="excellent">Excellent</string>
+    <string name="disconnected">Disconnected</string>
 </resources>

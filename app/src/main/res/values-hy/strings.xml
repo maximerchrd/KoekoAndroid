@@ -62,4 +62,5 @@
     <string name="ok">դեռ չի թարգմանվել</string>
     <string name="good">դեռ չի թարգմանվել</string>
     <string name="excellent">դեռ չի թարգմանվել</string>
+    <string name="disconnected">Disconnected</string>
 </resources>

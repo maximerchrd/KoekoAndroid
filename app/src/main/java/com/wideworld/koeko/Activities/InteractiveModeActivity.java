@@ -107,7 +107,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
     private void connectToTeacher() {
         if (!NetworkCommunication.connected) {
-            mNetCom = new NetworkCommunication(this, getApplication(), intmod_out, logView);
+            mNetCom = new NetworkCommunication(this, getApplication(), intmod_out, logView, interactiveModeActivity);
             mNetCom.ConnectToMaster();
 
             intmod_wait_for_question.setText(getString(R.string.connecting));
@@ -215,6 +215,15 @@ public class InteractiveModeActivity extends AppCompatActivity {
         }
 
         connectToTeacher();
+    }
+
+    public void showDisconnected() {
+        interactiveModeActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                intmod_wait_for_question.setText(getString(R.string.disconnected));
+            }
+        });
     }
 
     private void launchResourceFromCode() {
