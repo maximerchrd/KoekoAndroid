@@ -22,6 +22,7 @@ public class NetworkCommunication {
 	private ArrayList<ArrayList<String>> mNetwork_addresses;
 	private WifiCommunication mWifiCom;
 	private TextView mTextOut;
+	static public Boolean connected = false;
 	public Boolean connectedThroughBT = false;
 	private int network_solution = 0; //0: all devices connected to same wifi router
 
@@ -70,12 +71,15 @@ public class NetworkCommunication {
 	public void sendDisconnectionSignal() {
 		PowerManager pm = (PowerManager) mContextNetCom.getSystemService(Context.POWER_SERVICE);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+			//check if device locked
 			if (pm.isInteractive()) {
                 String MacAddress = Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
                 DbHelper db_for_name = new DbHelper(mContextNetCom);
                 String name = DbTableSettings.getName();
                 String signal = "DISC///" + MacAddress + "///" + name + "///";
                 mWifiCom.sendStringToServer(signal);
+                mWifiCom.closeConnection();
+                NetworkCommunication.connected = false;
             }
 		} else {
 			String MacAddress = Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
@@ -83,6 +87,8 @@ public class NetworkCommunication {
 			String name = DbTableSettings.getName();
 			String signal = "DISC///" + MacAddress + "///" + name + "///Android///";
 			mWifiCom.sendStringToServer(signal);
+			mWifiCom.closeConnection();
+			NetworkCommunication.connected = false;
 			Log.w("sending disc sign:","Too old API doesn't allow to check for disconnection because of screen turned off");
 		}
 	}

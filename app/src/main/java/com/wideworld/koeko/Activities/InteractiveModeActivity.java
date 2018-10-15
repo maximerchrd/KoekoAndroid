@@ -54,62 +54,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_interactivemode);
         intmod_wait_for_question = (TextView) findViewById(R.id.textView2);
 
-        //mNetCom = new NetworkCommunication(this, getApplication());
-        mNetCom = new NetworkCommunication(this, getApplication(), intmod_out, logView);
-        mNetCom.ConnectToMaster();
-
-        intmod_wait_for_question.setText(getString(R.string.connecting));
-
-        new Thread(new Runnable() {
-            public void run() {
-                Boolean connectionInfo = false;
-                for (int i = 0;!connectionInfo && i < 24; i++) {
-                    if (((Koeko) getApplication()).getAppWifi().connectionSuccess == 1) {
-                        interactiveModeActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                intmod_wait_for_question.setText(getString(R.string.keep_calm_and_wait));
-                            }
-                        });
-
-                        connectionInfo = true;
-                    } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -1) {
-                        interactiveModeActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                intmod_wait_for_question.setText(getString(R.string.keep_calm_and_restart));
-                            }
-                        });
-                        connectionInfo = true;
-                    } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -2) {
-                        interactiveModeActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                intmod_wait_for_question.setText(getString(R.string.automatic_connection_failed));
-                            }
-                        });
-                        connectionInfo = true;
-                    }
-                    try {
-                        Thread.sleep(250);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if (i >= 23) {
-                        interactiveModeActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                intmod_wait_for_question.setText(getString(R.string.keep_calm_problem));
-                            }
-                        });
-                    }
-                }
-            }
-        }).start();
-
-
-        ((Koeko) this.getApplication()).resetQuitApp();
-
         if (Koeko.testConnectivity > 0) {
             new Thread(new Runnable() {
                 public void run() {
@@ -161,6 +105,65 @@ public class InteractiveModeActivity extends AppCompatActivity {
         });
     }
 
+    private void connectToTeacher() {
+        if (!NetworkCommunication.connected) {
+            mNetCom = new NetworkCommunication(this, getApplication(), intmod_out, logView);
+            mNetCom.ConnectToMaster();
+
+            intmod_wait_for_question.setText(getString(R.string.connecting));
+
+            new Thread(new Runnable() {
+                public void run() {
+                    Boolean connectionInfo = false;
+                    for (int i = 0; !connectionInfo && i < 24; i++) {
+                        if (((Koeko) getApplication()).getAppWifi().connectionSuccess == 1) {
+                            interactiveModeActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    intmod_wait_for_question.setText(getString(R.string.keep_calm_and_wait));
+                                }
+                            });
+
+                            connectionInfo = true;
+                        } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -1) {
+                            interactiveModeActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    intmod_wait_for_question.setText(getString(R.string.keep_calm_and_restart));
+                                }
+                            });
+                            connectionInfo = true;
+                        } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -2) {
+                            interactiveModeActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    intmod_wait_for_question.setText(getString(R.string.automatic_connection_failed));
+                                }
+                            });
+                            connectionInfo = true;
+                        }
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (i >= 23) {
+                            interactiveModeActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    intmod_wait_for_question.setText(getString(R.string.keep_calm_problem));
+                                }
+                            });
+                        }
+                    }
+                }
+            }).start();
+
+
+            ((Koeko) this.getApplication()).resetQuitApp();
+        }
+    }
+
     private int findFrontFacingCamera() {
         int cameraId = -1;
         // Search for the front facing camera
@@ -210,6 +213,8 @@ public class InteractiveModeActivity extends AppCompatActivity {
             launchResourceFromCode();
             Koeko.qrCode = "";
         }
+
+        connectToTeacher();
     }
 
     private void launchResourceFromCode() {
@@ -281,6 +286,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
             ((Koeko) this.getApplication()).startActivityTransitionTimer();
         } else {
             ((Koeko) this.getApplication()).stopActivityTransitionTimer();
+            connectToTeacher();
             Log.v("interactive mode: ", "has focus");
         }
     }

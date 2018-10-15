@@ -53,8 +53,6 @@ public class WifiCommunication {
     private Application mApplication;
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
-    private Vector<OutputStream> outputStreamVector = null;
-    private Vector<InputStream> inputStreamVector = null;
     private int current = 0;
     private int bytes_read = 0;
     private String ip_address = "no IP";
@@ -62,11 +60,11 @@ public class WifiCommunication {
     private TextView logView = null;
     private DatagramSocket socket;
 
+    private String TAG = "WifiCommunication";
+
     public WifiCommunication(Context arg_context, Application arg_application, TextView logView) {
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         mApplication = arg_application;
         ((Koeko) mApplication).setAppWifi(this);
         mContextWifCom = arg_context;
@@ -106,6 +104,8 @@ public class WifiCommunication {
             //outgoing stream redirect to socket
             mOutputStream = s.getOutputStream();
             mInputStream = s.getInputStream();
+
+            NetworkCommunication.connected = true;
 
             byte[] conBuffer = connectionString.getBytes();
             try {
@@ -357,7 +357,12 @@ public class WifiCommunication {
                 Log.v("number of bytes read:", Integer.toString(bytesReadAlready));
             } catch (IOException e) {
                 able_to_read = false;
-                e.printStackTrace();
+                NetworkCommunication.connected = false;
+                if (e.toString().contains("Socket closed")) {
+                    Log.d(TAG, "Reading data stream: input stream was closed");
+                } else {
+                    e.printStackTrace();
+                }
             }
             if (bytesReadAlready >= 0) {
                 totalBytesRead += bytesReadAlready;
@@ -445,5 +450,20 @@ public class WifiCommunication {
                 }
             }
         }).start();
+    }
+
+    public void closeConnection() {
+        try {
+            if (mOutputStream != null) {
+                mOutputStream.close();
+                mOutputStream = null;
+            }
+            if (mInputStream != null) {
+                mInputStream.close();
+                mInputStream = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
