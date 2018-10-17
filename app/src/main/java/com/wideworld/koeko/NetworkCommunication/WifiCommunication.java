@@ -19,6 +19,7 @@ import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
 import com.wideworld.koeko.Activities.TestActivity;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.QuestionsManagement.Test;
+import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.Tools.StringTools;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
@@ -338,9 +339,21 @@ public class WifiCommunication {
                                     Log.d("INFO", "received OEVAL");
                                 }
                             }
+                        } else if (sizesPrefix.split("///")[0].contentEquals("FILE")) {
+                            if (sizesPrefix.split("///").length >= 3) {
+                                try {
+                                    int dataSize = Integer.valueOf(sizesPrefix.split("///")[2]);
+                                    byte[] dataBuffer = readDataIntoArray(dataSize, able_to_read);
+                                    FileHandler.saveMediaFile(dataBuffer, sizesPrefix.split("///")[1], mContextWifCom);
+                                } catch (NumberFormatException e) {
+                                    System.err.println("Error in FILE prefix: unable to read file size");
+                                }
+                            } else {
+                                System.err.println("Error in FILE prefix: array too short");
+                            }
                         } else {
                             mNetworkCommunication.sendDisconnectionSignal();
-                            Log.d(TAG, "not byte read or prefix not supported");
+                            Log.d(TAG, "no byte read or prefix not supported");
                         }
                     }
                 } catch (UnsupportedEncodingException e) {
