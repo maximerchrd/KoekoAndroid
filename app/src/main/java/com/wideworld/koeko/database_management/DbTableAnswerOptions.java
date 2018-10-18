@@ -18,7 +18,7 @@ public class DbTableAnswerOptions {
                     " ID_ANSWEROPTION_GLOBAL      INT     NOT NULL, " +
                     " OPTION           TEXT    NOT NULL, " +
                     "UNIQUE ( OPTION ));";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -31,10 +31,10 @@ public class DbTableAnswerOptions {
             ContentValues initialValues = new ContentValues();
             initialValues.put("ID_ANSWEROPTION_GLOBAL", "2000000");
             initialValues.put("OPTION",option);
-            int rowsAffected = (int)DbHelper.dbase.insertWithOnConflict("answer_options",null,initialValues, SQLiteDatabase.CONFLICT_IGNORE);
+            int rowsAffected = (int)DbHelper.dbHelperSingleton.getDatabase().insertWithOnConflict("answer_options",null,initialValues, SQLiteDatabase.CONFLICT_IGNORE);
             if (rowsAffected > -1) {
                 sql = "UPDATE answer_options SET ID_ANSWEROPTION_GLOBAL = ID_ANSWEROPTION_GLOBAL + ID_ANSWEROPTION WHERE ID_ANSWEROPTION = (SELECT MAX(ID_ANSWEROPTION) FROM answer_options)";
-                DbHelper.dbase.execSQL(sql);
+                DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
             } else {
                 System.out.println(option + "not added");
             }
@@ -51,7 +51,7 @@ public class DbTableAnswerOptions {
         stmt = null;
         try {
             String sql = 	"DELETE FROM question_answeroption_relation WHERE ID_GLOBAL='" + questionID + "';";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);

@@ -42,7 +42,7 @@ public class DbTableLearningObjective {
                     " OBJECTIVE      TEXT     NOT NULL, " +
                     " LEVEL_COGNITIVE_ABILITY      INT     NOT NULL, " +
                     " UNIQUE (OBJECTIVE) ); ";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -61,9 +61,9 @@ public class DbTableLearningObjective {
                     2000000 + "','" +
                     objective.replace("'", "''") + "','" +
                     level_cognitive_ability +"');";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
             sql = "UPDATE learning_objectives SET ID_OBJECTIVE_GLOBAL = 2000000 + ID_OBJECTIVE WHERE ID_OBJECTIVE = (SELECT MAX(ID_OBJECTIVE) FROM learning_objectives)";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -77,7 +77,7 @@ public class DbTableLearningObjective {
                     objectiveID + "','" +
                     objective.replace("'", "''") + "','" +
                     level_cognitive_ability +"');";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -91,7 +91,7 @@ public class DbTableLearningObjective {
             String[] args = {
                 id
             };
-            Cursor cursor = DbHelper.dbase.rawQuery(query, args);
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, args);
             while (cursor.moveToNext()) {
                 objective = cursor.getString(0);
             }
@@ -110,7 +110,7 @@ public class DbTableLearningObjective {
                     "INNER JOIN question_objective_relation ON learning_objectives.OBJECTIVE = question_objective_relation.OBJECTIVE " +
                     "INNER JOIN multiple_choice_questions ON multiple_choice_questions.ID_GLOBAL = question_objective_relation.ID_GLOBAL " +
                     "WHERE multiple_choice_questions.ID_GLOBAL = '" + questionID + "';";
-            Cursor cursor = DbHelper.dbase.rawQuery(query, null);
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             while (cursor.moveToNext()) {
                 objectives.add(cursor.getString(0));
             }
@@ -135,7 +135,7 @@ public class DbTableLearningObjective {
                         "INNER JOIN subjects ON question_subject_relation.ID_SUBJECT_GLOBAL=subjects.ID_SUBJECT_GLOBAL " +
                         "WHERE subjects.SUBJECT='" + subject + "';";
             }
-            Cursor cursor = DbHelper.dbase.rawQuery(query, null);
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             Vector<String> id_questions = new Vector<>();
             Vector<String> evaluations_for_each_question = new Vector<>();
             while (cursor.moveToNext()) {
@@ -147,7 +147,7 @@ public class DbTableLearningObjective {
             for (int i = 0; i < id_questions.size(); i++) {
                 query = "SELECT OBJECTIVE FROM question_objective_relation " +
                         "WHERE ID_GLOBAL = '" + id_questions.get(i) + "';";
-                Cursor cursor2 = DbHelper.dbase.rawQuery(query, null);
+                Cursor cursor2 = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
                 while (cursor2.moveToNext()) {
                     objectives_for_question.add(cursor2.getString(0));
                     //multiplies each evaluation for a specific question by the number of objectives attributed to the question
@@ -198,12 +198,12 @@ public class DbTableLearningObjective {
             Cursor cursor;
             if (test.contentEquals("All")) {
                 query = "SELECT ID_GLOBAL,QUANTITATIVE_EVAL FROM individual_question_for_result;";
-                cursor = DbHelper.dbase.rawQuery(query, null);
+                cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             } else {
                 query = "SELECT " + DbTableRelationQuestionQuestion.getTableName() + "." + DbTableRelationQuestionQuestion.getKey_idGlobal1() + "," +
                         DbTableRelationQuestionQuestion.getTableName() + "." + DbTableRelationQuestionQuestion.getKey_idGlobal2() + " FROM " + DbTableRelationQuestionQuestion.getTableName() +
                         " WHERE " + DbTableRelationQuestionQuestion.getKey_testName() + " = ?";
-                cursor = DbHelper.dbase.rawQuery(query, new String[]{test});
+                cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, new String[]{test});
             }
 
             Set<String> questionIDs = new LinkedHashSet<>();
@@ -218,7 +218,7 @@ public class DbTableLearningObjective {
             for (String questID : questionIDs) {
                 String sql = "SELECT individual_question_for_result.ID_GLOBAL, individual_question_for_result.QUANTITATIVE_EVAL FROM individual_question_for_result " +
                         " WHERE individual_question_for_result.ID_GLOBAL = ?" ;
-                Cursor cursor2 = DbHelper.dbase.rawQuery(sql, new String[]{questID});
+                Cursor cursor2 = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, new String[]{questID});
                 while (cursor2.moveToNext()) {
                     id_questions.add(cursor2.getString(0));
                     evaluations_for_each_question.add(cursor2.getString(1));
@@ -230,7 +230,7 @@ public class DbTableLearningObjective {
             for (int i = 0; i < id_questions.size(); i++) {
                 query = "SELECT OBJECTIVE FROM question_objective_relation " +
                         "WHERE ID_GLOBAL = '" + id_questions.get(i) + "';";
-                Cursor cursor2 = DbHelper.dbase.rawQuery(query, null);
+                Cursor cursor2 = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
                 while (cursor2.moveToNext()) {
                     objectives_for_question.add(cursor2.getString(0));
                     //multiplies each evaluation for a specific question by the number of objectives attributed to the question
@@ -289,7 +289,7 @@ public class DbTableLearningObjective {
 
         String query = "SELECT ID_GLOBAL, QUANTITATIVE_EVAL FROM individual_question_for_result" +
                 " WHERE TEST_BELONGING = '" + test + "'";
-        Cursor cursor = DbHelper.dbase.rawQuery(query, null);
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
 
 
         Vector<String> objectiveIds = new Vector<>();
@@ -302,7 +302,7 @@ public class DbTableLearningObjective {
         for (String objectiveId : objectiveIds) {
             //fetch the certificative results
             String query2 = "SELECT " + key_objective + " FROM " + tableName + " WHERE " + key_objectiveId + " = '" + objectiveId + "'";
-            Cursor cursor2 = DbHelper.dbase.rawQuery(query2, null);
+            Cursor cursor2 = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query2, null);
 
             if (cursor2.moveToFirst()) {
                 objectives.add(cursor2.getString(0));
@@ -318,7 +318,7 @@ public class DbTableLearningObjective {
                 String query3 = "SELECT QUANTITATIVE_EVAL FROM individual_question_for_result " +
                         " INNER JOIN question_objective_relation ON question_objective_relation.ID_GLOBAL = individual_question_for_result.ID_GLOBAL " +
                         " WHERE question_objective_relation.OBJECTIVE = '" + objectives.lastElement() + "'";
-                Cursor cursor3 = DbHelper.dbase.rawQuery(query3, null);
+                Cursor cursor3 = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query3, null);
 
                 while (cursor3.moveToNext()) {
                     questionsResults.add(cursor3.getString(0));

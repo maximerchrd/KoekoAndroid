@@ -32,7 +32,7 @@ public class DbTableIndividualQuestionForResult {
                     " QUALITATIVE_EVAL       TEXT    NOT NULL, " +
                     " TEST_BELONGING        TEXT    NOT NULL, " +
                     " WEIGHTS_OF_ANSWERS    TEXT    NOT NULL) ";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -54,7 +54,7 @@ public class DbTableIndividualQuestionForResult {
         contentValues.put("TEST_BELONGING", testName);
         contentValues.put("WEIGHTS_OF_ANSWERS", "none");
 
-        if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
+        if (DbHelper.dbHelperSingleton.getDatabase().insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;
         } else {
             return true;
@@ -72,7 +72,7 @@ public class DbTableIndividualQuestionForResult {
                     answer,
                     quantitative_eval
             };
-            DbHelper.dbase.execSQL(sql, sqlArgs);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql, sqlArgs);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -104,7 +104,7 @@ public class DbTableIndividualQuestionForResult {
                     "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
                     "VALUES ('" + id_global  + "', '" + type + "',date('now'),'none','none','none','none','" + quantitative_eval + "','none','" +
                      test + "','none');";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -124,7 +124,7 @@ public class DbTableIndividualQuestionForResult {
                 "FROM (SELECT * FROM 'individual_question_for_result') WHERE ID_GLOBAL='" + idQuestion + "');";
 
         try {
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,7 +133,7 @@ public class DbTableIndividualQuestionForResult {
     static public Vector<Vector<String>> getAllResults() {
         Vector<Vector<String>> results = new Vector<>();
 
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT ID_GLOBAL,ANSWERS,DATE,QUANTITATIVE_EVAL,TYPE," +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT ID_GLOBAL,ANSWERS,DATE,QUANTITATIVE_EVAL,TYPE," +
                 "QUALITATIVE_EVAL,TEST_BELONGING FROM " + tableName, null);
         while (cursor.moveToNext()) {
             results.add( new Vector<String>());

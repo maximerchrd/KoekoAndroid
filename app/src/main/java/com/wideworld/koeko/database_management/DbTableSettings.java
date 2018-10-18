@@ -20,13 +20,13 @@ public class DbTableSettings {
                 + KEY_NAME +" TEXT,"
                 + KEY_MASTER + " TEXT," +
                 KEY_AUTOMATIC_CONNECTION +" INTEGER)";
-        DbHelper.dbase.execSQL(sql);
+        DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, noName);
         values.put(KEY_MASTER, "192.168.1.100");
         values.put(KEY_AUTOMATIC_CONNECTION, 1);
         // Inserting of Replacing Row
-        DbHelper.dbase.insert(TABLE_SETTINGS, null, values);
+        DbHelper.dbHelperSingleton.getDatabase().insert(TABLE_SETTINGS, null, values);
     }
 
     static public void addName(String newname)
@@ -34,14 +34,14 @@ public class DbTableSettings {
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, newname);
         // Replacing Row
-        DbHelper.dbase.update(TABLE_SETTINGS, values, null, null);
+        DbHelper.dbHelperSingleton.getDatabase().update(TABLE_SETTINGS, values, null, null);
     }
 
     static public String getName() {
         // Select All Query
         String name = "";
         String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;
-        Cursor cursor = DbHelper.dbase.rawQuery(selectQuery, null);
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
         if (cursor.moveToPosition(0)) {
             name = cursor.getString(1);
         }
@@ -55,14 +55,14 @@ public class DbTableSettings {
         ContentValues values = new ContentValues();
         values.put(KEY_MASTER, newname);
         // Replacing Row
-        DbHelper.dbase.update(TABLE_SETTINGS, values, null, null);
+        DbHelper.dbHelperSingleton.getDatabase().update(TABLE_SETTINGS, values, null, null);
     }
     //get name from db
     static public String getMaster() {
         // Select All Query
         String master = "";
         String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;
-        Cursor cursor = DbHelper.dbase.rawQuery(selectQuery, null);
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
         if (cursor.moveToPosition(0)) {
             master = cursor.getString(2);
         }
@@ -75,14 +75,14 @@ public class DbTableSettings {
         ContentValues values = new ContentValues();
         values.put(KEY_AUTOMATIC_CONNECTION, automaticConnection);
         // Replacing Row
-        DbHelper.dbase.update(TABLE_SETTINGS, values, null, null);
+        DbHelper.dbHelperSingleton.getDatabase().update(TABLE_SETTINGS, values, null, null);
     }
 
     static public Integer getAutomaticConnection() {
         // Select All Query
         Integer automaticCorrection = 1;
         String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;
-        Cursor cursor = DbHelper.dbase.rawQuery(selectQuery, null);
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
         if (cursor.moveToPosition(0)) {
             automaticCorrection = cursor.getInt(3);
         }

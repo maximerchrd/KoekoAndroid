@@ -89,12 +89,18 @@ public class TestActivity extends AppCompatActivity {
 
         if (Koeko.currentTestActivitySingleton == null) {
             mTest = DbTableTest.getTestFromTestId(String.valueOf(testID));
-            mTest.setIdGlobal(testID);
-            mTest.setTestName(DbTableTest.getNameFromTestID(testID));
-            mTest.setQuestionsIDs(DbTableTest.getQuestionIDsFromTestName(mTest.getTestName()));
-            mTest.setMediaFileName(DbTableTest.getMediaFileFromTestName(mTest.getTestName()));
-            mTest.loadMap();
-            reloadActivity = false;
+            if (mTest != null) {
+                mTest.setIdGlobal(testID);
+                mTest.setTestName(DbTableTest.getNameFromTestID(testID));
+                mTest.setQuestionsIDs(DbTableTest.getQuestionIDsFromTestName(mTest.getTestName()));
+                mTest.setMediaFileName(DbTableTest.getMediaFileFromTestName(mTest.getTestName()));
+                mTest.loadMap();
+                reloadActivity = false;
+            } else {
+                Log.w(TAG, "Received test id but can't find corresponding test in db!");
+                finish();
+                return;
+            }
         } else {
             mTest = Koeko.currentTestActivitySingleton.mTest;
             mcqActivitiesStates = Koeko.currentTestActivitySingleton.mcqActivitiesStates;
@@ -208,18 +214,22 @@ public class TestActivity extends AppCompatActivity {
             String medal = "none";
             String message = "You are a Champ!";
             try {
-                if (Long.valueOf(mTest.getMedalsInstructions().get(2).get(0)) >= testDuration &&
-                        Double.valueOf(mTest.getMedalsInstructions().get(2).get(1)) <= quantEval) {
-                    message += "\nYou won the GOLD MEDAL";
-                    medal = "gold-medal";
-                } else if (Long.valueOf(mTest.getMedalsInstructions().get(1).get(0)) >= testDuration &&
-                        Double.valueOf(mTest.getMedalsInstructions().get(1).get(1)) <= quantEval) {
-                    medal = "silver-medal";
-                    message += "\nYou won the SILVER MEDAL";
-                } else if (Long.valueOf(mTest.getMedalsInstructions().get(0).get(0)) >= testDuration &&
-                        Double.valueOf(mTest.getMedalsInstructions().get(0).get(1)) <= quantEval) {
-                    medal = "bronze-medal";
-                    message += "\nYou won the BRONZE MEDAL";
+                if (mTest.getMedalsInstructions().size() >= 3) {
+                    if (Long.valueOf(mTest.getMedalsInstructions().get(2).get(0)) >= testDuration &&
+                            Double.valueOf(mTest.getMedalsInstructions().get(2).get(1)) <= quantEval) {
+                        message += "\nYou won the GOLD MEDAL";
+                        medal = "gold-medal";
+                    } else if (Long.valueOf(mTest.getMedalsInstructions().get(1).get(0)) >= testDuration &&
+                            Double.valueOf(mTest.getMedalsInstructions().get(1).get(1)) <= quantEval) {
+                        medal = "silver-medal";
+                        message += "\nYou won the SILVER MEDAL";
+                    } else if (Long.valueOf(mTest.getMedalsInstructions().get(0).get(0)) >= testDuration &&
+                            Double.valueOf(mTest.getMedalsInstructions().get(0).get(1)) <= quantEval) {
+                        medal = "bronze-medal";
+                        message += "\nYou won the BRONZE MEDAL";
+                    }
+                } else {
+                    Log.v(TAG, "No medal for test");
                 }
             } catch (NumberFormatException e) {
                 Log.w(TAG, "NumberFormatException in medals instructions when checking if medal won.");

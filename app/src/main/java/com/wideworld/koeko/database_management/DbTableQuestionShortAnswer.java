@@ -21,7 +21,7 @@ public class DbTableQuestionShortAnswer {
                     " IMAGE_PATH           TEXT    NOT NULL, " +
                     " ID_GLOBAL           INT    NOT NULL, " +
                     " UNIQUE(ID_GLOBAL)) ";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -43,7 +43,7 @@ public class DbTableQuestionShortAnswer {
                     quest.getIMAGE(),
                     quest.getID()
             };
-            DbHelper.dbase.execSQL(sql,sqlArgs);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
             Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getID()));
 
             for (int i = 0; i < quest.getAnswers().size(); i++) {
@@ -57,8 +57,8 @@ public class DbTableQuestionShortAnswer {
         QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
         try {
             String selectQuery = "SELECT  LEVEL,QUESTION,IMAGE_PATH FROM short_answer_questions WHERE ID_GLOBAL=" + globalID + ";";
-            //DbHelper.dbase = DbHelper.getReadableDatabase();
-            Cursor cursor = DbHelper.dbase.rawQuery(selectQuery, null);
+            //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             if (cursor.moveToPosition(0)) {
                 questionShortAnswer.setLEVEL(cursor.getString(0));
@@ -74,7 +74,7 @@ public class DbTableQuestionShortAnswer {
                     "INNER JOIN question_answeroption_relation ON answer_options.ID_ANSWEROPTION_GLOBAL = question_answeroption_relation.ID_ANSWEROPTION_GLOBAL " +
                     "INNER JOIN short_answer_questions ON question_answeroption_relation.ID_GLOBAL = short_answer_questions.ID_GLOBAL " +
                     "WHERE short_answer_questions.ID_GLOBAL = '" + globalID +"';";
-            Cursor cursor2 = DbHelper.dbase.rawQuery(selectQuery, null);
+            Cursor cursor2 = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             while ( cursor2.moveToNext() ) {
                 answers.add(cursor2.getString(0));
             }
@@ -91,8 +91,8 @@ public class DbTableQuestionShortAnswer {
         String IDs = "";
         try {
             String selectQuery = "SELECT ID_GLOBAL FROM short_answer_questions;";
-            //DbHelper.dbase = DbHelper.getReadableDatabase();
-            Cursor cursor = DbHelper.dbase.rawQuery(selectQuery, null);
+            //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             while (cursor.moveToNext()) {
                 IDs += cursor.getString(0) + "|";

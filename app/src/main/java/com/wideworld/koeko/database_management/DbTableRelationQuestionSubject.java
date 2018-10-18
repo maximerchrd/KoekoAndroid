@@ -19,7 +19,7 @@ public class DbTableRelationQuestionSubject {
                     " ID_GLOBAL      INT     NOT NULL, " +
                     " ID_SUBJECT_GLOBAL      INT     NOT NULL, " +
                     " SUBJECT_LEVEL      INT NOT NULL) ";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -38,7 +38,7 @@ public class DbTableRelationQuestionSubject {
             String query = "SELECT ID_GLOBAL FROM question_subject_relation " +
                     "WHERE ID_GLOBAL='" + questionID + "' " +
                     "AND ID_SUBJECT_GLOBAL= (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = '" + subject + "');";
-            Cursor cursor = DbHelper.dbase.rawQuery(query, null);
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             Vector<String> queries = new Vector<>();
             while (cursor.moveToNext()) {
                 queries.add(cursor.getString(0));
@@ -47,7 +47,7 @@ public class DbTableRelationQuestionSubject {
             if (queries.size() == 0) {
                 String sql = "INSERT INTO question_subject_relation (ID_GLOBAL, ID_SUBJECT_GLOBAL, SUBJECT_LEVEL) SELECT '" + questionID + "',t2.ID_SUBJECT_GLOBAL," +
                         "'1' FROM subjects t2 WHERE t2.SUBJECT='" + subject + "';";
-                DbHelper.dbase.execSQL(sql);
+                DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
             }
 
         } catch (Exception e) {
@@ -61,7 +61,7 @@ public class DbTableRelationQuestionSubject {
         try {
             String query = "SELECT ID_GLOBAL FROM question_subject_relation " +
                     "WHERE ID_SUBJECT_GLOBAL = (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = '" + subject + "');";
-            Cursor cursor = DbHelper.dbase.rawQuery(query, null);
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             while (cursor.moveToNext()) {
                 questionIDs.add(cursor.getString(0));
             }

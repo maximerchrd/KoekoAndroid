@@ -18,7 +18,7 @@ public class DbTableSubject {
                     "(ID_SUBJECT       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_SUBJECT_GLOBAL      INT     NOT NULL, " +
                     " SUBJECT           TEXT    NOT NULL, UNIQUE (SUBJECT)); ";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -31,9 +31,9 @@ public class DbTableSubject {
                         "VALUES ('" +
                         2000000 + "','" +
                         subject + "');";
-                DbHelper.dbase.execSQL(sql);
+                DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
                 sql = "UPDATE subjects SET ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
-                DbHelper.dbase.execSQL(sql);
+                DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
             } catch (Exception e) {
                 System.err.println(e.getClass().getName() + ": " + e.getMessage());
                 System.exit(0);
@@ -47,7 +47,7 @@ public class DbTableSubject {
                     "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
                     "INNER JOIN multiple_choice_questions ON multiple_choice_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
                     "WHERE multiple_choice_questions.ID_GLOBAL = '" + questionID + "';";
-            Cursor cursor = DbHelper.dbase.rawQuery(query, null);
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             while (cursor.moveToNext()) {
                 subjects.add(cursor.getString(0));
             }
@@ -55,7 +55,7 @@ public class DbTableSubject {
                     "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
                     "INNER JOIN short_answer_questions ON short_answer_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
                     "WHERE short_answer_questions.ID_GLOBAL = '" + questionID + "';";
-            Cursor cursor2 = DbHelper.dbase.rawQuery(query, null);
+            Cursor cursor2 = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             while (cursor2.moveToNext()) {
                 subjects.add(cursor2.getString(0));
             }
@@ -70,7 +70,7 @@ public class DbTableSubject {
         Vector<String> subjects = new Vector<>();
         try {
             String query = "SELECT SUBJECT FROM subjects;";
-            Cursor cursor = DbHelper.dbase.rawQuery(query, null);
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             while (cursor.moveToNext()) {
                 subjects.add(cursor.getString(0));
             }
@@ -90,7 +90,7 @@ public class DbTableSubject {
         try {
             //get all question IDs and corresponding evaluations
             String query = "SELECT ID_GLOBAL,QUANTITATIVE_EVAL FROM individual_question_for_result WHERE TYPE IS NOT 2;";
-            Cursor cursor = DbHelper.dbase.rawQuery(query, null);
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             while (cursor.moveToNext()) {
                 questionIDs.add(cursor.getString(0));
                 questionEvals.add(cursor.getString(1));

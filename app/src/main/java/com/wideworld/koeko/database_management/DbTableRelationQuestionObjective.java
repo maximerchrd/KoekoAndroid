@@ -24,7 +24,7 @@ public class DbTableRelationQuestionObjective {
                     " (ID_OBJ_REL       INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     key_idGlobal + " INT     NOT NULL, " +
                     key_objective + "  TEXT     NOT NULL) "; //make unique rel
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -41,7 +41,7 @@ public class DbTableRelationQuestionObjective {
         try {
             String sql = 	"INSERT INTO " + tableName + " (" + key_idGlobal +", " + key_objective +") " +
                     "VALUES ('" + id_global + "','" + objective.replace("'", "''") + "');";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);

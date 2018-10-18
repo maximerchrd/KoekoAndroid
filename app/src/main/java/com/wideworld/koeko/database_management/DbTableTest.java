@@ -51,7 +51,7 @@ public class DbTableTest {
                 key_medals_instructions + " TEXT, " +
                 key_mediafile_name + " TEXT, " +
                 " UNIQUE (" + key_idGlobal + ") )";
-        DbHelper.dbase.execSQL(sql);
+        DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
     }
 
     static public Boolean insertTest(Test test) {
@@ -65,7 +65,7 @@ public class DbTableTest {
         contentValues.put(key_mediafile_name, test.getMediaFileName());
 
 
-        if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
+        if (DbHelper.dbHelperSingleton.getDatabase().insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;
         } else {
             return true;
@@ -74,7 +74,7 @@ public class DbTableTest {
 
     static public String getNameFromTestID(Long testID) {
         String testName = "";
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT " + key_testName + " FROM " + tableName + " WHERE " +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT " + key_testName + " FROM " + tableName + " WHERE " +
                 key_idGlobal + " = ?", new String[]{String.valueOf(testID)});
         while (cursor.moveToNext()) {
             testName = cursor.getString(0);
@@ -84,7 +84,7 @@ public class DbTableTest {
 
     static public String getTypeFromTestName(String testName) {
         String testType = "";
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT " + key_test_type + " FROM " + tableName + " WHERE " +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT " + key_test_type + " FROM " + tableName + " WHERE " +
                 key_testName + " = ?", new String[]{String.valueOf(testName)});
         while (cursor.moveToNext()) {
             testType = cursor.getString(0);
@@ -94,7 +94,7 @@ public class DbTableTest {
 
     static public String getMediaFileFromTestName(String testName) {
         String fileName = "";
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT " + key_mediafile_name + " FROM " + tableName + " WHERE " +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT " + key_mediafile_name + " FROM " + tableName + " WHERE " +
                 key_testName + " = ?", new String[]{String.valueOf(testName)});
         while (cursor.moveToNext()) {
             fileName = cursor.getString(0);
@@ -105,7 +105,7 @@ public class DbTableTest {
     static public Test getTestFromTestId(String tesId) {
         Test test = new Test();
         //Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'android.database.Cursor android.database.sqlite.SQLiteDatabase.rawQuery(java.lang.String, java.lang.String[])' on a null object reference
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT * FROM " + tableName + " WHERE " +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT * FROM " + tableName + " WHERE " +
                 key_idGlobal + " = ?", new String[]{String.valueOf(tesId)});
         if (cursor.moveToNext()) {
             test.setIdGlobal(Long.valueOf(cursor.getString(1)));
@@ -119,6 +119,8 @@ public class DbTableTest {
                 questionIds.add(id);
             }
             test.setQuestionsIDs(questionIds);
+        } else {
+            test = null;
         }
         return test;
     }
@@ -126,7 +128,7 @@ public class DbTableTest {
     static public Vector<String> getQuestionIDsFromTestName(String testName) {
         Vector<String> questionIds = new Vector<>();
         String unparsedIDs = "";
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT " + key_questions_ids + " FROM " + tableName + " WHERE " +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT " + key_questions_ids + " FROM " + tableName + " WHERE " +
                 key_testName + " = ?", new String[]{testName});
         while (cursor.moveToNext()) {
             unparsedIDs = cursor.getString(0);
@@ -143,7 +145,7 @@ public class DbTableTest {
     static public Vector<String[]> getAllTests() {
         Vector<String[]> testNamesAndIds = new Vector<>();
 
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT " + key_testName + "," + key_idGlobal +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT " + key_testName + "," + key_idGlobal +
                 " FROM " + tableName, null);
         while (cursor.moveToNext()) {
             testNamesAndIds.add(new String[] {cursor.getString(0), cursor.getString(1)});
@@ -158,7 +160,7 @@ public class DbTableTest {
         String sql = "SELECT " + key_testName + "," + key_idGlobal + " FROM " + tableName +
                 " INNER JOIN " + DbTableRelationTestObjective.getTableName() + " ON " +
                 tableName + "." + key_idGlobal + " = " + DbTableRelationTestObjective.getTableName() + "." + DbTableRelationTestObjective.getKey_idTest();
-        Cursor cursor = DbHelper.dbase.rawQuery(sql, null);
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, null);
         while (cursor.moveToNext()) {
             testNamesAndIds.add(new String[] {cursor.getString(1), cursor.getString(2)});
         }
@@ -172,7 +174,7 @@ public class DbTableTest {
         String tableObjective = DbTableRelationTestObjective.getTableName();
         String tableRelation = DbTableRelationTestObjective.getTableName();
 
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT " + DbTableLearningObjective.getKey_objective() +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT " + DbTableLearningObjective.getKey_objective() +
                 " FROM " + tableObjective +
                 " INNER JOIN " + tableRelation + " ON " + tableObjective + "." + DbTableLearningObjective.getKey_objectiveId() +
                 " = " + tableRelation + "." + DbTableRelationTestObjective.getKey_idObjective() +

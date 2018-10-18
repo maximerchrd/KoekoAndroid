@@ -32,7 +32,7 @@ public class DbTableQuestionMultipleChoice {
                     " IMAGE_PATH           TEXT    NOT NULL, " +
                     " ID_GLOBAL           INT    NOT NULL, " +
                     " UNIQUE(ID_GLOBAL)) ";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -68,7 +68,7 @@ public class DbTableQuestionMultipleChoice {
                     String.valueOf(quest.getID())
             };
 
-            DbHelper.dbase.execSQL(sql,sqlArgs);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
             Log.v("insert multQuest, ID: ", String.valueOf(quest.getID()));
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -79,8 +79,8 @@ public class DbTableQuestionMultipleChoice {
         try {
             String selectQuery = "SELECT  LEVEL,QUESTION,OPTION0,OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9,NB_CORRECT_ANS," +
                     "IMAGE_PATH FROM multiple_choice_questions WHERE ID_GLOBAL=" + globalID + ";";
-            //DbHelper.dbase = DbHelper.getReadableDatabase();
-            Cursor cursor = DbHelper.dbase.rawQuery(selectQuery, null);
+            //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             if (cursor.moveToPosition(0)) {
                 questionMultipleChoice.setLEVEL(cursor.getString(0));
@@ -112,8 +112,8 @@ public class DbTableQuestionMultipleChoice {
 
         try {
             String selectQuery = "SELECT ID_GLOBAL FROM multiple_choice_questions;";
-            //DbHelper.dbase = DbHelper.getReadableDatabase();
-            Cursor cursor = DbHelper.dbase.rawQuery(selectQuery, null);
+            //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             while (cursor.moveToNext()) {
                 IDs += cursor.getString(0) + "|";

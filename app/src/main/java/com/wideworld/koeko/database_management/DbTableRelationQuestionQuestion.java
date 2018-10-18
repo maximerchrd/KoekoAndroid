@@ -41,7 +41,7 @@ public class DbTableRelationQuestionQuestion {
                 key_testName + " TEXT     NOT NULL, " +
                 key_condition + " TEXT, " +
                 "CONSTRAINT unq UNIQUE (" + key_idGlobal1 +", " + key_idGlobal2 +", " + key_testName +")) ";
-        DbHelper.dbase.execSQL(sql);
+        DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
     }
 
     static public Boolean insertRelationQuestionQuestion(Long idGlobal1, Long idGlobal2, String testName, String condition) {
@@ -51,7 +51,7 @@ public class DbTableRelationQuestionQuestion {
         contentValues.put(key_testName, String.valueOf(testName));
         contentValues.put(key_condition, condition);
 
-        if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
+        if (DbHelper.dbHelperSingleton.getDatabase().insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;
         } else {
             return true;
@@ -61,7 +61,7 @@ public class DbTableRelationQuestionQuestion {
     static public Vector<String[]> getTestMapForTest(String testName) {
         Vector<String[]> testMap = new Vector<>();
 
-        Cursor cursor = DbHelper.dbase.rawQuery("SELECT * FROM " + tableName + " WHERE " +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT * FROM " + tableName + " WHERE " +
                 key_testName + " = ?", new String[]{String.valueOf(testName)});
         while (cursor.moveToNext()) {
             testMap.add(new String[] {cursor.getString(1),

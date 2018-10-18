@@ -25,12 +25,12 @@ public class MenuActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		new DbHelper(this);
 		setContentView(R.layout.activity_menu);
 		scoresButton = (Button)findViewById(R.id.scoresbutton);
 		exerciceButton = (Button)findViewById(R.id.exercicebutton);
 		interactiveModeButton = (Button)findViewById(R.id.interactivemodebutton);
 		buttonChangeSettings = (Button)findViewById(R.id.buttonchangesettings);
-		final DbHelper db = new DbHelper(this);
 
 		//start interactive questions session
 		interactiveModeButton.setOnClickListener(new View.OnClickListener() {

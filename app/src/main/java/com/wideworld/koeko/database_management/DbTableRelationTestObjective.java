@@ -30,7 +30,7 @@ public class DbTableRelationTestObjective {
                 key_idTest + " TEXT     NOT NULL, " +
                 key_idObjective + " TEXT     NOT NULL, " +
                 "CONSTRAINT unq UNIQUE (" + key_idTest +", " + key_idObjective +")) ";
-        DbHelper.dbase.execSQL(sql);
+        DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
     }
 
     static public Boolean insertRelationTestObjective(String idTest, String idObjective) {
@@ -38,7 +38,7 @@ public class DbTableRelationTestObjective {
         contentValues.put(key_idTest, idTest);
         contentValues.put(key_idObjective, idObjective);
 
-        if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
+        if (DbHelper.dbHelperSingleton.getDatabase().insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;
         } else {
             return true;

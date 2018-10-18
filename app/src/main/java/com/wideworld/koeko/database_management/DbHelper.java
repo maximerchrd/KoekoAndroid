@@ -13,6 +13,8 @@ import com.wideworld.koeko.R;
 import java.util.ArrayList;
 
 public class DbHelper extends SQLiteOpenHelper {
+    static public DbHelper dbHelperSingleton;
+
     private static final int DATABASE_VERSION = 1;
     // Database Name
     private static final String DATABASE_NAME = "learning_tracker.db";  //added the ".db" extension because onCreate() wasn't called anymore
@@ -20,13 +22,24 @@ public class DbHelper extends SQLiteOpenHelper {
     // old table name
     private static final String TABLE_QUEST = "quest";
 
-    public static SQLiteDatabase dbase;
+    private SQLiteDatabase dbase;
 
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        DbHelper.dbase = getWritableDatabase();
+        dbHelperSingleton = this;
+        dbase = getWritableDatabase();
         createTables(context);
         Log.v("DbHelper", "Constructor");
+    }
+
+    public SQLiteDatabase getDatabase() {
+        if (dbase != null) {
+            return dbase;
+        } else {
+            Log.w("DbHelper", "dbase is null when should be already initialized! BAD!!");
+            dbase = getWritableDatabase();
+            return dbase;
+        }
     }
 
     private void createTables(Context context) {

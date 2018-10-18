@@ -19,7 +19,7 @@ public class DbTableRelationQuestionAnserOption {
                     " ID_GLOBAL      INT     NOT NULL, " +
                     " ID_ANSWEROPTION_GLOBAL      INT     NOT NULL, " +
                     "CONSTRAINT unq UNIQUE (" + key_idGlobal +", " + key_idAnswerOption +")) ";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
@@ -37,7 +37,7 @@ public class DbTableRelationQuestionAnserOption {
                     "SELECT t1.ID_GLOBAL,t2.ID_ANSWEROPTION_GLOBAL FROM short_answer_questions t1, answer_options t2 " +
                     "WHERE t1.ID_GLOBAL = '"+ questionID + "' " +
                     "AND t2.OPTION='" + option + "';";
-            DbHelper.dbase.execSQL(sql);
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( SQLException e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }

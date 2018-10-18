@@ -304,7 +304,9 @@ public class WifiCommunication {
                                 }
                             }
                             newTest.setMedalsInstructionsString(testString.split("///")[5]);
-                            newTest.setMediaFileName(testString.split("///")[6]);
+                            if (testString.split("///").length > 6) {
+                                newTest.setMediaFileName(testString.split("///")[6]);
+                            }
                             DbTableTest.insertTest(newTest);
                         } else if (sizesPrefix.split(":")[0].contentEquals("OEVAL")) {
                             if (sizesPrefix.split(":").length > 1) {
