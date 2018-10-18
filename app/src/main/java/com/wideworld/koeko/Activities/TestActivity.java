@@ -1,6 +1,10 @@
 package com.wideworld.koeko.Activities;
 
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +16,11 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.MediaController;
+import android.widget.RelativeLayout;
+import android.widget.VideoView;
 
 import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
 import com.wideworld.koeko.Activities.ActivityTools.TestChronometer;
@@ -44,8 +53,14 @@ public class TestActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-
+    private VideoView videoView;
+    private FrameLayout videoFrame;
+    private LinearLayout playerButtons;
+    private Uri videoUri;
+    private MediaPlayer mediaPlayer;
     private Test mTest;
+    private FrameLayout.LayoutParams defaultVideoViewParams;
+    private int defaultScreenOrientationMode;
 
     private String TAG = "TestActivity";
 
@@ -80,6 +95,7 @@ public class TestActivity extends AppCompatActivity {
             mTest.setIdGlobal(testID);
             mTest.setTestName(DbTableTest.getNameFromTestID(testID));
             mTest.setQuestionsIDs(DbTableTest.getQuestionIDsFromTestName(mTest.getTestName()));
+            mTest.setMediaFileName(DbTableTest.getMediaFileFromTestName(mTest.getTestName()));
             mTest.loadMap();
             reloadActivity = false;
         } else {
@@ -128,7 +144,32 @@ public class TestActivity extends AppCompatActivity {
             }
         }
 
+        //setup media player
+        videoView = findViewById(R.id.videoView);
+        videoFrame = findViewById(R.id.video_frame);
+        playerButtons = findViewById(R.id.buttonsLinearLayout);
+        if (mTest.getMediaFileType() == 1) {
+            playerButtons.setVisibility(View.VISIBLE);
+        } else if (mTest.getMediaFileType() == 2) {
+            videoFrame.setVisibility(View.VISIBLE);
+            playerButtons.setVisibility(View.VISIBLE);
+            String pathtohere = this.getFilesDir().getAbsolutePath().toString();
+            videoUri = Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName());
+            videoView.setVideoURI(videoUri);
+        }
+
         Koeko.currentTestActivitySingleton = this;
+    }
+    @Override
+    public void onResume() {
+        Log.d(TAG, "onResume");
+        if (mTest.getMediaFileType() == 1) {
+            if (mediaPlayer == null) {
+                String pathtohere = this.getFilesDir().getAbsolutePath().toString();
+                mediaPlayer = MediaPlayer.create(this, Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName()));
+            }
+        }
+        super.onResume();
     }
 
     @Override
@@ -194,6 +235,36 @@ public class TestActivity extends AppCompatActivity {
         }
     }
 
+    public void PlayPause(View v) {
+        if (mTest.getMediaFileType() == 2) {
+            if (videoView.isPlaying()) {
+                videoView.pause();
+            } else {
+                videoView.start();
+            }
+        } else if (mTest.getMediaFileType() == 1) {
+            if (mediaPlayer == null) {
+                String pathtohere = this.getFilesDir().getAbsolutePath().toString();
+                mediaPlayer = MediaPlayer.create(this, Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName()));
+            }
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+            } else {
+                mediaPlayer.start();
+            }
+        }
+    }
+
+    public void Stop(View v) {
+        if (mTest.getMediaFileType() == 2) {
+            videoView.stopPlayback();
+            videoView.setVideoURI(videoUri);
+        } else if (mediaPlayer != null) {
+            mediaPlayer.reset();
+            mediaPlayer = null;
+        }
+    }
+
     /**
      * method used to know if we send a disconnection signal to the server
      *
@@ -208,5 +279,15 @@ public class TestActivity extends AppCompatActivity {
             ((Koeko) this.getApplication()).stopActivityTransitionTimer();
             Log.v("test activity: ", "has focus");
         }
+    }
+
+    @Override
+    public void onPause() {
+        Log.d(TAG, "onPause");
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        super.onPause();
     }
 }

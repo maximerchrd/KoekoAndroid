@@ -16,6 +16,7 @@ public class Test {
     private Long idGlobal = 0L;
     private String testName = "";
     private String testType = "";
+    private String mediaFileName = "";
     private Vector<String> questionsIDs;
     private Map<String, String> idMapRelation;
     private Map<String,QuestionMultipleChoice> idMapQmc;
@@ -71,6 +72,9 @@ public class Test {
     public Vector<Double> getQuestionsScores() {
         return questionsScores;
     }
+    public String getMediaFileName() {
+        return mediaFileName;
+    }
 
     //setters
     public void setIdGlobal(Long idGlobal) {
@@ -108,6 +112,9 @@ public class Test {
     }
     public void setQuestionsScores(Vector<Double> questionsScores) {
         this.questionsScores = questionsScores;
+    }
+    public void setMediaFileName(String mediaFileName) {
+        this.mediaFileName = mediaFileName;
     }
 
     public String serializeQuestionIDs() {
@@ -209,5 +216,28 @@ public class Test {
             }
         });
 
+    }
+
+    /**
+     *
+     * @return file type -> 0: no media or extension unsupported; 1: music; 2: video
+     */
+    public int getMediaFileType() {
+        if (mediaFileName.length() > 0) {
+            String[] splitName = mediaFileName.split("\\.");
+            if (splitName.length > 1) {
+                if (splitName[splitName.length - 1].contentEquals("mp3") || splitName[splitName.length - 1].contentEquals("wav")) {
+                    return 1;
+                } else if (splitName[splitName.length - 1].contentEquals("mp4") || splitName[splitName.length - 1].contentEquals("avi")) {
+                    return 2;
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
     }
 }

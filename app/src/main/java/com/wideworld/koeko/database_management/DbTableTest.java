@@ -19,6 +19,7 @@ public class DbTableTest {
     static private String key_questions_ids = "QUESTION_IDS";
     static private String key_test_type = "TEST_TYPE";
     static private String key_medals_instructions = "MEDALS_INSTRUCTIONS";
+    static private String key_mediafile_name = "MEDIA_FILE";
 
     public static String getTableName() {
         return tableName;
@@ -48,6 +49,7 @@ public class DbTableTest {
                 key_test_type + " TEXT     NOT NULL, " +
                 key_questions_ids + " TEXT, " +
                 key_medals_instructions + " TEXT, " +
+                key_mediafile_name + " TEXT, " +
                 " UNIQUE (" + key_idGlobal + ") )";
         DbHelper.dbase.execSQL(sql);
     }
@@ -60,6 +62,8 @@ public class DbTableTest {
         contentValues.put(key_test_type, test.getTestType());
         contentValues.put(key_questions_ids, test.serializeQuestionIDs());
         contentValues.put(key_medals_instructions, test.getMedalsInstructionsString());
+        contentValues.put(key_mediafile_name, test.getMediaFileName());
+
 
         if (DbHelper.dbase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
             return false;
@@ -86,6 +90,16 @@ public class DbTableTest {
             testType = cursor.getString(0);
         }
         return testType;
+    }
+
+    static public String getMediaFileFromTestName(String testName) {
+        String fileName = "";
+        Cursor cursor = DbHelper.dbase.rawQuery("SELECT " + key_mediafile_name + " FROM " + tableName + " WHERE " +
+                key_testName + " = ?", new String[]{String.valueOf(testName)});
+        while (cursor.moveToNext()) {
+            fileName = cursor.getString(0);
+        }
+        return fileName;
     }
 
     static public Test getTestFromTestId(String tesId) {
