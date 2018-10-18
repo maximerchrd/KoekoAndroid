@@ -104,6 +104,7 @@ public class DbTableTest {
 
     static public Test getTestFromTestId(String tesId) {
         Test test = new Test();
+        //Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'android.database.Cursor android.database.sqlite.SQLiteDatabase.rawQuery(java.lang.String, java.lang.String[])' on a null object reference
         Cursor cursor = DbHelper.dbase.rawQuery("SELECT * FROM " + tableName + " WHERE " +
                 key_idGlobal + " = ?", new String[]{String.valueOf(tesId)});
         if (cursor.moveToNext()) {

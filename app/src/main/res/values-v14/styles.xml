@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!--
         Base application theme for API 14+. This theme completely replaces
@@ -8,6 +8,17 @@
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <!-- API 14 theme customizations can go here. -->
         <!-- Customize your theme here. -->
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background"  tools:ignore="NewApi">@color/koekored</item>
+        <item name="background">@color/koekored</item>
+    </style>
+
+    <style name="CustomActionBarTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:actionBarStyle"   tools:ignore="NewApi">@style/MyActionBar</item>
+        <item name="actionBarStyle">@style/MyActionBar</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
