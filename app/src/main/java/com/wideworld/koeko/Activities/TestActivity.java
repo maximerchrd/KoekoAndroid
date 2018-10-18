@@ -1,11 +1,8 @@
 package com.wideworld.koeko.Activities;
 
-import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -17,9 +14,8 @@ import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
-import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
 import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
@@ -54,6 +50,7 @@ public class TestActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
 
     private VideoView videoView;
+    private ImageButton play_pauseButton;
     private FrameLayout videoFrame;
     private LinearLayout playerButtons;
     private Uri videoUri;
@@ -148,6 +145,7 @@ public class TestActivity extends AppCompatActivity {
         videoView = findViewById(R.id.videoView);
         videoFrame = findViewById(R.id.video_frame);
         playerButtons = findViewById(R.id.buttonsLinearLayout);
+        play_pauseButton = findViewById(R.id.play_pause);
         if (mTest.getMediaFileType() == 1) {
             playerButtons.setVisibility(View.VISIBLE);
         } else if (mTest.getMediaFileType() == 2) {
@@ -169,6 +167,7 @@ public class TestActivity extends AppCompatActivity {
                 mediaPlayer = MediaPlayer.create(this, Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName()));
             }
         }
+        play_pauseButton.setImageResource(R.drawable.play_icon);
         super.onResume();
     }
 
@@ -239,8 +238,10 @@ public class TestActivity extends AppCompatActivity {
         if (mTest.getMediaFileType() == 2) {
             if (videoView.isPlaying()) {
                 videoView.pause();
+                play_pauseButton.setImageResource(R.drawable.play_icon);
             } else {
                 videoView.start();
+                play_pauseButton.setImageResource(R.drawable.pause_icon);
             }
         } else if (mTest.getMediaFileType() == 1) {
             if (mediaPlayer == null) {
@@ -249,8 +250,10 @@ public class TestActivity extends AppCompatActivity {
             }
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
+                play_pauseButton.setImageResource(R.drawable.play_icon);
             } else {
                 mediaPlayer.start();
+                play_pauseButton.setImageResource(R.drawable.pause_icon);
             }
         }
     }
@@ -263,6 +266,7 @@ public class TestActivity extends AppCompatActivity {
             mediaPlayer.reset();
             mediaPlayer = null;
         }
+        play_pauseButton.setImageResource(R.drawable.play_icon);
     }
 
     /**
