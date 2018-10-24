@@ -347,7 +347,14 @@ public class WifiCommunication {
                                 try {
                                     int dataSize = Integer.valueOf(sizesPrefix.split("///")[2]);
                                     byte[] dataBuffer = readDataIntoArray(dataSize, able_to_read);
-                                    FileHandler.saveMediaFile(dataBuffer, sizesPrefix.split("///")[1], mContextWifCom);
+
+                                    //check if we got all the data
+                                    if (dataSize == dataBuffer.length) {
+                                        FileHandler.saveMediaFile(dataBuffer, sizesPrefix.split("///")[1], mContextWifCom);
+                                        sendStringToServer("OK///" + sizesPrefix.split("///")[1] + "///");
+                                    } else {
+                                        System.err.println("the expected file size and the size actually read don't match");
+                                    }
                                 } catch (NumberFormatException e) {
                                     System.err.println("Error in FILE prefix: unable to read file size");
                                 }
