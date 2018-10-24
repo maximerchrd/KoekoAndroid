@@ -220,7 +220,7 @@ public class Test {
 
     /**
      *
-     * @return file type -> 0: no media or extension unsupported; 1: music; 2: video
+     * @return file type -> 0: no media or extension unsupported; 1: music; 2: video; 3: web html
      */
     public int getMediaFileType() {
         if (mediaFileName.length() > 0) {
@@ -230,6 +230,8 @@ public class Test {
                     return 1;
                 } else if (splitName[splitName.length - 1].contentEquals("mp4") || splitName[splitName.length - 1].contentEquals("avi")) {
                     return 2;
+                } else if (splitName[splitName.length - 1].contentEquals("html")) {
+                    return 3;
                 } else {
                     return 0;
                 }

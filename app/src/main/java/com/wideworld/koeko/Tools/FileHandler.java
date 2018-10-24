@@ -10,7 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class FileHandler {
-    static private String mediaDirectory = "media";
+    static public String mediaDirectory = "media";
 
     static public void saveMediaFile(byte[] fileData, String fileName, Context context) {
         File directory = new File(context.getFilesDir(), mediaDirectory);

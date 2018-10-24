@@ -74,6 +74,9 @@
             android:name="com.wideworld.koeko.Activities.QRCodeReaderActivity"
             android:label="Read QR Code"></activity>
         <activity
+            android:name="com.wideworld.koeko.Activities.WebViewActivity"
+            android:label="Media"></activity>
+        <activity
             android:name="com.wideworld.koeko.AndroidDatabaseManager"
             android:label="DB Browsing"></activity>
     </application>

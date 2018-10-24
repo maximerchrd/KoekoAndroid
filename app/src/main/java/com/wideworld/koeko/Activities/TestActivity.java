@@ -1,5 +1,6 @@
 package com.wideworld.koeko.Activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -51,6 +52,7 @@ public class TestActivity extends AppCompatActivity {
 
     private VideoView videoView;
     private ImageButton play_pauseButton;
+    private ImageButton stopButton;
     private FrameLayout videoFrame;
     private LinearLayout playerButtons;
     private Uri videoUri;
@@ -152,6 +154,7 @@ public class TestActivity extends AppCompatActivity {
         videoFrame = findViewById(R.id.video_frame);
         playerButtons = findViewById(R.id.buttonsLinearLayout);
         play_pauseButton = findViewById(R.id.play_pause);
+        stopButton = findViewById(R.id.reset);
         if (mTest.getMediaFileType() == 1) {
             playerButtons.setVisibility(View.VISIBLE);
         } else if (mTest.getMediaFileType() == 2) {
@@ -160,6 +163,9 @@ public class TestActivity extends AppCompatActivity {
             String pathtohere = this.getFilesDir().getAbsolutePath().toString();
             videoUri = Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName());
             videoView.setVideoURI(videoUri);
+        } else if (mTest.getMediaFileType() == 3) {
+            playerButtons.setVisibility(View.VISIBLE);
+            stopButton.setVisibility(View.GONE);
         }
 
         Koeko.currentTestActivitySingleton = this;
@@ -265,6 +271,10 @@ public class TestActivity extends AppCompatActivity {
                 mediaPlayer.start();
                 play_pauseButton.setImageResource(R.drawable.pause_icon);
             }
+        } else if (mTest.getMediaFileType() == 3) {
+            ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 1400;
+            Intent intent = new Intent(TestActivity.this, WebViewActivity.class);
+            startActivity(intent);
         }
     }
 
