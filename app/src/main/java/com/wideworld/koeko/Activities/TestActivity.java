@@ -168,6 +168,10 @@ public class TestActivity extends AppCompatActivity {
             stopButton.setVisibility(View.GONE);
         }
 
+        //send receipt to server
+        String receipt = "ACTID///" + String.valueOf(testID) + "///";
+        Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
+
         Koeko.currentTestActivitySingleton = this;
     }
     @Override

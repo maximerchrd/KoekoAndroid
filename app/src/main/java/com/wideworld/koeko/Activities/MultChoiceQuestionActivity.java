@@ -108,6 +108,11 @@ public class MultChoiceQuestionActivity extends Activity {
             finish();
         }
 
+        //send receipt to server
+        String receipt = "ACTID///" + currentQ.getID() + "///";
+        Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
+
+
         submitButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SimpleDateFormat")
             @Override

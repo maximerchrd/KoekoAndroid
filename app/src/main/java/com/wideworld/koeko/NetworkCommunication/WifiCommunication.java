@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
@@ -472,23 +473,28 @@ public class WifiCommunication {
                 try {
                     System.out.println("Open socket");
                     if (socket == null) {
-                        socket = new DatagramSocket(9346);
+                        try {
+                            socket = new DatagramSocket(9346);
+                            DatagramPacket packet = new DatagramPacket(new byte[100], 100);
+                            socket.receive(packet);
+                            socket.close();
+                            System.out.println("Close socket");
+
+
+                            byte[] data = packet.getData();
+                            String message = new String(data);
+                            System.out.println(message);
+
+                            if (message.split("///")[0].contentEquals("IPADDRESS")) {
+                                ip_address = message.split("///")[1];
+                                DbTableSettings.addMaster(message.split("///")[1]);
+                            }
+                        } catch (BindException ex) {
+                            System.err.println("Encountered BindException. Address is probably already in use");
+                        }
                     } else {
                         socket.close();
-                    }
-                    DatagramPacket packet = new DatagramPacket(new byte[100], 100);
-                    socket.receive(packet);
-                    socket.close();
-                    System.out.println("Close socket");
-
-
-                    byte[] data = packet.getData();
-                    String message = new String(data);
-                    System.out.println(message);
-
-                    if (message.split("///")[0].contentEquals("IPADDRESS")) {
-                        ip_address = message.split("///")[1];
-                        DbTableSettings.addMaster(message.split("///")[1]);
+                        socket = null;
                     }
                 } catch (SocketException e) {
                     e.printStackTrace();

@@ -295,7 +295,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
             ((Koeko) this.getApplication()).startActivityTransitionTimer();
         } else {
             ((Koeko) this.getApplication()).stopActivityTransitionTimer();
-            connectToTeacher();
             Log.v("interactive mode: ", "has focus");
         }
     }
