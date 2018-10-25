@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.wideworld.koeko.Activities.InteractiveModeActivity;
+import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.database_management.DbHelper;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
@@ -50,12 +51,10 @@ public class NetworkCommunication {
 			DbHelper db_for_name = new DbHelper(mContextNetCom);
 			String name = DbTableSettings.getName();
 
-			final String connection = "CONN" + "///" + MacAddress + "///" + name + "///" +
-					DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIds() + "|" +
-					DbTableQuestionShortAnswer.getAllShortAnswerIds() + "///";
+			final String connection = "CONN" + "///" + MacAddress + "///" + name + "///";
 			new Thread(new Runnable() {
 				public void run() {
-					mWifiCom.connectToServer(connection);
+					mWifiCom.connectToServer(connection, MacAddress);
 				}
 			}).start();
 		}

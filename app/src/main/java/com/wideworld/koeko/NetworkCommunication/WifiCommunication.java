@@ -76,7 +76,7 @@ public class WifiCommunication {
     }
 
 
-    public void connectToServer(String connectionString) {
+    public void connectToServer(String connectionString, String deviceIdentifier) {
         try {
             //Automatic connection
             Integer automaticConnection = DbTableSettings.getAutomaticConnection();
@@ -118,6 +118,25 @@ public class WifiCommunication {
                 String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
                 Log.e("Fatal Error", msg);
             }
+
+            //send resource ids present on the device
+            String idsOnDevice = DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIds() + "|" +
+                    DbTableQuestionShortAnswer.getAllShortAnswerIds() + "|"
+                    + FileHandler.getMediaFilesList(mContextWifCom);
+            String[] arrayIds = idsOnDevice.split("\\|");
+            String stringToSend = "RESIDS///" + deviceIdentifier + "///";
+            for (int i = 0; i < arrayIds.length; i++) {
+                if (arrayIds[i].length() > 0) {
+                    stringToSend += arrayIds[i] + "|";
+                    if (stringToSend.getBytes().length >= 900) {
+                        stringToSend += "///";
+                        sendStringToServer(stringToSend);
+                        stringToSend = "RESIDS///" + deviceIdentifier + "///";
+                    }
+                }
+            }
+            sendStringToServer(stringToSend + "///ENDTRSM///");
+
 
             listenForQuestions();
 

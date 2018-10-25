@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,6 +35,18 @@ public class FileHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    static public String getMediaFilesList(Context context) {
+        String list = "";
+        File directory = new File(context.getFilesDir(), mediaDirectory);
+        File[] files = directory.listFiles();
+        for (File inFile : files) {
+            if (!inFile.isDirectory()) {
+                list += inFile.getName() + "|";
+            }
+        }
+
+        return list;
     }
 }
