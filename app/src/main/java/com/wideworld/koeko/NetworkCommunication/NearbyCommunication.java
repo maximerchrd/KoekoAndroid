@@ -39,6 +39,13 @@ public class NearbyCommunication {
     private final SimpleArrayMap<Long, Payload> outgoingPayloads = new SimpleArrayMap<>();
     private final SimpleArrayMap<Long, String> outgoingSmallData = new SimpleArrayMap<>();
     private String singleConnectionEndpointId;
+    private Boolean isDiscovering = false;
+    private Boolean isAdvertising = false;
+
+    static private int NO_NEARBY_ROLE = 0;
+    static private int ADVERTISER = 1;
+    static private int DISCOVERER = 2;
+    private int deviceRole = NO_NEARBY_ROLE;
     static private int nbOfTransfers= 0;
     static private Long start = 0L;
 
@@ -53,6 +60,7 @@ public class NearbyCommunication {
     }
 
     public void startAdvertising() {
+        deviceRole = ADVERTISER;
         sender = true;
         AdvertisingOptions.Builder advertisingOptionsBuilder = new AdvertisingOptions.Builder();
         advertisingOptionsBuilder.setStrategy(Strategy.P2P_CLUSTER);
@@ -63,7 +71,10 @@ public class NearbyCommunication {
                 advertisingOptionsBuilder.build()
         )
                 .addOnSuccessListener(
-                        unusedResult -> Log.v(TAG, "Started advertising"))
+                        unusedResult -> {
+                            isAdvertising = true;
+                            Log.v(TAG, "Started advertising");
+                        })
                 .addOnFailureListener(
                         e -> e.printStackTrace());
     }
@@ -101,6 +112,7 @@ public class NearbyCommunication {
             };
 
     public void startDiscovery() {
+        deviceRole = DISCOVERER;
         DiscoveryOptions.Builder discoveryOptionsBuilder = new DiscoveryOptions.Builder();
         discoveryOptionsBuilder.setStrategy(Strategy.P2P_CLUSTER);
         Nearby.getConnectionsClient(mNearbyContext).startDiscovery(
@@ -108,7 +120,10 @@ public class NearbyCommunication {
                 mEndpointDiscoveryCallback,
                 discoveryOptionsBuilder.build())
                 .addOnSuccessListener(
-                        unusedResult -> Log.v(TAG, "Started discovering"))
+                        unusedResult -> {
+                            isDiscovering = true;
+                            Log.v(TAG, "Started discovering");
+                        })
                 .addOnFailureListener(
                         e -> e.printStackTrace());
     }
@@ -134,8 +149,9 @@ public class NearbyCommunication {
                             singleConnectionEndpointId = endpointId;
                             if (sender) {
                                 Nearby.getConnectionsClient(mNearbyContext).stopAdvertising();
+                                isAdvertising = false;
                                 String pay = "What the fuck Dude is that all you want from me!?";
-                                for (int i = 0; i < 16; i++) {
+                                for (int i = 0; i < 7; i++) {
                                     pay += pay;
                                 }
                                 FileOutputStream out = null;
@@ -163,7 +179,7 @@ public class NearbyCommunication {
                                 while (true) {
                                     try {
                                         sendPayload(Payload.fromFile(file));
-                                        Thread.sleep(300000);
+                                        Thread.sleep(5000);
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     } catch (FileNotFoundException e) {
@@ -172,7 +188,10 @@ public class NearbyCommunication {
                                 }
 
                             } else {
-                                Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
+                                if (isDiscovering) {
+                                    Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
+                                    isDiscovering = false;
+                                }
                             }
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
@@ -187,8 +206,24 @@ public class NearbyCommunication {
                 @Override
                 public void onDisconnected(String endpointId) {
                     Log.v(TAG, "DISCONNECTED");
+                    if (deviceRole == ADVERTISER) {
+                        startAdvertising();
+                    } else if (deviceRole == DISCOVERER) {
+                        startDiscovery();
+                    }
                 }
             };
+
+    public void stopNearbyDiscoveryAndAdvertising() {
+        if (isDiscovering) {
+            Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
+            isDiscovering = false;
+        }
+        if (isAdvertising) {
+            Nearby.getConnectionsClient(mNearbyContext).stopAdvertising();
+            isAdvertising = false;
+        }
+    }
 
     public void sendPayload(Payload payload) {
         //Payload payload = Payload.fromBytes(bytesData);

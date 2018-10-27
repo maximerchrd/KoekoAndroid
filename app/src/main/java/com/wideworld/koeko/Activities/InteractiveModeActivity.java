@@ -255,14 +255,14 @@ public class InteractiveModeActivity extends AppCompatActivity {
             Long resCode = Long.valueOf(resCodeString);
             if (resCode < 0) {
                 resCode = -resCode;
-                Koeko.wifiCommunicationSingleton.launchTestActivity(resCode, directCorrection);
+                Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchTestActivity(resCode, directCorrection);
             } else {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(resCodeString);
                 if (questionShortAnswer.getQUESTION().length() == 0 || questionShortAnswer.getQUESTION().contentEquals("none")) {
                     QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(resCodeString);
-                    Koeko.wifiCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
+                    Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
                 } else {
-                    Koeko.wifiCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
+                    Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
                 }
             }
         } else {
@@ -285,13 +285,13 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
         if (id == R.id.forwardbutton) {
             if (Koeko.qmcActivityState != null && Koeko.currentQuestionMultipleChoiceSingleton != null) {
-                Koeko.wifiCommunicationSingleton.launchMultChoiceQuestionActivity(Koeko.currentQuestionMultipleChoiceSingleton,
+                Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchMultChoiceQuestionActivity(Koeko.currentQuestionMultipleChoiceSingleton,
                         Koeko.wifiCommunicationSingleton.directCorrection);
             } else if (Koeko.shrtaqActivityState != null && Koeko.currentQuestionShortAnswerSingleton != null) {
-                Koeko.wifiCommunicationSingleton.launchShortAnswerQuestionActivity(Koeko.currentQuestionShortAnswerSingleton,
+                Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchShortAnswerQuestionActivity(Koeko.currentQuestionShortAnswerSingleton,
                         Koeko.wifiCommunicationSingleton.directCorrection);
             } else if (Koeko.currentTestActivitySingleton != null) {
-                Koeko.wifiCommunicationSingleton.launchTestActivity(Koeko.currentTestActivitySingleton.getmTest().getIdGlobal(),
+                Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchTestActivity(Koeko.currentTestActivitySingleton.getmTest().getIdGlobal(),
                         Koeko.wifiCommunicationSingleton.directCorrection);
             }
         }

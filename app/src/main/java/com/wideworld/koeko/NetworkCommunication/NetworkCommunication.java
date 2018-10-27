@@ -101,17 +101,16 @@ public class NetworkCommunication {
 			//check if device locked
 			if (pm.isInteractive()) {
                 String MacAddress = Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
-                DbHelper db_for_name = new DbHelper(mContextNetCom);
                 String name = DbTableSettings.getName();
                 String signal = "DISC///" + MacAddress + "///" + name + "///";
                 mWifiCom.sendStringToServer(signal);
                 mWifiCom.closeConnection();
                 mInteractiveModeActivity.showDisconnected();
                 NetworkCommunication.connected = false;
+                mNearbyCom.stopNearbyDiscoveryAndAdvertising();
             }
 		} else {
 			String MacAddress = Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
-			DbHelper db_for_name = new DbHelper(mContextNetCom);
 			String name = DbTableSettings.getName();
 			String signal = "DISC///" + MacAddress + "///" + name + "///Android///";
 			mWifiCom.sendStringToServer(signal);
