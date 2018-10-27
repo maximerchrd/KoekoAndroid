@@ -1,6 +1,7 @@
 package com.wideworld.koeko.Activities;
 
 import com.wideworld.koeko.Koeko;
+import com.wideworld.koeko.NetworkCommunication.NearbyCommunication;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
@@ -214,6 +215,17 @@ public class InteractiveModeActivity extends AppCompatActivity {
             Koeko.qrCode = "";
         }
 
+        if (NetworkCommunication.network_solution == 1) {
+            if (android.os.Build.VERSION.SDK_INT >= 23) {
+                if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                            12345);
+                    return;
+                }
+            }
+        }
+
         connectToTeacher();
     }
 
@@ -222,6 +234,15 @@ public class InteractiveModeActivity extends AppCompatActivity {
             @Override
             public void run() {
                 intmod_wait_for_question.setText(getString(R.string.disconnected));
+            }
+        });
+    }
+
+    public void showMessage(String message) {
+        interactiveModeActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                intmod_wait_for_question.setText(message);
             }
         });
     }

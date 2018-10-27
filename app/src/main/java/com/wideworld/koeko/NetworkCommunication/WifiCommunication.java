@@ -244,7 +244,7 @@ public class WifiCommunication {
                                     //setup test and show it
                                     Long testId = -(Long.valueOf(sizesPrefix.split("///")[1]));
                                     directCorrection = sizesPrefix.split("///")[2];
-                                    launchTestActivity(testId, directCorrection);
+                                    mNetworkCommunication.launchTestActivity(testId, directCorrection);
                                     Koeko.shrtaqActivityState = null;
                                     Koeko.qmcActivityState = null;
                                 } else {
@@ -252,14 +252,14 @@ public class WifiCommunication {
                                     if (questionMultipleChoice.getQUESTION().length() > 0) {
                                         questionMultipleChoice.setID(id_global);
                                         directCorrection = sizesPrefix.split("///")[2];
-                                        launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
+                                        mNetworkCommunication.launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
                                         Koeko.shrtaqActivityState = null;
                                         Koeko.currentTestActivitySingleton = null;
                                     } else {
                                         QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
                                         questionShortAnswer.setID(id_global);
                                         directCorrection = sizesPrefix.split("///")[2];
-                                        launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
+                                        mNetworkCommunication.launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
                                         Koeko.qmcActivityState = null;
                                         Koeko.currentTestActivitySingleton = null;
                                     }
@@ -424,47 +424,7 @@ public class WifiCommunication {
         return arrayToReadInto;
     }
 
-    public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display, String directCorrection) {
-        Intent mIntent = new Intent(mContextWifCom, MultChoiceQuestionActivity.class);
-        Bundle bun = new Bundle();
-        bun.putString("question", question_to_display.getQUESTION());
-        bun.putString("opt0", question_to_display.getOPT0());
-        bun.putString("opt1", question_to_display.getOPT1());
-        bun.putString("opt2", question_to_display.getOPT2());
-        bun.putString("opt3", question_to_display.getOPT3());
-        bun.putString("opt4", question_to_display.getOPT4());
-        bun.putString("opt5", question_to_display.getOPT5());
-        bun.putString("opt6", question_to_display.getOPT6());
-        bun.putString("opt7", question_to_display.getOPT7());
-        bun.putString("opt8", question_to_display.getOPT8());
-        bun.putString("opt9", question_to_display.getOPT9());
-        bun.putString("id", question_to_display.getID());
-        bun.putString("image_name", question_to_display.getIMAGE());
-        bun.putString("directCorrection", directCorrection);
-        bun.putInt("nbCorrectAnswers", question_to_display.getNB_CORRECT_ANS());
-        mIntent.putExtras(bun);
-        mContextWifCom.startActivity(mIntent);
-    }
 
-    public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display, String directCorrection) {
-        Intent mIntent = new Intent(mContextWifCom, ShortAnswerQuestionActivity.class);
-        Bundle bun = new Bundle();
-        bun.putString("question", question_to_display.getQUESTION());
-        bun.putString("id", question_to_display.getID());
-        bun.putString("image_name", question_to_display.getIMAGE());
-        bun.putString("directCorrection", directCorrection);
-        mIntent.putExtras(bun);
-        mContextWifCom.startActivity(mIntent);
-    }
-
-    public void launchTestActivity(Long testID, String directCorrection) {
-        Intent mIntent = new Intent(mContextWifCom, TestActivity.class);
-        Bundle bun = new Bundle();
-        bun.putLong("testID", testID);
-        bun.putString("directCorrection", directCorrection);
-        mIntent.putExtras(bun);
-        mContextWifCom.startActivity(mIntent);
-    }
 
     //Get the IP address of the server through UDP listening
     private void listenForIPThroughUDP() {
