@@ -105,7 +105,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 				NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
 				networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getID(), "ANSW1");
 
-				if (Koeko.wifiCommunicationSingleton.directCorrection.contentEquals("1")) {
+				if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
 					popupCorrection();
 				} else {
 					finish();

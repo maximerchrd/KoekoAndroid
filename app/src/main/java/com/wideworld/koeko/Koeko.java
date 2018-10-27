@@ -24,6 +24,7 @@ public class Koeko extends Application {
 
 
     public static WifiCommunication wifiCommunicationSingleton;
+    public static NetworkCommunication networkCommunicationSingleton;
     private NetworkCommunication appNetwork;
     private Integer quitApp = 0;
     public long MAX_ACTIVITY_TRANSITION_TIME_MS = 700;

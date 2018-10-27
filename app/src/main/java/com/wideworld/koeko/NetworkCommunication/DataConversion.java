@@ -7,9 +7,13 @@ import android.util.Log;
 
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.QuestionsManagement.Test;
+import com.wideworld.koeko.Tools.StringTools;
 import com.wideworld.koeko.database_management.DbTableLearningObjective;
 import com.wideworld.koeko.database_management.DbTableRelationQuestionObjective;
+import com.wideworld.koeko.database_management.DbTableRelationQuestionQuestion;
 import com.wideworld.koeko.database_management.DbTableRelationQuestionSubject;
+import com.wideworld.koeko.database_management.DbTableRelationTestObjective;
 import com.wideworld.koeko.database_management.DbTableSubject;
 
 import java.io.ByteArrayInputStream;
@@ -25,6 +29,7 @@ import java.util.Arrays;
  * e.g.: byte array to MultipleChoiceQuestion
  */
 public class DataConversion {
+    static public int prefixSize = 80;
     Context mContext = null;
     private String lastConvertedQuestionText = "";
     public DataConversion(Context arg_context) {
@@ -34,8 +39,8 @@ public class DataConversion {
     public QuestionMultipleChoice bytearrayvectorToMultChoiceQuestion(byte[] buffer_for_whole_question) {
         QuestionMultipleChoice question_to_return = new QuestionMultipleChoice();
 
-        byte [] buffer_for_prefix = new byte[80];
-        for (int i = 0; i < 80; i++) {
+        byte [] buffer_for_prefix = new byte[prefixSize];
+        for (int i = 0; i < prefixSize; i++) {
             buffer_for_prefix[i] = buffer_for_whole_question[i];
         }
         String sizes = null;
@@ -49,12 +54,12 @@ public class DataConversion {
 
         byte [] buffer_for_text = new byte[size_of_text];
         for (int i = 0; i < size_of_text; i++) {
-            buffer_for_text[i] = buffer_for_whole_question[i+80];
+            buffer_for_text[i] = buffer_for_whole_question[i+prefixSize];
         }
 
         byte [] buffer_for_image = new byte[size_of_image];
         for (int i = 0; i < size_of_image; i++) {
-            buffer_for_image[i] = buffer_for_whole_question[i+80+size_of_text];
+            buffer_for_image[i] = buffer_for_whole_question[i+prefixSize+size_of_text];
         }
 
         ByteArrayInputStream imageStream = new ByteArrayInputStream(buffer_for_image);
@@ -117,8 +122,8 @@ public class DataConversion {
     public QuestionShortAnswer bytearrayvectorToShortAnswerQuestion(byte[] buffer_for_whole_question) {
         QuestionShortAnswer question_to_return = new QuestionShortAnswer();
 
-        byte [] buffer_for_prefix = new byte[80];
-        for (int i = 0; i < 80; i++) {
+        byte [] buffer_for_prefix = new byte[prefixSize];
+        for (int i = 0; i < prefixSize; i++) {
             buffer_for_prefix[i] = buffer_for_whole_question[i];
         }
         String sizes = null;
@@ -132,12 +137,12 @@ public class DataConversion {
 
         byte [] buffer_for_text = new byte[size_of_text];
         for (int i = 0; i < size_of_text; i++) {
-            buffer_for_text[i] = buffer_for_whole_question[i+80];
+            buffer_for_text[i] = buffer_for_whole_question[i+prefixSize];
         }
 
         byte [] buffer_for_image = new byte[size_of_image];
         for (int i = 0; i < size_of_image; i++) {
-            buffer_for_image[i] = buffer_for_whole_question[i+80+size_of_text];
+            buffer_for_image[i] = buffer_for_whole_question[i+prefixSize+size_of_text];
         }
 
         ByteArrayInputStream imageStream = new ByteArrayInputStream(buffer_for_image);
@@ -284,6 +289,66 @@ public class DataConversion {
         } else { Log.w("reading mcq buffer", "question text not complete (array after split is too short)"); }
 
         return questionShortAnswer;
+    }
+
+    public Test byteToTest(byte[] byteArray) {
+        String testString = "";
+        try {
+            testString = new String(byteArray, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        Test newTest = new Test();
+        newTest.setIdGlobal(Long.valueOf(testString.split("///")[0]));
+        newTest.setTestName(testString.split("///")[1]);
+
+        //read objectives
+        try {
+            String[] objectives = testString.split("///")[3].split("\\|\\|\\|");
+            for (String objective : objectives) {
+                DbTableRelationTestObjective.insertRelationTestObjective(String.valueOf(newTest.getIdGlobal()), objective);
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Log.e("WifiCommunication", "ArrayOutOfBound when parsing objectives from: " + testString);
+            e.printStackTrace();
+        }
+
+        String[] questionRelation = testString.split("///")[2].split("\\|\\|\\|");
+        for (String relation : questionRelation) {
+            String[] relationSplit = relation.split(";;;");
+            String questionId = relationSplit[0];
+            newTest.getQuestionsIDs().add(questionId);
+            for (int i = 1; i < relationSplit.length; i++) {
+                try {
+                    String[] array = relationSplit[i].split(":::");
+                    DbTableRelationQuestionQuestion.insertRelationQuestionQuestion(StringTools.stringToLongID(questionId),
+                            StringTools.stringToLongID(array[0]), newTest.getTestName(),
+                            array[1]);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    //ERROR HERE
+                    Log.e("WifiCommunication", "Array out of bound when inserting the condition for insertRelationQuestionQuestion");
+                    e.printStackTrace();
+                }
+            }
+        }
+        newTest.setMedalsInstructionsString(testString.split("///")[5]);
+        if (testString.split("///").length > 6) {
+            newTest.setMediaFileName(testString.split("///")[6]);
+        }
+
+        return newTest;
+    }
+
+    public ArrayList<String> bytesToIdsList(byte[] data) {
+        ArrayList<String> idsList = new ArrayList<>();
+        try {
+            String stringIds = new String(data, "UTF-8");
+            idsList.addAll(new ArrayList<>(Arrays.asList(stringIds.split("\\|"))));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return idsList;
     }
 
     private void SaveImageFile(Bitmap imageToSave, String fileName) {

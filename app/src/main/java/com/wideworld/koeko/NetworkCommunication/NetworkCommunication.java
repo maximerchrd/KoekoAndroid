@@ -38,8 +38,11 @@ public class NetworkCommunication {
 	private WifiCommunication mWifiCom;
 	private NearbyCommunication mNearbyCom;
 	private TextView mTextOut;
+	private String lastAnswer = "";
 	static public Boolean connected = false;
-	static public int network_solution = 1; //0: all devices connected to same wifi router
+	static public int network_solution = 1; //0: all devices connected to a WAN; 1: 3 layers, 1->WAN, 2->Wan to Nearby, 3-> Nearby to hotspot
+	static public String directCorrection = "0";
+	public ArrayList<String> idsToSync;
 	public InteractiveModeActivity mInteractiveModeActivity;
 
 
@@ -56,23 +59,24 @@ public class NetworkCommunication {
 		((Koeko) mApplication).setAppNetwork(this);
 		mNearbyCom = new NearbyCommunication(mContextNetCom);
 		NetworkCommunication.deviceIdentifier = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
+		idsToSync = new ArrayList<>();
+		Koeko.networkCommunicationSingleton = this;
 	}
 	/**
 	 * method to launch the network of smartphones and 1 laptop communicating using wifi
 	 */
 	public void ConnectToMaster() {
-		if (network_solution == 0) {
-			String MacAddress = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
-			DbHelper db_for_name = new DbHelper(mContextNetCom);
-			String name = DbTableSettings.getName();
+		String MacAddress = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
+		DbHelper db_for_name = new DbHelper(mContextNetCom);
+		String name = DbTableSettings.getName();
 
-			final String connection = "CONN" + "///" + MacAddress + "///" + name + "///";
-			new Thread(new Runnable() {
-				public void run() {
-					mWifiCom.connectToServer(connection, MacAddress);
-				}
-			}).start();
-		} else if (network_solution == 1) {
+		final String connection = "CONN" + "///" + MacAddress + "///" + name + "///";
+		new Thread(new Runnable() {
+			public void run() {
+				mWifiCom.connectToServer(connection, MacAddress);
+			}
+		}).start();
+		if (network_solution == 1) {
 			ConnectivityManager connManager = (ConnectivityManager) mContextNetCom.getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
@@ -89,9 +93,16 @@ public class NetworkCommunication {
 		DbHelper db_for_name = new DbHelper(mContextNetCom);
 		String name = DbTableSettings.getName();
 
+		lastAnswer = answer; //save the answer for when we receive the evaluation from the server
 		answer = answerType + "///" + MacAddress + "///" + name + "///" + answer + "///" + question + "///" + String.valueOf(id) + "///";
 		if (network_solution == 0) {
 			mWifiCom.sendAnswerToServer(answer);
+		} else if (network_solution == 1) {
+			if (NearbyCommunication.deviceRole == NearbyCommunication.DISCOVERER_ROLE) {
+				mNearbyCom.sendBytes(answer.getBytes());
+			} else {
+				mWifiCom.sendAnswerToServer(answer);
+			}
 		}
 	}
 
@@ -118,6 +129,12 @@ public class NetworkCommunication {
 			mInteractiveModeActivity.showDisconnected();
 			NetworkCommunication.connected = false;
 			Log.w("sending disc sign:","Too old API doesn't allow to check for disconnection because of screen turned off");
+		}
+	}
+
+	public void sendDataToClient(byte[] data) {
+		if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
+			mNearbyCom.sendBytes(data);
 		}
 	}
 
@@ -161,6 +178,10 @@ public class NetworkCommunication {
 		bun.putString("directCorrection", directCorrection);
 		mIntent.putExtras(bun);
 		mContextNetCom.startActivity(mIntent);
+	}
+
+	public String getLastAnswer() {
+		return lastAnswer;
 	}
 
 }

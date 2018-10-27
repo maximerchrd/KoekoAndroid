@@ -120,10 +120,10 @@ public class TestActivity extends AppCompatActivity {
                     if (questionMultipleChoice == null) {
                         QuestionShortAnswer questionShortAnswer = mTest.getIdMapShrtaq().get(mTest.getQuestionsIDs().get(position));
                         Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchShortAnswerQuestionActivity(questionShortAnswer,
-                                Koeko.wifiCommunicationSingleton.directCorrection);
+                                Koeko.networkCommunicationSingleton.directCorrection);
                     } else {
                         Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchMultChoiceQuestionActivity(questionMultipleChoice,
-                                Koeko.wifiCommunicationSingleton.directCorrection);
+                                Koeko.networkCommunicationSingleton.directCorrection);
                     }
                 }
             }

@@ -1,10 +1,7 @@
 package com.wideworld.koeko.NetworkCommunication;
 
-import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
@@ -13,6 +10,7 @@ import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
+import com.google.android.gms.nearby.connection.ConnectionsClient;
 import com.google.android.gms.nearby.connection.ConnectionsStatusCodes;
 import com.google.android.gms.nearby.connection.DiscoveredEndpointInfo;
 import com.google.android.gms.nearby.connection.DiscoveryOptions;
@@ -24,13 +22,17 @@ import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.wideworld.koeko.Koeko;
+import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
+import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
+import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.UnsupportedEncodingException;
 
 public class NearbyCommunication {
     private Context mNearbyContext;
@@ -41,27 +43,24 @@ public class NearbyCommunication {
     private String singleConnectionEndpointId;
     private Boolean isDiscovering = false;
     private Boolean isAdvertising = false;
+    private NearbyReceptionProtocol nearbyReceptionProtocol;
 
-    static private int NO_NEARBY_ROLE = 0;
-    static private int ADVERTISER = 1;
-    static private int DISCOVERER = 2;
-    private int deviceRole = NO_NEARBY_ROLE;
+    static public int NO_NEARBY_ROLE = 0;
+    static public int ADVERTISER_ROLE = 1;
+    static public int DISCOVERER_ROLE = 2;
+    static public int deviceRole = NO_NEARBY_ROLE;
     static private int nbOfTransfers= 0;
-    static private Long start = 0L;
-
-    private Boolean sender = false;
-
 
 
     private String TAG = "NearbyCommunication";
 
     NearbyCommunication(Context context) {
         mNearbyContext = context;
+        nearbyReceptionProtocol = new NearbyReceptionProtocol(mNearbyContext, this);
     }
 
     public void startAdvertising() {
-        deviceRole = ADVERTISER;
-        sender = true;
+        deviceRole = ADVERTISER_ROLE;
         AdvertisingOptions.Builder advertisingOptionsBuilder = new AdvertisingOptions.Builder();
         advertisingOptionsBuilder.setStrategy(Strategy.P2P_CLUSTER);
         Nearby.getConnectionsClient(mNearbyContext).startAdvertising(
@@ -93,6 +92,9 @@ public class NearbyCommunication {
                                         @Override
                                         public void onSuccess(Void unusedResult) {
                                             Log.v(TAG, "Successfull Connection");
+                                            if (deviceRole == ADVERTISER_ROLE) {
+                                                syncWithClients();
+                                            }
                                         }
                                     })
                             .addOnFailureListener(
@@ -112,7 +114,7 @@ public class NearbyCommunication {
             };
 
     public void startDiscovery() {
-        deviceRole = DISCOVERER;
+        deviceRole = DISCOVERER_ROLE;
         DiscoveryOptions.Builder discoveryOptionsBuilder = new DiscoveryOptions.Builder();
         discoveryOptionsBuilder.setStrategy(Strategy.P2P_CLUSTER);
         Nearby.getConnectionsClient(mNearbyContext).startDiscovery(
@@ -145,53 +147,13 @@ public class NearbyCommunication {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.v(TAG, "STATUS_OK");
-                            Log.v(TAG, "time start: " + System.currentTimeMillis() / 1000);
                             singleConnectionEndpointId = endpointId;
-                            if (sender) {
+                            if (isAdvertising) {
                                 Nearby.getConnectionsClient(mNearbyContext).stopAdvertising();
                                 isAdvertising = false;
-                                String pay = "What the fuck Dude is that all you want from me!?";
-                                for (int i = 0; i < 7; i++) {
-                                    pay += pay;
-                                }
-                                FileOutputStream out = null;
-                                File file = new File(mNearbyContext.getFilesDir(), "tmp.txt");
-
-                                try {
-                                    file.createNewFile();
-                                    if(file.exists())
-                                    {
-                                        out = new FileOutputStream(file);
-                                        out.write(pay.getBytes());
-                                        out.close();
-                                    } else {
-                                        System.out.println("FUCK!!!");
-                                    }
-
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-                                Log.v(TAG, "file size: " + pay.getBytes().length);
-
-                                while (true) {
-                                    try {
-                                        sendPayload(Payload.fromFile(file));
-                                        Thread.sleep(5000);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
-                            } else {
-                                if (isDiscovering) {
-                                    Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
-                                    isDiscovering = false;
-                                }
+                            } else if (isDiscovering) {
+                                Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
+                                isDiscovering = false;
                             }
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
@@ -206,9 +168,9 @@ public class NearbyCommunication {
                 @Override
                 public void onDisconnected(String endpointId) {
                     Log.v(TAG, "DISCONNECTED");
-                    if (deviceRole == ADVERTISER) {
+                    if (deviceRole == ADVERTISER_ROLE) {
                         startAdvertising();
-                    } else if (deviceRole == DISCOVERER) {
+                    } else if (deviceRole == DISCOVERER_ROLE) {
                         startDiscovery();
                     }
                 }
@@ -225,6 +187,44 @@ public class NearbyCommunication {
         }
     }
 
+    public void sendBytes(byte[] bytesData) {
+        Log.v(TAG, "Sending: " + bytesData.length + " bytes");
+        try {
+            Log.v(TAG, new String(bytesData, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        Payload payload;
+        if (bytesData.length < ConnectionsClient.MAX_BYTES_DATA_SIZE) {
+            payload = Payload.fromBytes(bytesData);
+            Nearby.getConnectionsClient(mNearbyContext).sendPayload(singleConnectionEndpointId,payload);
+        } else {
+            System.out.println("IMPLEMENT NEARBY FOR BIGGER THAN: " + ConnectionsClient.MAX_BYTES_DATA_SIZE);
+        }
+    }
+
+    public void syncWithClients() {
+        // Lambda Runnable
+        Runnable syncThread = () -> {
+            for (String id : Koeko.networkCommunicationSingleton.idsToSync) {
+                if (Long.valueOf(id) < 0) {
+
+                } else {
+                    QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id);
+                    if (questionMultipleChoice.getQUESTION().length() > 0 && !questionMultipleChoice.getQUESTION().contentEquals("none")) {
+
+                    } else {
+                        QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id);
+                        if (questionShortAnswer.getQUESTION().length() > 0 && !questionShortAnswer.getQUESTION().contentEquals("none")) {
+
+                        }
+                    }
+                }
+            }
+        };
+        new Thread(syncThread).start();
+    }
+
     public void sendPayload(Payload payload) {
         //Payload payload = Payload.fromBytes(bytesData);
 
@@ -236,46 +236,21 @@ public class NearbyCommunication {
     }
 
 
-    /**
-     * Someone connected to us has sent us data. Override this method to act on the event.
-     *
-     * @param endpointID The sender.
-     * @param payload The data.
-     */
-    protected void onReceive(String endpointID, Payload payload) {
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
-            //Payload.File file = payload.asFile();
-
-        }
-    }
-
-
     private final PayloadCallback mPayloadCallback =
             new PayloadCallback() {
                 @Override
                 public void onPayloadReceived(String endpointId, Payload payload) {
                     Log.v(TAG, "onPayloadReceived");
-                    start = System.currentTimeMillis() / 1000;
-                    onReceive(endpointId, payload);
+                    if (payload.getType() == Payload.Type.BYTES) {
+                        nearbyReceptionProtocol.receivedData(payload.asBytes());
+                    } else if (payload.getType() == Payload.Type.FILE) {
+                        // Add this to our tracking map, so that we can retrieve the payload later.
+                        incomingPayloads.put(payload.getId(), payload);
+                    }
                 }
 
                 @Override
                 public void onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
-                    long payloadId = update.getPayloadId();
-                    if (incomingPayloads.containsKey(payloadId)) {
-                        Log.v(TAG, "onPayloadTransferUpdate");
-                        if (update.getStatus() != PayloadTransferUpdate.Status.IN_PROGRESS) {
-                            // This is the last update, so we no longer need to keep track of this notification.
-                            incomingPayloads.remove(payloadId);
-                        }
-                    } else if (outgoingPayloads.containsKey(payloadId)) {
-                        Log.v(TAG, "onPayloadTransferUpdate");
-                        if (update.getStatus() != PayloadTransferUpdate.Status.IN_PROGRESS) {
-                            // This is the last update, so we no longer need to keep track of this notification.
-                            outgoingPayloads.remove(payloadId);
-                        }
-                    }
-
                     switch(update.getStatus()) {
                         case PayloadTransferUpdate.Status.IN_PROGRESS:
                             long size = update.getBytesTransferred();
@@ -288,13 +263,12 @@ public class NearbyCommunication {
                         case PayloadTransferUpdate.Status.SUCCESS:
                             // SUCCESS always means that we transferred 100%.
                             Log.v(TAG, "onPayloadTransferUpdate: SUCCESS: ");
-                            nbOfTransfers++;
-                            Long end = System.currentTimeMillis() / 1000;
-                            Log.v(TAG, "time end: " + System.currentTimeMillis() / 1000);
-                            String message = "nb of transfers: " + nbOfTransfers;
-                            message += "\n lasted at least: " + String.valueOf(end - start) + " seconds";
-
-                            Koeko.wifiCommunicationSingleton.mNetworkCommunication.mInteractiveModeActivity.showMessage(message);
+                            if (deviceRole == DISCOVERER_ROLE) {
+                                Payload payload = incomingPayloads.remove(update.getPayloadId());
+                                if (payload != null) {
+                                    nearbyReceptionProtocol.receivedData(payload.asBytes());
+                                }
+                            }
                             break;
                         case PayloadTransferUpdate.Status.FAILURE:
                             Log.v(TAG, "onPayloadTransferUpdate: FAILURE");

@@ -47,7 +47,6 @@ import android.widget.TextView;
 public class WifiCommunication {
     final private int PORTNUMBER = 9090;
     public Integer connectionSuccess = 0;
-    public String directCorrection = "0";
     List<android.net.wifi.ScanResult> mScanResults = new ArrayList<android.net.wifi.ScanResult>();
     BroadcastReceiver scanningreceiver;
     private WifiManager mWifi;
@@ -58,10 +57,10 @@ public class WifiCommunication {
     private int current = 0;
     private int bytes_read = 0;
     private String ip_address = "no IP";
-    private String lastAnswer = "";
     private TextView logView = null;
     private DatagramSocket socket;
     public NetworkCommunication mNetworkCommunication;
+    private DataConversion dataConversion;
 
     private String TAG = "WifiCommunication";
 
@@ -74,6 +73,7 @@ public class WifiCommunication {
         mWifi = (WifiManager) mContextWifCom.getSystemService(Context.WIFI_SERVICE);
         mNetworkCommunication = networkCommunication;
         this.logView = logView;
+        this.dataConversion = new DataConversion(arg_context);
     }
 
 
@@ -160,9 +160,6 @@ public class WifiCommunication {
     }
 
     public void sendAnswerToServer(String answer) {
-        if (answer.split("///").length > 3) {
-            lastAnswer = answer.split("///")[3]; //save the answer for when we receive the evaluation from the server
-        }
         byte[] ansBuffer = answer.getBytes();
         try {
             mOutputStream.write(ansBuffer, 0, ansBuffer.length);
@@ -210,14 +207,21 @@ public class WifiCommunication {
                             byte[] whole_question_buffer = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
 
                             //Convert data and save question
-                            DataConversion convert_question = new DataConversion(mContextWifCom);
-                            QuestionMultipleChoice multquestion_to_save = convert_question.bytearrayvectorToMultChoiceQuestion(whole_question_buffer);
+                            QuestionMultipleChoice multquestion_to_save = dataConversion.bytearrayvectorToMultChoiceQuestion(whole_question_buffer);
                             DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(multquestion_to_save);
 
                             sendStringToServer("OK///" + multquestion_to_save.getID() + "///");
 
+                            if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
+                                Koeko.networkCommunicationSingleton.sendDataToClient(whole_question_buffer);
+                            }
+
                             if (multquestion_to_save.getQUESTION().contains("7492qJfzdDSB")) {
                                 sendStringToServer("ACCUSERECEPTION");
+                            }
+
+                            if (NetworkCommunication.network_solution == 1) {
+                                Koeko.networkCommunicationSingleton.idsToSync.add(multquestion_to_save.getID());
                             }
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
                             //read question data
@@ -231,6 +235,10 @@ public class WifiCommunication {
                             DbTableQuestionShortAnswer.addShortAnswerQuestion(shrtquestion_to_save);
 
                             sendStringToServer("OK///" + shrtquestion_to_save.getID() + "///");
+
+                            if (NetworkCommunication.network_solution == 1) {
+                                Koeko.networkCommunicationSingleton.idsToSync.add(shrtquestion_to_save.getID());
+                            }
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
                             if (sizesPrefix.split(":")[1].contains("MLT")) {
                                 String id_global = sizesPrefix.split("///")[1];
@@ -243,30 +251,40 @@ public class WifiCommunication {
                                 if (Long.valueOf(id_global) < 0) {
                                     //setup test and show it
                                     Long testId = -(Long.valueOf(sizesPrefix.split("///")[1]));
-                                    directCorrection = sizesPrefix.split("///")[2];
-                                    mNetworkCommunication.launchTestActivity(testId, directCorrection);
+                                    Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
+                                    mNetworkCommunication.launchTestActivity(testId, Koeko.networkCommunicationSingleton.directCorrection);
                                     Koeko.shrtaqActivityState = null;
                                     Koeko.qmcActivityState = null;
                                 } else {
                                     QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
                                     if (questionMultipleChoice.getQUESTION().length() > 0) {
                                         questionMultipleChoice.setID(id_global);
-                                        directCorrection = sizesPrefix.split("///")[2];
-                                        mNetworkCommunication.launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
+                                        Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
+                                        mNetworkCommunication.launchMultChoiceQuestionActivity(questionMultipleChoice, Koeko.networkCommunicationSingleton.directCorrection);
                                         Koeko.shrtaqActivityState = null;
                                         Koeko.currentTestActivitySingleton = null;
                                     } else {
                                         QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
                                         questionShortAnswer.setID(id_global);
-                                        directCorrection = sizesPrefix.split("///")[2];
-                                        mNetworkCommunication.launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
+                                        Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
+                                        mNetworkCommunication.launchShortAnswerQuestionActivity(questionShortAnswer, Koeko.networkCommunicationSingleton.directCorrection);
                                         Koeko.qmcActivityState = null;
                                         Koeko.currentTestActivitySingleton = null;
                                     }
                                 }
                             }
+
+                            if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
+                                Koeko.networkCommunicationSingleton.sendDataToClient(prefix_buffer);
+                            }
+                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("SYNCIDS")) {
+                            if (sizesPrefix.split("///").length >= 2) {
+                                Integer sizeToread = Integer.valueOf(sizesPrefix.split("///")[1]);
+                                byte[] idsBytes = readDataIntoArray(sizeToread, able_to_read);
+                                mNetworkCommunication.idsToSync = dataConversion.bytesToIdsList(idsBytes);
+                            }
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("EVAL")) {
-                            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizesPrefix.split("///")[2], sizesPrefix.split("///")[1], lastAnswer);
+                            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizesPrefix.split("///")[2], sizesPrefix.split("///")[1], mNetworkCommunication.getLastAnswer());
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("UPDEV")) {
                             DbTableIndividualQuestionForResult.setEvalForQuestion(Double.valueOf(sizesPrefix.split("///")[1]), sizesPrefix.split("///")[2]);
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("CORR")) {
@@ -283,51 +301,13 @@ public class WifiCommunication {
 
                             byte[] wholeDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
 
-                            String testString = "";
-                            try {
-                                testString = new String(wholeDataBuffer, "UTF-8");
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            }
+                            Test newTest = dataConversion.byteToTest(wholeDataBuffer);
 
-                            Test newTest = new Test();
-                            newTest.setIdGlobal(Long.valueOf(testString.split("///")[0]));
-                            newTest.setTestName(testString.split("///")[1]);
-
-                            //read objectives
-                            try {
-                                String[] objectives = testString.split("///")[3].split("\\|\\|\\|");
-                                for (String objective : objectives) {
-                                    DbTableRelationTestObjective.insertRelationTestObjective(String.valueOf(newTest.getIdGlobal()), objective);
-                                }
-                            } catch (ArrayIndexOutOfBoundsException e) {
-                                Log.e("WifiCommunication", "ArrayOutOfBound when parsing objectives from: " + testString);
-                                e.printStackTrace();
-                            }
-
-                            String[] questionRelation = testString.split("///")[2].split("\\|\\|\\|");
-                            for (String relation : questionRelation) {
-                                String[] relationSplit = relation.split(";;;");
-                                String questionId = relationSplit[0];
-                                newTest.getQuestionsIDs().add(questionId);
-                                for (int i = 1; i < relationSplit.length; i++) {
-                                    try {
-                                        String[] array = relationSplit[i].split(":::");
-                                        DbTableRelationQuestionQuestion.insertRelationQuestionQuestion(StringTools.stringToLongID(questionId),
-                                                StringTools.stringToLongID(array[0]), newTest.getTestName(),
-                                                array[1]);
-                                    } catch (ArrayIndexOutOfBoundsException e) {
-                                        //ERROR HERE
-                                        Log.e("WifiCommunication", "Array out of bound when inserting the condition for insertRelationQuestionQuestion");
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                            newTest.setMedalsInstructionsString(testString.split("///")[5]);
-                            if (testString.split("///").length > 6) {
-                                newTest.setMediaFileName(testString.split("///")[6]);
-                            }
                             DbTableTest.insertTest(newTest);
+
+                            if (NetworkCommunication.network_solution == 1) {
+                                Koeko.networkCommunicationSingleton.idsToSync.add(String.valueOf(newTest.getIdGlobal()));
+                            }
                         } else if (sizesPrefix.split(":")[0].contentEquals("OEVAL")) {
                             if (sizesPrefix.split(":").length > 1) {
                                 //Read text data into array
