@@ -11,25 +11,25 @@ class QuestionShortAnswer {
     var subject: String? = null
     var level: String? = null
     var question: String? = null
-    private var IMAGE: String? = null
     var answers: ArrayList<String>? = null
-
     var subjects: Vector<String>? = null
     var objectives: Vector<String>? = null
     var image: String?
-        get() = IMAGE
-        set(iMAGE) = if (iMAGE != null && iMAGE.length == 0) {
-            IMAGE = "none"
-        } else {
-            IMAGE = iMAGE
+        get() = this.toString()
+        set(iMAGE) {
+            if (iMAGE == null || iMAGE == "") field = "none" else field = iMAGE
         }
+
+//    fun getBytes(): ByteArray {
+//
+//    }
 
     constructor() {
         id = "0"
         subject = ""
         level = ""
         question = ""
-        IMAGE = "none"
+        image = "none"
         answers = ArrayList()
     }
 
@@ -37,11 +37,7 @@ class QuestionShortAnswer {
 
         level = lEVEL
         question = qUESTION
-        if (iMAGE.length == 0) {
-            IMAGE = "none"
-        } else {
-            IMAGE = iMAGE
-        }
+        if (iMAGE == "") image = "none" else image = iMAGE
         answers = ArrayList()
     }
 }

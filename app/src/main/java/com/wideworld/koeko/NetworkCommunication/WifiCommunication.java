@@ -275,7 +275,11 @@ public class WifiCommunication {
                             if (sizesPrefix.split("///").length >= 2) {
                                 Integer sizeToread = Integer.valueOf(sizesPrefix.split("///")[1]);
                                 byte[] idsBytes = readDataIntoArray(sizeToread, able_to_read);
-                                mNetworkCommunication.idsToSync = dataConversion.bytesToIdsList(idsBytes);
+                                mNetworkCommunication.idsToSync.addAll(dataConversion.bytesToIdsList(idsBytes));
+                                for (String id : mNetworkCommunication.idsToSync) {
+                                    System.out.println(id);
+                                }
+                                System.out.println("________________");
                             }
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("EVAL")) {
                             DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizesPrefix.split("///")[2], sizesPrefix.split("///")[1], mNetworkCommunication.getLastAnswer());

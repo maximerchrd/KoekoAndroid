@@ -78,7 +78,7 @@ public class NearbyReceptionProtocol {
 
     private void receivedSYNCIDS(byte[] bytesReceived) {
         byte[] idsBytes = Arrays.copyOfRange(bytesReceived, 80, bytesReceived.length);
-        Koeko.networkCommunicationSingleton.idsToSync = dataConversion.bytesToIdsList(idsBytes);
+        Koeko.networkCommunicationSingleton.idsToSync.addAll(dataConversion.bytesToIdsList(idsBytes));
     }
 
     private void receivedMULTQ(byte[] bytesReceived) {
