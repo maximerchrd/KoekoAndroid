@@ -75,22 +75,22 @@ public class DataConversion {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        question_to_return.setQUESTION(question_text.split("///")[0]);
+        question_to_return.setQuestion(question_text.split("///")[0]);
         if (question_text.split("///").length > 15) {
-            question_to_return.setOPT0(question_text.split("///")[1]);
-            question_to_return.setOPT1(question_text.split("///")[2]);
-            question_to_return.setOPT2(question_text.split("///")[3]);
-            question_to_return.setOPT3(question_text.split("///")[4]);
-            question_to_return.setOPT4(question_text.split("///")[5]);
-            question_to_return.setOPT5(question_text.split("///")[6]);
-            question_to_return.setOPT6(question_text.split("///")[7]);
-            question_to_return.setOPT7(question_text.split("///")[8]);
-            question_to_return.setOPT8(question_text.split("///")[9]);
-            question_to_return.setOPT9(question_text.split("///")[10]);
+            question_to_return.setOpt0(question_text.split("///")[1]);
+            question_to_return.setOpt1(question_text.split("///")[2]);
+            question_to_return.setOpt2(question_text.split("///")[3]);
+            question_to_return.setOpt3(question_text.split("///")[4]);
+            question_to_return.setOpt4(question_text.split("///")[5]);
+            question_to_return.setOpt5(question_text.split("///")[6]);
+            question_to_return.setOpt6(question_text.split("///")[7]);
+            question_to_return.setOpt7(question_text.split("///")[8]);
+            question_to_return.setOpt8(question_text.split("///")[9]);
+            question_to_return.setOpt9(question_text.split("///")[10]);
             String ID_string = question_text.split("///")[11];
-            question_to_return.setID(ID_string);
+            question_to_return.setId(ID_string);
             question_to_return.setNB_CORRECT_ANS(Integer.parseInt(question_text.split("///")[12]));
-            question_to_return.setIMAGE(question_text.split("///")[15]); //14 because inbetween come subjects and objectives
+            question_to_return.setImage(question_text.split("///")[15]); //14 because inbetween come subjects and objectives
             SaveImageFile(bitmap, question_text.split("///")[15]);
 
             //deal with subjects
@@ -156,11 +156,11 @@ public class DataConversion {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        question_to_return.setQUESTION(question_text.split("///")[0]);
+        question_to_return.setQuestion(question_text.split("///")[0]);
         String ID_string = "";
         if (question_text.split("///").length > 1) {
             ID_string = question_text.split("///")[1];
-            question_to_return.setID(ID_string);
+            question_to_return.setId(ID_string);
         } else { Log.w("reading quest buffer", "no ID"); }
         if (question_text.split("///").length > 2) {
             String[] answers = question_text.split("///")[2].split("\\|\\|\\|");
@@ -171,7 +171,7 @@ public class DataConversion {
             question_to_return.setAnswers(answersList);
         } else { Log.w("reading quest buffer", "no answers"); }
         if (question_text.split("///").length > 5) {
-            question_to_return.setIMAGE(question_text.split("///")[5]); //because inbetween come subjects and objectives
+            question_to_return.setImage(question_text.split("///")[5]); //because inbetween come subjects and objectives
             SaveImageFile(bitmap, question_text.split("///")[5]);
         } else { Log.w("reading quest buffer", "no image indication"); }
         if (question_text.split("///").length > 3) {
@@ -208,22 +208,22 @@ public class DataConversion {
     public static QuestionMultipleChoice textToQuestionMultipleChoice(String questionText) {
         questionText = questionText.substring(8);
         QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
-        questionMultipleChoice.setQUESTION(questionText.split("///")[0]);
+        questionMultipleChoice.setQuestion(questionText.split("///")[0]);
         if (questionText.split("///").length > 15) {
-            questionMultipleChoice.setOPT0(questionText.split("///")[1]);
-            questionMultipleChoice.setOPT1(questionText.split("///")[2]);
-            questionMultipleChoice.setOPT2(questionText.split("///")[3]);
-            questionMultipleChoice.setOPT3(questionText.split("///")[4]);
-            questionMultipleChoice.setOPT4(questionText.split("///")[5]);
-            questionMultipleChoice.setOPT5(questionText.split("///")[6]);
-            questionMultipleChoice.setOPT6(questionText.split("///")[7]);
-            questionMultipleChoice.setOPT7(questionText.split("///")[8]);
-            questionMultipleChoice.setOPT8(questionText.split("///")[9]);
-            questionMultipleChoice.setOPT9(questionText.split("///")[10]);
+            questionMultipleChoice.setOpt0(questionText.split("///")[1]);
+            questionMultipleChoice.setOpt1(questionText.split("///")[2]);
+            questionMultipleChoice.setOpt2(questionText.split("///")[3]);
+            questionMultipleChoice.setOpt3(questionText.split("///")[4]);
+            questionMultipleChoice.setOpt4(questionText.split("///")[5]);
+            questionMultipleChoice.setOpt5(questionText.split("///")[6]);
+            questionMultipleChoice.setOpt6(questionText.split("///")[7]);
+            questionMultipleChoice.setOpt7(questionText.split("///")[8]);
+            questionMultipleChoice.setOpt8(questionText.split("///")[9]);
+            questionMultipleChoice.setOpt9(questionText.split("///")[10]);
             String ID_string = questionText.split("///")[11];
-            questionMultipleChoice.setID(ID_string);
+            questionMultipleChoice.setId(ID_string);
             questionMultipleChoice.setNB_CORRECT_ANS(Integer.parseInt(questionText.split("///")[12]));
-            questionMultipleChoice.setIMAGE(questionText.split("///")[15]); //14 because inbetween come subjects and objectives
+            questionMultipleChoice.setImage(questionText.split("///")[15]); //14 because inbetween come subjects and objectives
 
             //deal with subjects
             String subjectsText = questionText.split("///")[13];
@@ -255,14 +255,14 @@ public class DataConversion {
     public static QuestionShortAnswer textToQuestionShortAnswere(String questionText) {
         questionText = questionText.substring(8);
         QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
-        questionShortAnswer.setQUESTION(questionText.split("///")[0]);
+        questionShortAnswer.setQuestion(questionText.split("///")[0]);
         if (questionText.split("///").length > 5) {
             String ID_string = questionText.split("///")[1];
-            questionShortAnswer.setID(ID_string);
+            questionShortAnswer.setId(ID_string);
             ArrayList<String> answers = new ArrayList<>(Arrays.asList(questionText.split("///")[2].split("\\|\\|\\|")));
             questionShortAnswer.setAnswers(answers);
 
-            questionShortAnswer.setIMAGE(questionText.split("///")[5]); //14 because inbetween come subjects and objectives
+            questionShortAnswer.setImage(questionText.split("///")[5]); //14 because inbetween come subjects and objectives
 
             //deal with subjects
             String subjectsText = questionText.split("///")[3];

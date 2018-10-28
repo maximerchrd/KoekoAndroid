@@ -258,7 +258,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchTestActivity(resCode, directCorrection);
             } else {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(resCodeString);
-                if (questionShortAnswer.getQUESTION().length() == 0 || questionShortAnswer.getQUESTION().contentEquals("none")) {
+                if (questionShortAnswer.getQuestion().length() == 0 || questionShortAnswer.getQuestion().contentEquals("none")) {
                     QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(resCodeString);
                     Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
                 } else {

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.gms.common.util.ArrayUtils;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
@@ -85,14 +84,14 @@ public class NearbyReceptionProtocol {
     private void receivedMULTQ(byte[] bytesReceived) {
         QuestionMultipleChoice questionMultipleChoice = dataConversion.bytearrayvectorToMultChoiceQuestion(bytesReceived);
         DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice);
-        String response = "OK///" + questionMultipleChoice.getID() + "///";
+        String response = "OK///" + questionMultipleChoice.getId() + "///";
         nearbyCommunication.sendBytes(response.getBytes());
     }
 
     private void receivedSHRTA(byte[] bytesReceived) {
         QuestionShortAnswer questionShortAnswer = dataConversion.bytearrayvectorToShortAnswerQuestion(bytesReceived);
         DbTableQuestionShortAnswer.addShortAnswerQuestion(questionShortAnswer);
-        String response = "OK///" + questionShortAnswer.getID() + "///";
+        String response = "OK///" + questionShortAnswer.getId() + "///";
         nearbyCommunication.sendBytes(response.getBytes());
     }
 
@@ -113,15 +112,15 @@ public class NearbyReceptionProtocol {
             Koeko.qmcActivityState = null;
         } else {
             QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
-            if (questionMultipleChoice.getQUESTION().length() > 0) {
-                questionMultipleChoice.setID(id_global);
+            if (questionMultipleChoice.getQuestion().length() > 0) {
+                questionMultipleChoice.setId(id_global);
                 Koeko.networkCommunicationSingleton.directCorrection = stringPrefix.split("///")[2];
                 Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, Koeko.networkCommunicationSingleton.directCorrection);
                 Koeko.shrtaqActivityState = null;
                 Koeko.currentTestActivitySingleton = null;
             } else {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
-                questionShortAnswer.setID(id_global);
+                questionShortAnswer.setId(id_global);
                 Koeko.networkCommunicationSingleton.directCorrection = stringPrefix.split("///")[2];
                 Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, Koeko.networkCommunicationSingleton.directCorrection);
                 Koeko.qmcActivityState = null;

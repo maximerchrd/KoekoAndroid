@@ -5,8 +5,6 @@ import android.util.Log;
 
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 
-import java.sql.PreparedStatement;
-
 /**
  * Created by maximerichard on 03.01.18.
  */
@@ -51,25 +49,25 @@ public class DbTableQuestionMultipleChoice {
                     "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             String[] sqlArgs = new String[]{
-                    quest.getLEVEL(),
-                    quest.getQUESTION(),
-                    quest.getOPT0(),
-                    quest.getOPT1(),
-                    quest.getOPT2(),
-                    quest.getOPT3(),
-                    quest.getOPT4(),
-                    quest.getOPT5(),
-                    quest.getOPT6(),
-                    quest.getOPT7(),
-                    quest.getOPT8(),
-                    quest.getOPT9(),
+                    quest.getLevel(),
+                    quest.getQuestion(),
+                    quest.getOpt0(),
+                    quest.getOpt1(),
+                    quest.getOpt2(),
+                    quest.getOpt3(),
+                    quest.getOpt4(),
+                    quest.getOpt5(),
+                    quest.getOpt6(),
+                    quest.getOpt7(),
+                    quest.getOpt8(),
+                    quest.getOpt9(),
                     String.valueOf(quest.getNB_CORRECT_ANS()),
-                    quest.getIMAGE(),
-                    String.valueOf(quest.getID())
+                    quest.getImage(),
+                    String.valueOf(quest.getId())
             };
 
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
-            Log.v("insert multQuest, ID: ", String.valueOf(quest.getID()));
+            Log.v("insert multQuest, ID: ", String.valueOf(quest.getId()));
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }
@@ -83,22 +81,22 @@ public class DbTableQuestionMultipleChoice {
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             if (cursor.moveToPosition(0)) {
-                questionMultipleChoice.setLEVEL(cursor.getString(0));
-                questionMultipleChoice.setQUESTION(cursor.getString(1));
-                questionMultipleChoice.setOPT0(cursor.getString(2));
-                questionMultipleChoice.setOPT1(cursor.getString(3));
-                questionMultipleChoice.setOPT2(cursor.getString(4));
-                questionMultipleChoice.setOPT3(cursor.getString(5));
-                questionMultipleChoice.setOPT4(cursor.getString(6));
-                questionMultipleChoice.setOPT5(cursor.getString(7));
-                questionMultipleChoice.setOPT6(cursor.getString(8));
-                questionMultipleChoice.setOPT7(cursor.getString(9));
-                questionMultipleChoice.setOPT8(cursor.getString(10));
-                questionMultipleChoice.setOPT9(cursor.getString(11));
+                questionMultipleChoice.setLevel(cursor.getString(0));
+                questionMultipleChoice.setQuestion(cursor.getString(1));
+                questionMultipleChoice.setOpt0(cursor.getString(2));
+                questionMultipleChoice.setOpt1(cursor.getString(3));
+                questionMultipleChoice.setOpt2(cursor.getString(4));
+                questionMultipleChoice.setOpt3(cursor.getString(5));
+                questionMultipleChoice.setOpt4(cursor.getString(6));
+                questionMultipleChoice.setOpt5(cursor.getString(7));
+                questionMultipleChoice.setOpt6(cursor.getString(8));
+                questionMultipleChoice.setOpt7(cursor.getString(9));
+                questionMultipleChoice.setOpt8(cursor.getString(10));
+                questionMultipleChoice.setOpt9(cursor.getString(11));
                 questionMultipleChoice.setNB_CORRECT_ANS(Integer.valueOf(cursor.getString(12)));
-                questionMultipleChoice.setIMAGE(cursor.getString(13));
+                questionMultipleChoice.setImage(cursor.getString(13));
             }
-            questionMultipleChoice.setID(globalID);
+            questionMultipleChoice.setId(globalID);
             cursor.close();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );

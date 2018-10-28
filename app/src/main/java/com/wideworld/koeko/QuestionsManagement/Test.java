@@ -177,7 +177,7 @@ public class Test {
         //loading into idMapQmc and idMapShrtaq
         for (String id : questionsIDs) {
             QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id);
-            if (questionMultipleChoice.getQUESTION().length() <= 0) {
+            if (questionMultipleChoice.getQuestion().length() <= 0) {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id);
                 idMapShrtaq.put(id, questionShortAnswer);
             } else {

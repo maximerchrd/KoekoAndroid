@@ -38,16 +38,16 @@ public class DbTableQuestionShortAnswer {
             String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL) " +
                     "VALUES (?,?,?,?)";
             String[] sqlArgs = new String[]{
-                    quest.getLEVEL(),
-                    quest.getQUESTION(),
-                    quest.getIMAGE(),
-                    quest.getID()
+                    quest.getLevel(),
+                    quest.getQuestion(),
+                    quest.getImage(),
+                    quest.getId()
             };
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
-            Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getID()));
+            Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getId()));
 
             for (int i = 0; i < quest.getAnswers().size(); i++) {
-                DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getID()),quest.getAnswers().get(i));
+                DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getId()),quest.getAnswers().get(i));
             }
         } catch ( SQLException e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -61,11 +61,11 @@ public class DbTableQuestionShortAnswer {
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             if (cursor.moveToPosition(0)) {
-                questionShortAnswer.setLEVEL(cursor.getString(0));
-                questionShortAnswer.setQUESTION(cursor.getString(1));
-                questionShortAnswer.setIMAGE(cursor.getString(2));
+                questionShortAnswer.setLevel(cursor.getString(0));
+                questionShortAnswer.setQuestion(cursor.getString(1));
+                questionShortAnswer.setImage(cursor.getString(2));
             }
-            questionShortAnswer.setID(globalID);
+            questionShortAnswer.setId(globalID);
             cursor.close();
 
             //get answers

@@ -60,8 +60,8 @@ public class ShortAnswerQuestionActivity extends Activity {
 		String id = bun.getString("id");
 		String image_path = bun.getString("image_name");
 		currentQ = new QuestionShortAnswer("1",question,image_path);
-		currentQ.setID(id);
-		if (currentQ.getIMAGE().length() > 0) {
+		currentQ.setId(id);
+		if (currentQ.getImage().length() > 0) {
 			picture.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -93,7 +93,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		}
 
 		//send receipt to server
-		String receipt = "ACTID///" + currentQ.getID() + "///";
+		String receipt = "ACTID///" + currentQ.getId() + "///";
 		Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
 
 		submitButton.setOnClickListener(new View.OnClickListener() {
@@ -103,7 +103,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 				String answer = textAnswer.getText().toString();
 
 				NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
-				networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getID(), "ANSW1");
+				networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getId(), "ANSW1");
 
 				if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
 					popupCorrection();
@@ -116,12 +116,12 @@ public class ShortAnswerQuestionActivity extends Activity {
 	}
 	private void setQuestionView()
 	{
-		txtQuestion.setText(currentQ.getQUESTION());
+		txtQuestion.setText(currentQ.getQuestion());
 
-		if (currentQ.getIMAGE().contains(":") && currentQ.getIMAGE().length() > currentQ.getIMAGE().indexOf(":") + 1) {
-			currentQ.setIMAGE(currentQ.getIMAGE().substring(currentQ.getIMAGE().indexOf(":") + 1));
+		if (currentQ.getImage().contains(":") && currentQ.getImage().length() > currentQ.getImage().indexOf(":") + 1) {
+			currentQ.setImage(currentQ.getImage().substring(currentQ.getImage().indexOf(":") + 1));
 		}
-		File imgFile = new  File(getFilesDir()+"/images/" + currentQ.getIMAGE());
+		File imgFile = new  File(getFilesDir()+"/images/" + currentQ.getImage());
 		if(imgFile.exists()){
 			String path = imgFile.getAbsolutePath();
 			Bitmap myBitmap = BitmapFactory.decodeFile(path);
@@ -152,7 +152,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		//restore activity state
 		String activityState = null;
 		if (Koeko.currentTestActivitySingleton != null) {
-			activityState = Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.get(String.valueOf(currentQ.getID()));
+			activityState = Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.get(String.valueOf(currentQ.getId()));
 		} else {
 			if (Koeko.shrtaqActivityState != null) {
 				activityState = Koeko.shrtaqActivityState;
@@ -160,7 +160,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		}
 		if ((activityState != null && Koeko.currentTestActivitySingleton != null) || (activityState != null &&
 				Koeko.currentQuestionShortAnswerSingleton != null &&
-				Koeko.currentQuestionShortAnswerSingleton.getID().contentEquals(currentQ.getID()))) {
+				Koeko.currentQuestionShortAnswerSingleton.getId().contentEquals(currentQ.getId()))) {
 			String[] parsedState = activityState.split("///");
 			if (parsedState[parsedState.length - 1].contentEquals("true")) {
 				submitButton.setEnabled(false);
@@ -184,7 +184,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		String activityState = textAnswer.getText().toString() + "///";
 		activityState += wasAnswered;
 		if (Koeko.currentTestActivitySingleton != null) {
-			Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.put(String.valueOf(currentQ.getID()), activityState);
+			Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
 		} else {
 			Koeko.shrtaqActivityState = activityState;
 			Koeko.currentQuestionShortAnswerSingleton = currentQ;
@@ -193,7 +193,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 
 	private void popupCorrection() {
 		//get the answerof the student
-		QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(currentQ.getID());
+		QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(currentQ.getId());
 		String studentAnswers = textAnswer.getText().toString();
 		//get the right answers
 		ArrayList<String> rightAnswers = questionShortAnswer.getAnswers();

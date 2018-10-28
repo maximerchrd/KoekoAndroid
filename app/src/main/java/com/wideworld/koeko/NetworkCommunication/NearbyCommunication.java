@@ -28,10 +28,6 @@ import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 public class NearbyCommunication {
@@ -211,11 +207,11 @@ public class NearbyCommunication {
 
                 } else {
                     QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id);
-                    if (questionMultipleChoice.getQUESTION().length() > 0 && !questionMultipleChoice.getQUESTION().contentEquals("none")) {
+                    if (questionMultipleChoice.getQuestion().length() > 0 && !questionMultipleChoice.getQuestion().contentEquals("none")) {
 
                     } else {
                         QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id);
-                        if (questionShortAnswer.getQUESTION().length() > 0 && !questionShortAnswer.getQUESTION().contentEquals("none")) {
+                        if (questionShortAnswer.getQuestion().length() > 0 && !questionShortAnswer.getQuestion().contentEquals("none")) {
 
                         }
                     }

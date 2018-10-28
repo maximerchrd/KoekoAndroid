@@ -12,23 +12,17 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
-import com.wideworld.koeko.Activities.MultChoiceQuestionActivity;
-import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
-import com.wideworld.koeko.Activities.TestActivity;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.Tools.FileHandler;
-import com.wideworld.koeko.Tools.StringTools;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableIndividualQuestionForResult;
 import com.wideworld.koeko.database_management.DbTableLearningObjective;
 import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
-import com.wideworld.koeko.database_management.DbTableRelationQuestionQuestion;
 import com.wideworld.koeko.database_management.DbTableRelationTestObjective;
 import com.wideworld.koeko.database_management.DbTableSettings;
 import com.wideworld.koeko.database_management.DbTableTest;
@@ -210,18 +204,18 @@ public class WifiCommunication {
                             QuestionMultipleChoice multquestion_to_save = dataConversion.bytearrayvectorToMultChoiceQuestion(whole_question_buffer);
                             DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(multquestion_to_save);
 
-                            sendStringToServer("OK///" + multquestion_to_save.getID() + "///");
+                            sendStringToServer("OK///" + multquestion_to_save.getId() + "///");
 
                             if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
                                 Koeko.networkCommunicationSingleton.sendDataToClient(whole_question_buffer);
                             }
 
-                            if (multquestion_to_save.getQUESTION().contains("7492qJfzdDSB")) {
+                            if (multquestion_to_save.getQuestion().contains("7492qJfzdDSB")) {
                                 sendStringToServer("ACCUSERECEPTION");
                             }
 
                             if (NetworkCommunication.network_solution == 1) {
-                                Koeko.networkCommunicationSingleton.idsToSync.add(multquestion_to_save.getID());
+                                Koeko.networkCommunicationSingleton.idsToSync.add(multquestion_to_save.getId());
                             }
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
                             //read question data
@@ -234,10 +228,10 @@ public class WifiCommunication {
                             QuestionShortAnswer shrtquestion_to_save = convert_question.bytearrayvectorToShortAnswerQuestion(whole_question_buffer);
                             DbTableQuestionShortAnswer.addShortAnswerQuestion(shrtquestion_to_save);
 
-                            sendStringToServer("OK///" + shrtquestion_to_save.getID() + "///");
+                            sendStringToServer("OK///" + shrtquestion_to_save.getId() + "///");
 
                             if (NetworkCommunication.network_solution == 1) {
-                                Koeko.networkCommunicationSingleton.idsToSync.add(shrtquestion_to_save.getID());
+                                Koeko.networkCommunicationSingleton.idsToSync.add(shrtquestion_to_save.getId());
                             }
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
                             if (sizesPrefix.split(":")[1].contains("MLT")) {
@@ -257,15 +251,15 @@ public class WifiCommunication {
                                     Koeko.qmcActivityState = null;
                                 } else {
                                     QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
-                                    if (questionMultipleChoice.getQUESTION().length() > 0) {
-                                        questionMultipleChoice.setID(id_global);
+                                    if (questionMultipleChoice.getQuestion().length() > 0) {
+                                        questionMultipleChoice.setId(id_global);
                                         Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
                                         mNetworkCommunication.launchMultChoiceQuestionActivity(questionMultipleChoice, Koeko.networkCommunicationSingleton.directCorrection);
                                         Koeko.shrtaqActivityState = null;
                                         Koeko.currentTestActivitySingleton = null;
                                     } else {
                                         QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
-                                        questionShortAnswer.setID(id_global);
+                                        questionShortAnswer.setId(id_global);
                                         Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
                                         mNetworkCommunication.launchShortAnswerQuestionActivity(questionShortAnswer, Koeko.networkCommunicationSingleton.directCorrection);
                                         Koeko.qmcActivityState = null;

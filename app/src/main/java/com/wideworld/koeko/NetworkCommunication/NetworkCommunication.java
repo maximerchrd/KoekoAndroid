@@ -2,11 +2,9 @@ package com.wideworld.koeko.NetworkCommunication;
 
 import java.util.ArrayList;
 
-import android.Manifest;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -22,11 +20,8 @@ import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
 import com.wideworld.koeko.Activities.TestActivity;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
-import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.database_management.DbHelper;
 import com.wideworld.koeko.Koeko;
-import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
-import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 import com.wideworld.koeko.database_management.DbTableSettings;
 
 public class NetworkCommunication {
@@ -141,19 +136,19 @@ public class NetworkCommunication {
 	public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display, String directCorrection) {
 		Intent mIntent = new Intent(mContextNetCom, MultChoiceQuestionActivity.class);
 		Bundle bun = new Bundle();
-		bun.putString("question", question_to_display.getQUESTION());
-		bun.putString("opt0", question_to_display.getOPT0());
-		bun.putString("opt1", question_to_display.getOPT1());
-		bun.putString("opt2", question_to_display.getOPT2());
-		bun.putString("opt3", question_to_display.getOPT3());
-		bun.putString("opt4", question_to_display.getOPT4());
-		bun.putString("opt5", question_to_display.getOPT5());
-		bun.putString("opt6", question_to_display.getOPT6());
-		bun.putString("opt7", question_to_display.getOPT7());
-		bun.putString("opt8", question_to_display.getOPT8());
-		bun.putString("opt9", question_to_display.getOPT9());
-		bun.putString("id", question_to_display.getID());
-		bun.putString("image_name", question_to_display.getIMAGE());
+		bun.putString("question", question_to_display.getQuestion());
+		bun.putString("opt0", question_to_display.getOpt0());
+		bun.putString("opt1", question_to_display.getOpt1());
+		bun.putString("opt2", question_to_display.getOpt2());
+		bun.putString("opt3", question_to_display.getOpt3());
+		bun.putString("opt4", question_to_display.getOpt4());
+		bun.putString("opt5", question_to_display.getOpt5());
+		bun.putString("opt6", question_to_display.getOpt6());
+		bun.putString("opt7", question_to_display.getOpt7());
+		bun.putString("opt8", question_to_display.getOpt8());
+		bun.putString("opt9", question_to_display.getOpt9());
+		bun.putString("id", question_to_display.getId());
+		bun.putString("image_name", question_to_display.getImage());
 		bun.putString("directCorrection", directCorrection);
 		bun.putInt("nbCorrectAnswers", question_to_display.getNB_CORRECT_ANS());
 		mIntent.putExtras(bun);
@@ -163,9 +158,9 @@ public class NetworkCommunication {
 	public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display, String directCorrection) {
 		Intent mIntent = new Intent(mContextNetCom, ShortAnswerQuestionActivity.class);
 		Bundle bun = new Bundle();
-		bun.putString("question", question_to_display.getQUESTION());
-		bun.putString("id", question_to_display.getID());
-		bun.putString("image_name", question_to_display.getIMAGE());
+		bun.putString("question", question_to_display.getQuestion());
+		bun.putString("id", question_to_display.getId());
+		bun.putString("image_name", question_to_display.getImage());
 		bun.putString("directCorrection", directCorrection);
 		mIntent.putExtras(bun);
 		mContextNetCom.startActivity(mIntent);

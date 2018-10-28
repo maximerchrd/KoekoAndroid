@@ -74,9 +74,9 @@ public class MultChoiceQuestionActivity extends Activity {
         String id = bun.getString("id");
         String image_path = bun.getString("image_name");
         currentQ = new QuestionMultipleChoice("1", question, opt0, opt1, opt2, opt3, opt4, opt5, opt6, opt7, opt8, opt9, image_path);
-        currentQ.setID(id);
+        currentQ.setId(id);
         currentQ.setNB_CORRECT_ANS(bun.getInt("nbCorrectAnswers"));
-        if (currentQ.getIMAGE().length() > 0) {
+        if (currentQ.getImage().length() > 0) {
             picture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -109,7 +109,7 @@ public class MultChoiceQuestionActivity extends Activity {
         }
 
         //send receipt to server
-        String receipt = "ACTID///" + currentQ.getID() + "///";
+        String receipt = "ACTID///" + currentQ.getId() + "///";
         Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
 
 
@@ -128,7 +128,7 @@ public class MultChoiceQuestionActivity extends Activity {
                 saveActivityState();
 
                 NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
-                networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getID(), "ANSW0");
+                networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getId(), "ANSW0");
 
                 if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
                     MltChoiceQuestionButtonClick();
@@ -144,7 +144,7 @@ public class MultChoiceQuestionActivity extends Activity {
          */
         if (question.contains("*ç%&")) {
             NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
-            networkCommunication.sendAnswerToServer(String.valueOf(opt0), question, currentQ.getID(), "ANSW0");
+            networkCommunication.sendAnswerToServer(String.valueOf(opt0), question, currentQ.getId(), "ANSW0");
             Thread thread = new Thread() {
                 @Override
                 public void run() {
@@ -167,12 +167,12 @@ public class MultChoiceQuestionActivity extends Activity {
     }
 
     private void setQuestionView() {
-        txtQuestion.setText(currentQ.getQUESTION());
+        txtQuestion.setText(currentQ.getQuestion());
 
-        if (currentQ.getIMAGE().contains(":") && currentQ.getIMAGE().length() > currentQ.getIMAGE().indexOf(":") + 1) {
-            currentQ.setIMAGE(currentQ.getIMAGE().substring(currentQ.getIMAGE().indexOf(":") + 1));
+        if (currentQ.getImage().contains(":") && currentQ.getImage().length() > currentQ.getImage().indexOf(":") + 1) {
+            currentQ.setImage(currentQ.getImage().substring(currentQ.getImage().indexOf(":") + 1));
         }
-        File imgFile = new File(getFilesDir() + "/images/" + currentQ.getIMAGE());
+        File imgFile = new File(getFilesDir() + "/images/" + currentQ.getImage());
         if (imgFile.exists()) {
             String path = imgFile.getAbsolutePath();
             Bitmap myBitmap = BitmapFactory.decodeFile(path);
@@ -188,16 +188,16 @@ public class MultChoiceQuestionActivity extends Activity {
 
         String[] answerOptions;
         answerOptions = new String[10];
-        answerOptions[0] = currentQ.getOPT0();
-        answerOptions[1] = currentQ.getOPT1();
-        answerOptions[2] = currentQ.getOPT2();
-        answerOptions[3] = currentQ.getOPT3();
-        answerOptions[4] = currentQ.getOPT4();
-        answerOptions[5] = currentQ.getOPT5();
-        answerOptions[6] = currentQ.getOPT6();
-        answerOptions[7] = currentQ.getOPT7();
-        answerOptions[8] = currentQ.getOPT8();
-        answerOptions[9] = currentQ.getOPT9();
+        answerOptions[0] = currentQ.getOpt0();
+        answerOptions[1] = currentQ.getOpt1();
+        answerOptions[2] = currentQ.getOpt2();
+        answerOptions[3] = currentQ.getOpt3();
+        answerOptions[4] = currentQ.getOpt4();
+        answerOptions[5] = currentQ.getOpt5();
+        answerOptions[6] = currentQ.getOpt6();
+        answerOptions[7] = currentQ.getOpt7();
+        answerOptions[8] = currentQ.getOpt8();
+        answerOptions[9] = currentQ.getOpt9();
 
         for (int i = 0; i < 10; i++) {
             if (!answerOptions[i].equals(" ")) {
@@ -245,7 +245,7 @@ public class MultChoiceQuestionActivity extends Activity {
         //restore activity state
         String activityState = null;
         if (Koeko.currentTestActivitySingleton != null) {
-            activityState = Koeko.currentTestActivitySingleton.mcqActivitiesStates.get(String.valueOf(currentQ.getID()));
+            activityState = Koeko.currentTestActivitySingleton.mcqActivitiesStates.get(String.valueOf(currentQ.getId()));
         } else {
             if (Koeko.qmcActivityState != null) {
                 activityState = Koeko.qmcActivityState;
@@ -253,7 +253,7 @@ public class MultChoiceQuestionActivity extends Activity {
         }
         if ((activityState != null && Koeko.currentTestActivitySingleton != null) || (activityState != null &&
                 Koeko.currentQuestionMultipleChoiceSingleton != null &&
-                Koeko.currentQuestionMultipleChoiceSingleton.getID().contentEquals(currentQ.getID()))) {
+                Koeko.currentQuestionMultipleChoiceSingleton.getId().contentEquals(currentQ.getId()))) {
             String[] parsedState = activityState.split("///");
             if (parsedState[parsedState.length - 1].contentEquals("true")) {
                 submitButton.setEnabled(false);
@@ -289,7 +289,7 @@ public class MultChoiceQuestionActivity extends Activity {
         }
         activityState += wasAnswered;
         if (Koeko.currentTestActivitySingleton != null) {
-            Koeko.currentTestActivitySingleton.mcqActivitiesStates.put(String.valueOf(currentQ.getID()), activityState);
+            Koeko.currentTestActivitySingleton.mcqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
         } else {
             Koeko.qmcActivityState = activityState;
             Koeko.currentQuestionMultipleChoiceSingleton = currentQ;

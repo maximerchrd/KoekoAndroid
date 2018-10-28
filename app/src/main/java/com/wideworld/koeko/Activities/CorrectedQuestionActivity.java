@@ -64,9 +64,9 @@ public class CorrectedQuestionActivity extends Activity {
 
         mMulChoiceQuestion = DbTableQuestionMultipleChoice.getQuestionWithId(mQuestionId);
         mShortAnsQuestion = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(mQuestionId);
-        if (mMulChoiceQuestion.getQUESTION().length() > 0) {
+        if (mMulChoiceQuestion.getQuestion().length() > 0) {
             setMultChoiceQuestionView();
-        } else if (mShortAnsQuestion.getQUESTION().length() > 0) {
+        } else if (mShortAnsQuestion.getQuestion().length() > 0) {
             setShortAnswerQuestionView();
         } else {
             Log.w("in ExerciseObjFragment", "no question or question type not recognized");
@@ -75,7 +75,7 @@ public class CorrectedQuestionActivity extends Activity {
 
     private void setMultChoiceQuestionView()
     {
-        if (mMulChoiceQuestion.getIMAGE().length() > 0) {
+        if (mMulChoiceQuestion.getImage().length() > 0) {
             picture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -93,9 +93,9 @@ public class CorrectedQuestionActivity extends Activity {
             });
         }
 
-        txtQuestion.setText(mMulChoiceQuestion.getQUESTION());
+        txtQuestion.setText(mMulChoiceQuestion.getQuestion());
 
-        File imgFile = new  File(mContext.getFilesDir()+"/images/" + mMulChoiceQuestion.getIMAGE());
+        File imgFile = new  File(mContext.getFilesDir()+"/images/" + mMulChoiceQuestion.getImage());
         if(imgFile.exists()){
             String path = imgFile.getAbsolutePath();
             Bitmap myBitmap = BitmapFactory.decodeFile(path);
@@ -109,16 +109,16 @@ public class CorrectedQuestionActivity extends Activity {
 
         String[] answerOptions;
         answerOptions = new String[10];
-        answerOptions[0] = mMulChoiceQuestion.getOPT0();
-        answerOptions[1] = mMulChoiceQuestion.getOPT1();
-        answerOptions[2] = mMulChoiceQuestion.getOPT2();
-        answerOptions[3] = mMulChoiceQuestion.getOPT3();
-        answerOptions[4] = mMulChoiceQuestion.getOPT4();
-        answerOptions[5] = mMulChoiceQuestion.getOPT5();
-        answerOptions[6] = mMulChoiceQuestion.getOPT6();
-        answerOptions[7] = mMulChoiceQuestion.getOPT7();
-        answerOptions[8] = mMulChoiceQuestion.getOPT8();
-        answerOptions[9] = mMulChoiceQuestion.getOPT9();
+        answerOptions[0] = mMulChoiceQuestion.getOpt0();
+        answerOptions[1] = mMulChoiceQuestion.getOpt1();
+        answerOptions[2] = mMulChoiceQuestion.getOpt2();
+        answerOptions[3] = mMulChoiceQuestion.getOpt3();
+        answerOptions[4] = mMulChoiceQuestion.getOpt4();
+        answerOptions[5] = mMulChoiceQuestion.getOpt5();
+        answerOptions[6] = mMulChoiceQuestion.getOpt6();
+        answerOptions[7] = mMulChoiceQuestion.getOpt7();
+        answerOptions[8] = mMulChoiceQuestion.getOpt8();
+        answerOptions[9] = mMulChoiceQuestion.getOpt9();
 
         for (int i = 0; i < 10; i++) {
             if (!answerOptions[i].equals(" ")) {
@@ -172,7 +172,7 @@ public class CorrectedQuestionActivity extends Activity {
 
     private void setShortAnswerQuestionView()
     {
-        if (mShortAnsQuestion.getIMAGE().length() > 0) {
+        if (mShortAnsQuestion.getImage().length() > 0) {
             picture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -190,9 +190,9 @@ public class CorrectedQuestionActivity extends Activity {
             });
         }
 
-        txtQuestion.setText(mShortAnsQuestion.getQUESTION());
+        txtQuestion.setText(mShortAnsQuestion.getQuestion());
 
-        File imgFile = new  File(mContext.getFilesDir()+"/images/" + mShortAnsQuestion.getIMAGE());
+        File imgFile = new  File(mContext.getFilesDir()+"/images/" + mShortAnsQuestion.getImage());
         if(imgFile.exists()){
             String path = imgFile.getAbsolutePath();
             Bitmap myBitmap = BitmapFactory.decodeFile(path);
