@@ -105,7 +105,7 @@ public class ExerciseObjectFragment extends Fragment {
 
         txtQuestion.setText(mMulChoiceQuestion.getQuestion());
 
-        File imgFile = new  File(mContext.getFilesDir()+"/images/" + mMulChoiceQuestion.getImage());
+        File imgFile = new  File(mContext.getFilesDir()+"/media/" + mMulChoiceQuestion.getImage());
         if(imgFile.exists()){
             String path = imgFile.getAbsolutePath();
             Bitmap myBitmap = BitmapFactory.decodeFile(path);
@@ -267,7 +267,7 @@ public class ExerciseObjectFragment extends Fragment {
 
         txtQuestion.setText(mShortAnsQuestion.getQuestion());
 
-        File imgFile = new  File(mContext.getFilesDir()+"/images/" + mShortAnsQuestion.getImage());
+        File imgFile = new  File(mContext.getFilesDir()+"/media/" + mShortAnsQuestion.getImage());
         if(imgFile.exists()){
             String path = imgFile.getAbsolutePath();
             Bitmap myBitmap = BitmapFactory.decodeFile(path);

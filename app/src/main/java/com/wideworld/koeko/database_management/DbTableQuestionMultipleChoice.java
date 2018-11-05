@@ -4,6 +4,15 @@ import android.database.Cursor;
 import android.util.Log;
 
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
+import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.QuestionsManagement.QuestionView;
+import com.wideworld.koeko.QuestionsManagement.Test;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by maximerichard on 03.01.18.
@@ -29,6 +38,8 @@ public class DbTableQuestionMultipleChoice {
                     " NB_CORRECT_ANS        INT     NOT NULL, " +
                     " IMAGE_PATH           TEXT    NOT NULL, " +
                     " ID_GLOBAL           INT    NOT NULL, " +
+                    " MODIF_DATE       TEXT, " +
+                    " IDENTIFIER        VARCHAR(15)," +
                     " UNIQUE(ID_GLOBAL)) ";
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
@@ -72,6 +83,69 @@ public class DbTableQuestionMultipleChoice {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }
     }
+
+    /**
+     * method for inserting new question into table multiple_choice_question
+     *
+     * @param quest
+     * @throws Exception
+     */
+    static public void addQuestionFromView(QuestionView quest) {
+        if (quest.getTYPE() == 0) {
+            String sql = "INSERT OR REPLACE INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
+                    "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
+                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE) " +
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+            String[] sqlArgs = new String[]{
+                    quest.getLEVEL(),
+                    quest.getQUESTION(),
+                    quest.getOPT0(),
+                    quest.getOPT1(),
+                    quest.getOPT2(),
+                    quest.getOPT3(),
+                    quest.getOPT4(),
+                    quest.getOPT5(),
+                    quest.getOPT6(),
+                    quest.getOPT7(),
+                    quest.getOPT8(),
+                    quest.getOPT9(),
+                    String.valueOf(quest.getNB_CORRECT_ANS()),
+                    quest.getIMAGE(),
+                    String.valueOf(quest.getID()),
+                    String.valueOf(quest.getID()),
+                    String.valueOf(quest.getQCM_UPD_TMS())
+            };
+
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
+        }
+        else if (quest.getTYPE() == 1) {
+            QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
+            questionShortAnswer.setId(quest.getID());
+            questionShortAnswer.setQuestion(quest.getQUESTION());
+            questionShortAnswer.setImage(quest.getIMAGE());
+            questionShortAnswer.getAnswers().add(quest.getOPT0());
+            questionShortAnswer.getAnswers().add(quest.getOPT1());
+            questionShortAnswer.getAnswers().add(quest.getOPT2());
+            questionShortAnswer.getAnswers().add(quest.getOPT3());
+            questionShortAnswer.getAnswers().add(quest.getOPT4());
+            questionShortAnswer.getAnswers().add(quest.getOPT5());
+            questionShortAnswer.getAnswers().add(quest.getOPT6());
+            questionShortAnswer.getAnswers().add(quest.getOPT7());
+            questionShortAnswer.getAnswers().add(quest.getOPT8());
+            questionShortAnswer.getAnswers().addAll(new ArrayList<>(Arrays.asList(quest.getOPT9().split("///"))));
+            questionShortAnswer.setModifDate(quest.getQCM_UPD_TMS().toString());
+            questionShortAnswer.setIdentifier(quest.getQCM_MUID());
+
+            DbTableQuestionShortAnswer.addShortAnswerQuestion(questionShortAnswer);
+        } else if (quest.getTYPE() == 2) {
+//            Test test = new Test();
+//            test.setIdGlobal(quest.getQCM_MUID());
+//            test.setTestName(quest.getQUESTION());
+//
+//            DbTableTest.addTest(test);
+        }
+    }
+
     static public QuestionMultipleChoice getQuestionWithId(String globalID) {
         QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
         try {

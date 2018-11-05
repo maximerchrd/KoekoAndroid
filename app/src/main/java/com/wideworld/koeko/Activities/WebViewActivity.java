@@ -23,7 +23,7 @@ public class WebViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_webview);
         testWebview = findViewById(R.id.test_webview);
 
-        File directory = new File(getApplicationContext().getFilesDir(), FileHandler.mediaDirectory);
+        File directory = new File(getApplicationContext().getFilesDir(), FileHandler.mediaDirectoryNoSlash);
         File file = new File(directory, Koeko.currentTestActivitySingleton.getmTest().getMediaFileName());
 
         testWebview.getSettings().setJavaScriptEnabled(true);

@@ -21,6 +21,7 @@ import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.R;
+import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 
 import java.io.File;
@@ -58,7 +59,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		Bundle bun = getIntent().getExtras();
 		final String question = bun.getString("question");
 		String id = bun.getString("id");
-		String image_path = bun.getString("image_name");
+		String image_path = FileHandler.mediaDirectory + bun.getString("image_name");
 		currentQ = new QuestionShortAnswer("1",question,image_path);
 		currentQ.setId(id);
 		if (currentQ.getImage().length() > 0) {
@@ -121,7 +122,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		if (currentQ.getImage().contains(":") && currentQ.getImage().length() > currentQ.getImage().indexOf(":") + 1) {
 			currentQ.setImage(currentQ.getImage().substring(currentQ.getImage().indexOf(":") + 1));
 		}
-		File imgFile = new  File(getFilesDir()+"/images/" + currentQ.getImage());
+		File imgFile = new  File(getFilesDir() + "/"+ FileHandler.mediaDirectory + currentQ.getImage());
 		if(imgFile.exists()){
 			String path = imgFile.getAbsolutePath();
 			Bitmap myBitmap = BitmapFactory.decodeFile(path);

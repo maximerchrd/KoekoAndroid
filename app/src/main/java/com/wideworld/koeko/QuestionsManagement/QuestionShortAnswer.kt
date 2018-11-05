@@ -14,15 +14,13 @@ class QuestionShortAnswer {
     var answers: ArrayList<String>? = null
     var subjects: Vector<String>? = null
     var objectives: Vector<String>? = null
+    var modifDate: String? = ""
+    var identifier: String? = ""
     var image: String?
         get() = this.toString()
         set(iMAGE) {
             if (iMAGE == null || iMAGE == "") field = "none" else field = iMAGE
         }
-
-//    fun getBytes(): ByteArray {
-//
-//    }
 
     constructor() {
         id = "0"

@@ -15,6 +15,8 @@ import java.util.List;
 
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.QuestionsManagement.QuestionView;
+import com.wideworld.koeko.QuestionsManagement.SubjectsAndObjectivesForQuestion;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.Koeko;
@@ -25,6 +27,7 @@ import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 import com.wideworld.koeko.database_management.DbTableRelationTestObjective;
 import com.wideworld.koeko.database_management.DbTableSettings;
+import com.wideworld.koeko.database_management.DbTableSubject;
 import com.wideworld.koeko.database_management.DbTableTest;
 import com.google.android.gms.common.util.ArrayUtils;
 
@@ -37,6 +40,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class WifiCommunication {
     final private int PORTNUMBER = 9090;
@@ -156,9 +160,13 @@ public class WifiCommunication {
     public void sendAnswerToServer(String answer) {
         byte[] ansBuffer = answer.getBytes();
         try {
-            mOutputStream.write(ansBuffer, 0, ansBuffer.length);
-            Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
-            mOutputStream.flush();
+            if (mOutputStream != null) {
+                mOutputStream.write(ansBuffer, 0, ansBuffer.length);
+                Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
+                mOutputStream.flush();
+            } else {
+                Toast.makeText(mContextWifCom, "ERROR: output stream is null", Toast.LENGTH_LONG).show();
+            }
         } catch (IOException e) {
             String msg = "In sendAnswerToServer() and an exception occurred during write: " + e.getMessage();
             Log.e("Fatal Error", msg);
@@ -192,46 +200,61 @@ public class WifiCommunication {
                         byte[] prefix_buffer = readDataIntoArray(80, able_to_read);
                         String sizesPrefix = null;
                         sizesPrefix = new String(prefix_buffer, "UTF-8");
+                        DataPrefix prefix = new DataPrefix();
+                        prefix.stringToPrefix(sizesPrefix);
                         Log.v("WifiCommunication", "received string: " + sizesPrefix);
-                        if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("MULTQ")) {
+                        if (prefix.getDataType().contentEquals(DataPref.multq)) {
                             //read question data
-                            int size_of_image = Integer.parseInt(sizesPrefix.split(":")[1]);
-                            int size_of_text = Integer.parseInt(sizesPrefix.split(":")[2].replaceAll("\\D+", ""));
-                            byte[] question_buffer = readDataIntoArray(size_of_image + size_of_text, able_to_read);
+                            byte[] question_buffer = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
                             byte[] whole_question_buffer = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
 
                             //Convert data and save question
-                            QuestionMultipleChoice multquestion_to_save = dataConversion.bytearrayvectorToMultChoiceQuestion(whole_question_buffer);
-                            DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(multquestion_to_save);
+                            QuestionView questionView = dataConversion.bytearrayToQuestionView(question_buffer);
+                            DbTableQuestionMultipleChoice.addQuestionFromView(questionView);
 
-                            sendStringToServer("OK///" + multquestion_to_save.getId() + "///");
+                            sendStringToServer("OK///" + questionView.getID() + "///");
 
                             if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
                                 Koeko.networkCommunicationSingleton.sendDataToClient(whole_question_buffer);
                             }
 
-                            if (multquestion_to_save.getQuestion().contains("7492qJfzdDSB")) {
+                            if (questionView.getQUESTION().contains("7492qJfzdDSB")) {
                                 sendStringToServer("ACCUSERECEPTION");
                             }
 
                             if (NetworkCommunication.network_solution == 1) {
-                                Koeko.networkCommunicationSingleton.idsToSync.add(multquestion_to_save.getId());
+                                Koeko.networkCommunicationSingleton.idsToSync.add(questionView.getID());
                             }
-                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
+                        } else if (prefix.getDataType().contentEquals(DataPref.shrta)) {
                             //read question data
-                            int size_of_image = Integer.parseInt(sizesPrefix.split(":")[1]);
-                            int size_of_text = Integer.parseInt(sizesPrefix.split(":")[2].replaceAll("\\D+", ""));
-                            byte[] question_buffer = readDataIntoArray(size_of_image + size_of_text, able_to_read);
+                            byte[] question_buffer = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
                             byte[] whole_question_buffer = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
 
-                            DataConversion convert_question = new DataConversion(mContextWifCom);
-                            QuestionShortAnswer shrtquestion_to_save = convert_question.bytearrayvectorToShortAnswerQuestion(whole_question_buffer);
-                            DbTableQuestionShortAnswer.addShortAnswerQuestion(shrtquestion_to_save);
+                            //Convert data and save question
+                            QuestionView questionView = dataConversion.bytearrayToQuestionView(question_buffer);
+                            DbTableQuestionMultipleChoice.addQuestionFromView(questionView);
 
-                            sendStringToServer("OK///" + shrtquestion_to_save.getId() + "///");
+                            sendStringToServer("OK///" + questionView.getID() + "///");
+
+                            if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
+                                Koeko.networkCommunicationSingleton.sendDataToClient(whole_question_buffer);
+                            }
 
                             if (NetworkCommunication.network_solution == 1) {
-                                Koeko.networkCommunicationSingleton.idsToSync.add(shrtquestion_to_save.getId());
+                                Koeko.networkCommunicationSingleton.idsToSync.add(questionView.getID());
+                            }
+                        } else if (prefix.getDataType().contentEquals(DataPref.subObj)) {
+                            byte[] data = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
+                            SubjectsAndObjectivesForQuestion subObj = dataConversion.bytearrayvectorToSubjectsNObjectives(data);
+                            if (subObj != null) {
+                                String[] subjects = subObj.getSubjects();
+                                for (int i = 0; i < subjects.length; i++) {
+                                    DbTableSubject.addSubject(subjects[i]);
+                                }
+                                String[] objectives = subObj.getObjectives();
+                                for (int i = 0; i < objectives.length; i++) {
+                                    DbTableLearningObjective.addLearningObjective(objectives[i], -1);
+                                }
                             }
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
                             if (sizesPrefix.split(":")[1].contains("MLT")) {

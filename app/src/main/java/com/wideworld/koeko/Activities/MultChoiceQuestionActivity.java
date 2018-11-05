@@ -28,6 +28,7 @@ import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.R;
+import com.wideworld.koeko.Tools.FileHandler;
 
 public class MultChoiceQuestionActivity extends Activity {
     private Boolean wasAnswered = false;
@@ -172,7 +173,7 @@ public class MultChoiceQuestionActivity extends Activity {
         if (currentQ.getImage().contains(":") && currentQ.getImage().length() > currentQ.getImage().indexOf(":") + 1) {
             currentQ.setImage(currentQ.getImage().substring(currentQ.getImage().indexOf(":") + 1));
         }
-        File imgFile = new File(getFilesDir() + "/images/" + currentQ.getImage());
+        File imgFile = new File(getFilesDir() + "/"+ FileHandler.mediaDirectory + currentQ.getImage());
         if (imgFile.exists()) {
             String path = imgFile.getAbsolutePath();
             Bitmap myBitmap = BitmapFactory.decodeFile(path);

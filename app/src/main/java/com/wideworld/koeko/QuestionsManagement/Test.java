@@ -162,7 +162,7 @@ public class Test {
 
     /**
      * loads the map of the test from the db into the "Map" objects. After this method,
-     * you should be able to have find the objects with the ids in idMapQmc and idMapShrtaq,
+     * you should be able to find the objects with the ids in idMapQmc and idMapShrtaq,
      * and the relation for each question in idMapRelation
      */
     public void loadMap() {

@@ -1,6 +1,6 @@
 package com.wideworld.koeko;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.wideworld.koeko.Activities.TestActivity;
@@ -12,7 +12,7 @@ import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 /**
  * Created by maximerichard on 17/02/17.
  */
-public class Koeko extends Application {
+public class Koeko extends MultiDexApplication {
     public static int testConnectivity = 0;
     public static TestActivity currentTestActivitySingleton = null;
     public static String qmcActivityState = null;

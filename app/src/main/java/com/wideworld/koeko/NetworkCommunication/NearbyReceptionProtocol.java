@@ -82,10 +82,10 @@ public class NearbyReceptionProtocol {
     }
 
     private void receivedMULTQ(byte[] bytesReceived) {
-        QuestionMultipleChoice questionMultipleChoice = dataConversion.bytearrayvectorToMultChoiceQuestion(bytesReceived);
-        DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice);
-        String response = "OK///" + questionMultipleChoice.getId() + "///";
-        nearbyCommunication.sendBytes(response.getBytes());
+//        QuestionMultipleChoice questionMultipleChoice = dataConversion.bytearrayToQuestionView(bytesReceived);
+//        DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice);
+//        String response = "OK///" + questionMultipleChoice.getId() + "///";
+//        nearbyCommunication.sendBytes(response.getBytes());
     }
 
     private void receivedSHRTA(byte[] bytesReceived) {

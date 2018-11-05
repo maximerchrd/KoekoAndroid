@@ -54,7 +54,7 @@ public class DbTableLearningObjective {
      * @param
      * @throws Exception
      */
-    static public void addLearningObjective(String objective, int level_cognitive_ability) throws Exception {
+    static public void addLearningObjective(String objective, int level_cognitive_ability) {
         try {
             String sql = 	"INSERT OR IGNORE INTO learning_objectives (ID_OBJECTIVE_GLOBAL,OBJECTIVE,LEVEL_COGNITIVE_ABILITY) " +
                     "VALUES ('" +

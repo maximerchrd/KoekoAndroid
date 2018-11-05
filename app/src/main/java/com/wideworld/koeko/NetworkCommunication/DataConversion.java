@@ -5,8 +5,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.QuestionsManagement.QuestionView;
+import com.wideworld.koeko.QuestionsManagement.SubjectsAndObjectivesForQuestion;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.Tools.StringTools;
 import com.wideworld.koeko.database_management.DbTableLearningObjective;
@@ -19,6 +24,7 @@ import com.wideworld.koeko.database_management.DbTableSubject;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,88 +42,24 @@ public class DataConversion {
         mContext = arg_context;
     }
 
-    public QuestionMultipleChoice bytearrayvectorToMultChoiceQuestion(byte[] buffer_for_whole_question) {
-        QuestionMultipleChoice question_to_return = new QuestionMultipleChoice();
-
-        byte [] buffer_for_prefix = new byte[prefixSize];
-        for (int i = 0; i < prefixSize; i++) {
-            buffer_for_prefix[i] = buffer_for_whole_question[i];
-        }
-        String sizes = null;
+    public QuestionView bytearrayToQuestionView(byte[] buffer_for_whole_question) {
+        QuestionView questionView = new QuestionView();
+        ObjectMapper mapper = new ObjectMapper();
+        String stringJson = "";
         try {
-            sizes = new String(buffer_for_prefix, "UTF-8");
+            stringJson = new String(buffer_for_whole_question, "UTF-8");
+            questionView = mapper.readValue(stringJson, QuestionView.class);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-        }
-        int size_of_image = Integer.parseInt(sizes.split(":")[1]);
-        int size_of_text = Integer.parseInt(sizes.split(":")[2].replaceAll("\\D+",""));
-
-        byte [] buffer_for_text = new byte[size_of_text];
-        for (int i = 0; i < size_of_text; i++) {
-            buffer_for_text[i] = buffer_for_whole_question[i+prefixSize];
-        }
-
-        byte [] buffer_for_image = new byte[size_of_image];
-        for (int i = 0; i < size_of_image; i++) {
-            buffer_for_image[i] = buffer_for_whole_question[i+prefixSize+size_of_text];
-        }
-
-        ByteArrayInputStream imageStream = new ByteArrayInputStream(buffer_for_image);
-        Bitmap bitmap = BitmapFactory.decodeStream(imageStream);
-
-
-
-        String question_text = "";
-        try {
-            question_text =  new String(buffer_for_text, "UTF-8");
-            lastConvertedQuestionText = "MULTQ///";
-            lastConvertedQuestionText += question_text;
-        } catch (UnsupportedEncodingException e) {
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        question_to_return.setQuestion(question_text.split("///")[0]);
-        if (question_text.split("///").length > 15) {
-            question_to_return.setOpt0(question_text.split("///")[1]);
-            question_to_return.setOpt1(question_text.split("///")[2]);
-            question_to_return.setOpt2(question_text.split("///")[3]);
-            question_to_return.setOpt3(question_text.split("///")[4]);
-            question_to_return.setOpt4(question_text.split("///")[5]);
-            question_to_return.setOpt5(question_text.split("///")[6]);
-            question_to_return.setOpt6(question_text.split("///")[7]);
-            question_to_return.setOpt7(question_text.split("///")[8]);
-            question_to_return.setOpt8(question_text.split("///")[9]);
-            question_to_return.setOpt9(question_text.split("///")[10]);
-            String ID_string = question_text.split("///")[11];
-            question_to_return.setId(ID_string);
-            question_to_return.setNB_CORRECT_ANS(Integer.parseInt(question_text.split("///")[12]));
-            question_to_return.setImage(question_text.split("///")[15]); //14 because inbetween come subjects and objectives
-            SaveImageFile(bitmap, question_text.split("///")[15]);
 
-            //deal with subjects
-            String subjectsText = question_text.split("///")[13];
-            String[] subjects = subjectsText.split("\\|\\|\\|");
-            for (int i = 0; i < subjects.length; i++) {
-                try {
-                    DbTableSubject.addSubject(subjects[i]);
-                    DbTableRelationQuestionSubject.addRelationQuestionSubject(ID_string, subjects[i]);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            //deal with learning objectives
-            String learningObjectivesText = question_text.split("///")[14];
-            String[] learningObjectives = learningObjectivesText.split("\\|\\|\\|");
-            for (int i = 0; i < learningObjectives.length; i++) {
-                try {
-                    DbTableLearningObjective.addLearningObjective(learningObjectives[i], -1);
-                    DbTableRelationQuestionObjective.addQuestionObjectiverRelation(learningObjectives[i], ID_string);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        } else { Log.w("reading mcq buffer", "question text not complete (array after split is too short)"); }
-
-        return question_to_return;
+        return questionView;
     }
     public QuestionShortAnswer bytearrayvectorToShortAnswerQuestion(byte[] buffer_for_whole_question) {
         QuestionShortAnswer question_to_return = new QuestionShortAnswer();
@@ -203,6 +145,26 @@ public class DataConversion {
         } else { Log.w("reading quest buffer", "no objectives indication"); }
 
         return question_to_return;
+    }
+
+    public SubjectsAndObjectivesForQuestion bytearrayvectorToSubjectsNObjectives(byte[] byteData) {
+        SubjectsAndObjectivesForQuestion sNo = null;
+        ObjectMapper mapper = new ObjectMapper();
+        String stringJson;
+        try {
+            stringJson = new String(byteData, "UTF-8");
+            sNo = mapper.readValue(stringJson, SubjectsAndObjectivesForQuestion.class);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return sNo;
     }
 
     public static QuestionMultipleChoice textToQuestionMultipleChoice(String questionText) {

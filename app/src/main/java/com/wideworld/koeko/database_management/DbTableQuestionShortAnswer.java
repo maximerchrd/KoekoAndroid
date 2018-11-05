@@ -20,6 +20,8 @@ public class DbTableQuestionShortAnswer {
                     " QUESTION           TEXT    NOT NULL, " +
                     " IMAGE_PATH           TEXT    NOT NULL, " +
                     " ID_GLOBAL           INT    NOT NULL, " +
+                    " MODIF_DATE       TEXT, " +
+                    " IDENTIFIER        VARCHAR(15)," +
                     " UNIQUE(ID_GLOBAL)) ";
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
@@ -35,13 +37,15 @@ public class DbTableQuestionShortAnswer {
      */
     static public void addShortAnswerQuestion(QuestionShortAnswer quest) {
         try {
-            String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL) " +
-                    "VALUES (?,?,?,?)";
+            String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL, MODIF_DATE, IDENTIFIER) " +
+                    "VALUES (?,?,?,?,?,?)";
             String[] sqlArgs = new String[]{
                     quest.getLevel(),
                     quest.getQuestion(),
                     quest.getImage(),
-                    quest.getId()
+                    quest.getId(),
+                    quest.getModifDate(),
+                    quest.getIdentifier()
             };
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
             Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getId()));
