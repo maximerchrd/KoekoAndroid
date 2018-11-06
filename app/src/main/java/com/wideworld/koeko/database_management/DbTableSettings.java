@@ -6,11 +6,14 @@ import android.database.Cursor;
 
 import com.wideworld.koeko.R;
 
+import java.util.UUID;
+
 public class DbTableSettings {
     private static final String TABLE_SETTINGS = "settings";
     // tasks Table Columns names for the settings table
     private static final String KEY_IDsettings = "idsettings";
     private static final String KEY_NAME = "name";
+    private static final String KEY_UUID = "uuid";
     private static final String KEY_MASTER = "master";
     private static final String KEY_AUTOMATIC_CONNECTION = "automatic_connection";
 
@@ -18,12 +21,14 @@ public class DbTableSettings {
         String sql = "CREATE TABLE IF NOT EXISTS " + TABLE_SETTINGS + " ( "
                 + KEY_IDsettings + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + KEY_NAME +" TEXT,"
-                + KEY_MASTER + " TEXT," +
-                KEY_AUTOMATIC_CONNECTION +" INTEGER)";
+                + KEY_MASTER + " TEXT,"
+                + KEY_UUID + " TEXT,"
+                + KEY_AUTOMATIC_CONNECTION +" INTEGER)";
         DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, noName);
         values.put(KEY_MASTER, "192.168.1.100");
+        values.put(KEY_UUID, UUID.randomUUID().toString());
         values.put(KEY_AUTOMATIC_CONNECTION, 1);
         // Inserting of Replacing Row
         DbHelper.dbHelperSingleton.getDatabase().insert(TABLE_SETTINGS, null, values);
@@ -68,6 +73,18 @@ public class DbTableSettings {
         }
         // return string name
         return master;
+    }
+
+    static public String getUUID() {
+        // Select All Query
+        String name = "";
+        String selectQuery = "SELECT  " + KEY_UUID + " FROM " + TABLE_SETTINGS;
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
+        if (cursor.moveToPosition(0)) {
+            name = cursor.getString(0);
+        }
+        // return string name
+        return name;
     }
 
     static public void setAutomaticConnection(Integer automaticConnection) {

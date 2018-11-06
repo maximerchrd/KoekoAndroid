@@ -61,14 +61,14 @@ public class NetworkCommunication {
 	 * method to launch the network of smartphones and 1 laptop communicating using wifi
 	 */
 	public void ConnectToMaster() {
-		String MacAddress = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
+		String uniqueId = DbTableSettings.getUUID();
 		DbHelper db_for_name = new DbHelper(mContextNetCom);
 		String name = DbTableSettings.getName();
 
-		final String connection = "CONN" + "///" + MacAddress + "///" + name + "///";
+		final String connection = "CONN" + "///" + uniqueId + "///" + name + "///";
 		new Thread(new Runnable() {
 			public void run() {
-				mWifiCom.connectToServer(connection, MacAddress);
+				mWifiCom.connectToServer(connection, uniqueId);
 			}
 		}).start();
 		if (network_solution == 1) {
