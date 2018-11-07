@@ -24,7 +24,6 @@ public class SettingsActivity extends Activity {
 
 		final EditText editName;
 		final Button buttonSaveAndBack;
-		final DbHelper db = new DbHelper(this);
 		final EditText editMaster;
 		final Switch automaticConnectionSwitch;
 

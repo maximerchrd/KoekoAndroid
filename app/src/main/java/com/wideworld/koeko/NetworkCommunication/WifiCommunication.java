@@ -74,12 +74,11 @@ public class WifiCommunication {
         this.dataConversion = new DataConversion(arg_context);
     }
 
-
-    public void connectToServer(String connectionString, String deviceIdentifier) {
+    public void connectToServer(String connectionString, String deviceIdentifier, Boolean isReconnection) {
         try {
             //Automatic connection
             Integer automaticConnection = DbTableSettings.getAutomaticConnection();
-            if (automaticConnection == 1) {
+            if (automaticConnection == 1 && !isReconnection) {
                 listenForIPThroughUDP();
                 for (int i = 0; i < 10; i++) {
                     try {
@@ -190,7 +189,6 @@ public class WifiCommunication {
     }
 
     public void listenForQuestions() {
-        final WifiCommunication selfWifiCommunication = this;
         new Thread(new Runnable() {
             public void run() {
                 try {
@@ -382,6 +380,10 @@ public class WifiCommunication {
                             } else {
                                 System.err.println("Error in FILE prefix: array too short");
                             }
+                        } else if (sizesPrefix.contentEquals("RECONNECTION")) {
+                            System.out.println("We were reconnected. Quit this reading loop, because" +
+                                    " an other one should be active");
+                            able_to_read = false;
                         } else {
                             mNetworkCommunication.sendDisconnectionSignal();
                             Log.d(TAG, "no byte read or prefix not supported");
@@ -411,6 +413,13 @@ public class WifiCommunication {
                     Log.d(TAG, "Reading data stream: input stream was closed");
                 } else {
                     e.printStackTrace();
+                    if (e.toString().contains("ETIMEDOUT")) {
+                        Log.d(TAG, "readDataIntoArray: SocketException: ETIMEDOUT, trying to reconnect");
+                        wifiReconnectionTrial();
+                        //prevent disconnection by signaling that we were trying to reconnect to the reading loop
+                        arrayToReadInto = "RECONNECTION".getBytes();
+                        bytesReadAlready = 0;
+                    }
                 }
             }
             if (bytesReadAlready >= 0) {
@@ -483,6 +492,32 @@ public class WifiCommunication {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void wifiReconnectionTrial() {
+        mNetworkCommunication.mInteractiveModeActivity.showShortToast("SocketException: ETIMEDOUT, trying to reconnect");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+        for (int i = 0; i < 15 && !NetworkCommunication.connected; i++) {
+            Log.d(TAG, "readDataIntoArray: reconnection, trial: " + i);
+            mNetworkCommunication.mInteractiveModeActivity.showShortToast("Reconnection trial: " + (i + 1));
+            closeConnection();
+
+            mNetworkCommunication.ConnectToMaster(true);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
+        if (!NetworkCommunication.connected) {
+            System.out.println("Display lost connection message");
+            mNetworkCommunication.mInteractiveModeActivity.showMessage("We lost the connection :-( \n" +
+                    "Try to reconnect when you are on the Wifi.");
         }
     }
 }

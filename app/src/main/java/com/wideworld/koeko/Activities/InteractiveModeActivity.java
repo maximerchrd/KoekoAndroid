@@ -27,7 +27,6 @@ import android.widget.Toast;
 import static android.content.ContentValues.TAG;
 
 public class InteractiveModeActivity extends AppCompatActivity {
-    NetworkCommunication mNetCom;
     public TextView intmod_out;
     private TextView intmod_wait_for_question;
     private TextView logView = null;
@@ -108,54 +107,39 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
     private void connectToTeacher() {
         if (!NetworkCommunication.connected) {
-            mNetCom = new NetworkCommunication(this, getApplication(), intmod_out, logView, interactiveModeActivity);
-            mNetCom.ConnectToMaster();
+            if (((Koeko) getApplication()).getAppNetwork() == null) {
+                ((Koeko) getApplication()).setAppNetwork(new NetworkCommunication(this, getApplication(), intmod_out, logView, interactiveModeActivity));
+            }
+            ((Koeko) getApplication()).getAppNetwork().ConnectToMaster(false);
 
             intmod_wait_for_question.setText(getString(R.string.connecting));
 
-            new Thread(new Runnable() {
-                public void run() {
-                    Boolean connectionInfo = false;
-                    for (int i = 0; !connectionInfo && i < 24; i++) {
-                        if (((Koeko) getApplication()).getAppWifi().connectionSuccess == 1) {
-                            interactiveModeActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    intmod_wait_for_question.setText(getString(R.string.keep_calm_and_wait));
-                                }
-                            });
+            new Thread(() -> {
+                Boolean connectionInfo = false;
+                for (int i = 0; !connectionInfo && i < 24; i++) {
+                    if (((Koeko) getApplication()).getAppWifi().connectionSuccess == 1) {
+                        interactiveModeActivity.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.keep_calm_and_wait)));
 
-                            connectionInfo = true;
-                        } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -1) {
-                            interactiveModeActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    intmod_wait_for_question.setText(getString(R.string.keep_calm_and_restart));
-                                }
-                            });
-                            connectionInfo = true;
-                        } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -2) {
-                            interactiveModeActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    intmod_wait_for_question.setText(getString(R.string.automatic_connection_failed));
-                                }
-                            });
-                            connectionInfo = true;
-                        }
-                        try {
-                            Thread.sleep(250);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        if (i >= 23) {
-                            interactiveModeActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    intmod_wait_for_question.setText(getString(R.string.keep_calm_problem));
-                                }
-                            });
-                        }
+                        connectionInfo = true;
+                    } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -1) {
+                        interactiveModeActivity.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.keep_calm_and_restart)));
+                        connectionInfo = true;
+                    } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -2) {
+                        interactiveModeActivity.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.automatic_connection_failed)));
+                        connectionInfo = true;
+                    }
+                    try {
+                        Thread.sleep(250);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (i >= 23) {
+                        interactiveModeActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                intmod_wait_for_question.setText(getString(R.string.keep_calm_problem));
+                            }
+                        });
                     }
                 }
             }).start();
@@ -239,12 +223,15 @@ public class InteractiveModeActivity extends AppCompatActivity {
     }
 
     public void showMessage(String message) {
-        interactiveModeActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                intmod_wait_for_question.setText(message);
-            }
-        });
+        interactiveModeActivity.runOnUiThread(() -> intmod_wait_for_question.setText(message));
+    }
+
+    public void showLongToast(String message) {
+        interactiveModeActivity.runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+    }
+
+    public void showShortToast(String message) {
+        interactiveModeActivity.runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show());
     }
 
     private void launchResourceFromCode() {

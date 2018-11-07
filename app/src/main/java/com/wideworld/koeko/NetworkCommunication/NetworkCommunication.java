@@ -35,7 +35,7 @@ public class NetworkCommunication {
 	private TextView mTextOut;
 	private String lastAnswer = "";
 	static public Boolean connected = false;
-	static public int network_solution = 1; //0: all devices connected to a WAN; 1: 3 layers, 1->WAN, 2->Wan to Nearby, 3-> Nearby to hotspot
+	static public int network_solution = 0; //0: all devices connected to a WAN; 1: 3 layers, 1->WAN, 2->Wan to Nearby, 3-> Nearby to hotspot
 	static public String directCorrection = "0";
 	public ArrayList<String> idsToSync;
 	public InteractiveModeActivity mInteractiveModeActivity;
@@ -50,8 +50,6 @@ public class NetworkCommunication {
 		mTextOut = textOut;
 		mWifiCom = new WifiCommunication(arg_context, application, logView, this);
 		mInteractiveModeActivity = interactiveModeActivity;
-		//((Koeko) mApplication).setAppWifi(mWifiCom);
-		((Koeko) mApplication).setAppNetwork(this);
 		mNearbyCom = new NearbyCommunication(mContextNetCom);
 		NetworkCommunication.deviceIdentifier = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
 		idsToSync = new ArrayList<>();
@@ -60,15 +58,14 @@ public class NetworkCommunication {
 	/**
 	 * method to launch the network of smartphones and 1 laptop communicating using wifi
 	 */
-	public void ConnectToMaster() {
+	public void ConnectToMaster(Boolean isReconnection) {
 		String uniqueId = DbTableSettings.getUUID();
-		DbHelper db_for_name = new DbHelper(mContextNetCom);
 		String name = DbTableSettings.getName();
 
 		final String connection = "CONN" + "///" + uniqueId + "///" + name + "///";
 		new Thread(new Runnable() {
 			public void run() {
-				mWifiCom.connectToServer(connection, uniqueId);
+				mWifiCom.connectToServer(connection, uniqueId, isReconnection);
 			}
 		}).start();
 		if (network_solution == 1) {
@@ -85,7 +82,6 @@ public class NetworkCommunication {
 
 	public void sendAnswerToServer(String answer, String question, String id, String answerType) {
 		String MacAddress = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
-		DbHelper db_for_name = new DbHelper(mContextNetCom);
 		String name = DbTableSettings.getName();
 
 		lastAnswer = answer; //save the answer for when we receive the evaluation from the server
@@ -106,9 +102,9 @@ public class NetworkCommunication {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
 			//check if device locked
 			if (pm.isInteractive()) {
-                String MacAddress = Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
+                String uuid = DbTableSettings.getUUID();
                 String name = DbTableSettings.getName();
-                String signal = "DISC///" + MacAddress + "///" + name + "///";
+                String signal = "DISC///" + uuid + "///" + name + "///";
                 mWifiCom.sendStringToServer(signal);
                 mWifiCom.closeConnection();
                 mInteractiveModeActivity.showDisconnected();
@@ -116,9 +112,9 @@ public class NetworkCommunication {
                 mNearbyCom.stopNearbyDiscoveryAndAdvertising();
             }
 		} else {
-			String MacAddress = Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
+			String uuid = DbTableSettings.getUUID();
 			String name = DbTableSettings.getName();
-			String signal = "DISC///" + MacAddress + "///" + name + "///Android///";
+			String signal = "DISC///" + uuid + "///" + name + "///Android///";
 			mWifiCom.sendStringToServer(signal);
 			mWifiCom.closeConnection();
 			mInteractiveModeActivity.showDisconnected();
