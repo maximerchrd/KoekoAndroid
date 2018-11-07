@@ -13,6 +13,7 @@ import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.QuestionsManagement.QuestionView;
 import com.wideworld.koeko.QuestionsManagement.SubjectsAndObjectivesForQuestion;
 import com.wideworld.koeko.QuestionsManagement.Test;
+import com.wideworld.koeko.QuestionsManagement.TestView;
 import com.wideworld.koeko.Tools.StringTools;
 import com.wideworld.koeko.database_management.DbTableLearningObjective;
 import com.wideworld.koeko.database_management.DbTableRelationQuestionObjective;
@@ -254,38 +255,55 @@ public class DataConversion {
     }
 
     public Test byteToTest(byte[] byteArray) {
-        String testString = "";
+        TestView testView = null;
+        ObjectMapper mapper = new ObjectMapper();
+        String stringJson;
         try {
-            testString = new String(byteArray, "UTF-8");
+            stringJson = new String(byteArray, "UTF-8");
+            testView = mapper.readValue(stringJson, TestView.class);
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Test newTest = new Test();
-        newTest.setIdGlobal(Long.valueOf(testString.split("///")[0]));
-        newTest.setTestName(testString.split("///")[1]);
+        Test test = new Test();
+        test.setIdGlobal(Long.valueOf(testView.getIdTest()));
+        test.setTestName(testView.getTestName());
+        if (testView.getMediaFileName() != null) {
+            test.setMediaFileName(testView.getMediaFileName());
+        } else {
+            test.setMediaFileName("");
+        }
+        test.setMedalsInstructionsString(testView.getMedalInstructions());
+        test.setTestUpdate(testView.getUpdateTime());
 
         //read objectives
         try {
-            String[] objectives = testString.split("///")[3].split("\\|\\|\\|");
+            String[] objectives = testView.getObjectives().split("\\|\\|\\|");
             for (String objective : objectives) {
-                DbTableRelationTestObjective.insertRelationTestObjective(String.valueOf(newTest.getIdGlobal()), objective);
+                DbTableRelationTestObjective.insertRelationTestObjective(String.valueOf(test.getIdGlobal()), objective);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            Log.e("WifiCommunication", "ArrayOutOfBound when parsing objectives from: " + testString);
+            Log.e("WifiCommunication", "ArrayOutOfBound when parsing objectives from: " + testView.getObjectives());
             e.printStackTrace();
         }
 
-        String[] questionRelation = testString.split("///")[2].split("\\|\\|\\|");
+        //build test map
+        String[] questionRelation = testView.getTestMap().split("\\|\\|\\|");
         for (String relation : questionRelation) {
             String[] relationSplit = relation.split(";;;");
             String questionId = relationSplit[0];
-            newTest.getQuestionsIDs().add(questionId);
+            test.getQuestionsIDs().add(questionId);
             for (int i = 1; i < relationSplit.length; i++) {
                 try {
                     String[] array = relationSplit[i].split(":::");
                     DbTableRelationQuestionQuestion.insertRelationQuestionQuestion(StringTools.stringToLongID(questionId),
-                            StringTools.stringToLongID(array[0]), newTest.getTestName(),
+                            StringTools.stringToLongID(array[0]), test.getTestName(),
                             array[1]);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     //ERROR HERE
@@ -294,12 +312,8 @@ public class DataConversion {
                 }
             }
         }
-        newTest.setMedalsInstructionsString(testString.split("///")[5]);
-        if (testString.split("///").length > 6) {
-            newTest.setMediaFileName(testString.split("///")[6]);
-        }
 
-        return newTest;
+        return test;
     }
 
     public ArrayList<String> bytesToIdsList(byte[] data) {

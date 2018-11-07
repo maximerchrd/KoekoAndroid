@@ -5,6 +5,7 @@ import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 import com.wideworld.koeko.database_management.DbTableRelationQuestionQuestion;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -26,6 +27,7 @@ public class Test {
     private Vector<Double> questionsScores;
     private String medalsInstructionsString = "";
     private Vector<Vector<String>> medalsInstructions;
+    private Timestamp testUpdate;
 
     public Test() {
         questionsIDs = new Vector<>();
@@ -75,6 +77,9 @@ public class Test {
     public String getMediaFileName() {
         return mediaFileName;
     }
+    public Timestamp getTestUpdate() {
+        return testUpdate;
+    }
 
     //setters
     public void setIdGlobal(Long idGlobal) {
@@ -115,6 +120,10 @@ public class Test {
     }
     public void setMediaFileName(String mediaFileName) {
         this.mediaFileName = mediaFileName;
+    }
+
+    public void setTestUpdate(Timestamp testUpdate) {
+        this.testUpdate = testUpdate;
     }
 
     public String serializeQuestionIDs() {

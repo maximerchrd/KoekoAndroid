@@ -318,9 +318,9 @@ public class WifiCommunication {
                             Integer textBytesSize = 0;
                             textBytesSize = Integer.valueOf(sizesPrefix.split("///")[0].split(":")[1]);
 
-                            byte[] wholeDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
+                            byte[] testDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
 
-                            Test newTest = dataConversion.byteToTest(wholeDataBuffer);
+                            Test newTest = dataConversion.byteToTest(testDataBuffer);
 
                             DbTableTest.insertTest(newTest);
 
