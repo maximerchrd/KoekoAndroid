@@ -143,6 +143,7 @@ public class DbTableQuestionMultipleChoice {
 //            test.setTestName(quest.getQUESTION());
 //
 //            DbTableTest.addTest(test);
+            System.err.println("ERROR inserting question into db: we are not supposed to have a type 2 (test)");
         }
     }
 

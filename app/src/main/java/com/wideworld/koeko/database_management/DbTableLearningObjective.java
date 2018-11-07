@@ -69,6 +69,22 @@ public class DbTableLearningObjective {
             System.exit(0);
         }
     }
+    static public void addLearningObjective(String objective, int level_cognitive_ability, String questionId) {
+        try {
+            String sql = 	"INSERT OR IGNORE INTO learning_objectives (ID_OBJECTIVE_GLOBAL,OBJECTIVE,LEVEL_COGNITIVE_ABILITY) " +
+                    "VALUES ('" +
+                    2000000 + "','" +
+                    objective.replace("'", "''") + "','" +
+                    level_cognitive_ability +"');";
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
+            sql = "UPDATE learning_objectives SET ID_OBJECTIVE_GLOBAL = 2000000 + ID_OBJECTIVE WHERE ID_OBJECTIVE = (SELECT MAX(ID_OBJECTIVE) FROM learning_objectives)";
+            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
+            DbTableRelationQuestionObjective.addQuestionObjectiverRelation(objective,questionId);
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
 
     static public void addLearningObjective(String objectiveID, String objective, int level_cognitive_ability) {
         try {

@@ -247,11 +247,11 @@ public class WifiCommunication {
                             if (subObj != null) {
                                 String[] subjects = subObj.getSubjects();
                                 for (int i = 0; i < subjects.length; i++) {
-                                    DbTableSubject.addSubject(subjects[i]);
+                                    DbTableSubject.addSubject(subjects[i], subObj.getQuestionId());
                                 }
                                 String[] objectives = subObj.getObjectives();
                                 for (int i = 0; i < objectives.length; i++) {
-                                    DbTableLearningObjective.addLearningObjective(objectives[i], -1);
+                                    DbTableLearningObjective.addLearningObjective(objectives[i], -1, subObj.getQuestionId());
                                 }
                             }
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
