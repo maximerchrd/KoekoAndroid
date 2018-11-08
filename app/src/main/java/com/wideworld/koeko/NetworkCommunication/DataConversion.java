@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -280,7 +281,7 @@ public class DataConversion {
             test.setMediaFileName("");
         }
         test.setMedalsInstructionsString(testView.getMedalInstructions());
-        test.setTestUpdate(testView.getUpdateTime());
+        test.setTestUpdate(Timestamp.valueOf(testView.getUpdateTime()));
 
         //read objectives
         try {

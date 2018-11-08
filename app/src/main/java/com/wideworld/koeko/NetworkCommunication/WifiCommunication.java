@@ -74,11 +74,11 @@ public class WifiCommunication {
         this.dataConversion = new DataConversion(arg_context);
     }
 
-    public void connectToServer(String connectionString, String deviceIdentifier, Boolean isReconnection) {
+    public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
             //Automatic connection
             Integer automaticConnection = DbTableSettings.getAutomaticConnection();
-            if (automaticConnection == 1 && !isReconnection) {
+            if (automaticConnection == 1 && (reconnection == 0 || reconnection == 2)) {
                 listenForIPThroughUDP();
                 for (int i = 0; i < 10; i++) {
                     try {
@@ -312,11 +312,11 @@ public class WifiCommunication {
                             bun.putString("questionID", sizesPrefix.split("///")[1]);
                             mIntent.putExtras(bun);
                             mContextWifCom.startActivity(mIntent);
-                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("TEST")) {
+                        } else if (sizesPrefix.split("///")[0].contentEquals("TEST")) {
                             //2000001///test1///2000005;;;2000006:::EVALUATION<60|||2000006;;;2000007:::EVALUATION<60|||2000007|||///objectives///TESTMODE///
                             //first, fetch the size we'll have to read
                             Integer textBytesSize = 0;
-                            textBytesSize = Integer.valueOf(sizesPrefix.split("///")[0].split(":")[1]);
+                            textBytesSize = Integer.valueOf(sizesPrefix.split("///")[1]);
 
                             byte[] testDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
 
@@ -496,20 +496,26 @@ public class WifiCommunication {
     }
 
     private void wifiReconnectionTrial() {
-        mNetworkCommunication.mInteractiveModeActivity.showShortToast("SocketException: ETIMEDOUT, trying to reconnect");
+        mNetworkCommunication.mInteractiveModeActivity.showShortToast("SocketException: trying to reconnect");
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
-        for (int i = 0; i < 15 && !NetworkCommunication.connected; i++) {
+        for (int i = 0; i < 30 && !NetworkCommunication.connected; i++) {
             Log.d(TAG, "readDataIntoArray: reconnection, trial: " + i);
             mNetworkCommunication.mInteractiveModeActivity.showShortToast("Reconnection trial: " + (i + 1));
             closeConnection();
 
-            mNetworkCommunication.ConnectToMaster(true);
+            long waitingTime = 2000;
+            if (i < 15) {
+                mNetworkCommunication.ConnectToMaster(1);
+            } else {
+                mNetworkCommunication.ConnectToMaster(2);
+                waitingTime = 5000;
+            }
             try {
-                Thread.sleep(2000);
+                Thread.sleep(waitingTime);
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
@@ -518,6 +524,8 @@ public class WifiCommunication {
             System.out.println("Display lost connection message");
             mNetworkCommunication.mInteractiveModeActivity.showMessage("We lost the connection :-( \n" +
                     "Try to reconnect when you are on the Wifi.");
+        } else {
+            sendStringToServer("RECONNECTED///" + DbTableSettings.getName() + "///");
         }
     }
 }

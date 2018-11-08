@@ -110,7 +110,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
             if (((Koeko) getApplication()).getAppNetwork() == null) {
                 ((Koeko) getApplication()).setAppNetwork(new NetworkCommunication(this, getApplication(), intmod_out, logView, interactiveModeActivity));
             }
-            ((Koeko) getApplication()).getAppNetwork().ConnectToMaster(false);
+            ((Koeko) getApplication()).getAppNetwork().ConnectToMaster(0);
 
             intmod_wait_for_question.setText(getString(R.string.connecting));
 

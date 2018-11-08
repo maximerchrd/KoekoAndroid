@@ -14,7 +14,7 @@ public class TestView {
     private String medalInstructions;
     private String mediaFileName;
     private String objectives;
-    private Timestamp updateTime;
+    private String updateTime;
 
 
     //getters
@@ -26,7 +26,7 @@ public class TestView {
         return idTest;
     }
 
-    public Timestamp getUpdateTime() {
+    public String getUpdateTime() {
         return updateTime;
     }
 
@@ -59,7 +59,7 @@ public class TestView {
         this.idTest = idTest;
     }
 
-    public void setUpdateTime(Timestamp updateTime) {
+    public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
     }
 

@@ -58,14 +58,14 @@ public class NetworkCommunication {
 	/**
 	 * method to launch the network of smartphones and 1 laptop communicating using wifi
 	 */
-	public void ConnectToMaster(Boolean isReconnection) {
+	public void ConnectToMaster(int reconnection) {
 		String uniqueId = DbTableSettings.getUUID();
 		String name = DbTableSettings.getName();
 
 		final String connection = "CONN" + "///" + uniqueId + "///" + name + "///";
 		new Thread(new Runnable() {
 			public void run() {
-				mWifiCom.connectToServer(connection, uniqueId, isReconnection);
+				mWifiCom.connectToServer(connection, uniqueId, reconnection);
 			}
 		}).start();
 		if (network_solution == 1) {
