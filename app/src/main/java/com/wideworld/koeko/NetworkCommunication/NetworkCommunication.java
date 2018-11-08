@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -62,7 +63,16 @@ public class NetworkCommunication {
 		String uniqueId = DbTableSettings.getUUID();
 		String name = DbTableSettings.getName();
 
-		final String connection = "CONN" + "///" + uniqueId + "///" + name + "///";
+		String deviceInfos = "";
+        deviceInfos += "android:" + android.os.Build.VERSION.SDK_INT + ":";
+        if (mApplication.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            deviceInfos += "BLE:";
+        } else {
+            deviceInfos += "NOBLE:";
+        }
+        deviceInfos += "///";
+
+		final String connection = "CONN" + "///" + uniqueId + "///" + name + "///" + deviceInfos;
 		new Thread(new Runnable() {
 			public void run() {
 				mWifiCom.connectToServer(connection, uniqueId, reconnection);
@@ -81,11 +91,11 @@ public class NetworkCommunication {
 	}
 
 	public void sendAnswerToServer(String answer, String question, String id, String answerType) {
-		String MacAddress = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
+		String uuid = DbTableSettings.getUUID();
 		String name = DbTableSettings.getName();
 
 		lastAnswer = answer; //save the answer for when we receive the evaluation from the server
-		answer = answerType + "///" + MacAddress + "///" + name + "///" + answer + "///" + question + "///" + String.valueOf(id) + "///";
+		answer = answerType + "///" + uuid + "///" + name + "///" + answer + "///" + question + "///" + String.valueOf(id) + "///";
 		if (network_solution == 0) {
 			mWifiCom.sendAnswerToServer(answer);
 		} else if (network_solution == 1) {
