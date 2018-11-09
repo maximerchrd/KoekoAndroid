@@ -28,6 +28,7 @@ public class QuestionView {
     private String OPT8;
     private String OPT9;
     private String IMAGE;
+    private String hashCode;
     private String LANGUAGE;
 
 
@@ -55,6 +56,7 @@ public class QuestionView {
         OPT8="";
         OPT9="";
         IMAGE="none";
+        hashCode="";
         LANGUAGE="";
     }
 
@@ -224,6 +226,14 @@ public class QuestionView {
 
     public void setQCM_UPD_TMS(Timestamp QCM_UPD_TMS) {
         this.QCM_UPD_TMS = QCM_UPD_TMS;
+    }
+
+    public String getHashCode() {
+        return hashCode;
+    }
+
+    public void setHashCode(String hashCode) {
+        this.hashCode = hashCode;
     }
 }
 

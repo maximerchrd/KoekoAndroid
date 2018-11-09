@@ -1,6 +1,7 @@
 package com.wideworld.koeko.NetworkCommunication;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import android.app.Application;
 import android.content.Context;
@@ -39,7 +40,7 @@ public class NetworkCommunication {
 	static public Boolean connected = false;
 	static public int network_solution = 0; //0: all devices connected to a WAN; 1: 3 layers, 1->WAN, 2->Wan to Nearby, 3-> Nearby to hotspot
 	static public String directCorrection = "0";
-	public ArrayList<String> idsToSync;
+	public HashSet<String> idsToSync;
 	public InteractiveModeActivity mInteractiveModeActivity;
 
 
@@ -54,7 +55,7 @@ public class NetworkCommunication {
 		mInteractiveModeActivity = interactiveModeActivity;
 		mNearbyCom = new NearbyCommunication(mContextNetCom);
 		NetworkCommunication.deviceIdentifier = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
-		idsToSync = new ArrayList<>();
+		idsToSync = new HashSet<>();
 		Koeko.networkCommunicationSingleton = this;
 	}
 	/**

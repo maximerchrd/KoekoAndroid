@@ -21,6 +21,7 @@ public class DbTableQuestionShortAnswer {
                     " IMAGE_PATH           TEXT    NOT NULL, " +
                     " ID_GLOBAL           INT    NOT NULL, " +
                     " MODIF_DATE       TEXT, " +
+                    " HASH_CODE       TEXT, " +
                     " IDENTIFIER        VARCHAR(15)," +
                     " UNIQUE(ID_GLOBAL)) ";
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
@@ -37,7 +38,7 @@ public class DbTableQuestionShortAnswer {
      */
     static public void addShortAnswerQuestion(QuestionShortAnswer quest) {
         try {
-            String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL, MODIF_DATE, IDENTIFIER) " +
+            String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL, MODIF_DATE, IDENTIFIER, HASH_CODE) " +
                     "VALUES (?,?,?,?,?,?)";
             String[] sqlArgs = new String[]{
                     quest.getLevel(),
@@ -45,7 +46,8 @@ public class DbTableQuestionShortAnswer {
                     quest.getImage(),
                     quest.getId(),
                     quest.getModifDate(),
-                    quest.getIdentifier()
+                    quest.getIdentifier(),
+                    quest.getHashCode()
             };
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
             Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getId()));
@@ -91,15 +93,15 @@ public class DbTableQuestionShortAnswer {
         return questionShortAnswer;
     }
 
-    static public String getAllShortAnswerIds() {
+    static public String getAllShortAnswerIdsAndHashCode() {
         String IDs = "";
         try {
-            String selectQuery = "SELECT ID_GLOBAL FROM short_answer_questions;";
+            String selectQuery = "SELECT ID_GLOBAL, HASH_CODE FROM short_answer_questions;";
             //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             while (cursor.moveToNext()) {
-                IDs += cursor.getString(0) + "|";
+                IDs += cursor.getString(0) + ";" + cursor.getString(1) + "|";
             }
             cursor.close();
         } catch ( Exception e ) {

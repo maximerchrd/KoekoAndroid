@@ -39,6 +39,7 @@ public class DbTableQuestionMultipleChoice {
                     " IMAGE_PATH           TEXT    NOT NULL, " +
                     " ID_GLOBAL           INT    NOT NULL, " +
                     " MODIF_DATE       TEXT, " +
+                    " HASH_CODE       TEXT, " +
                     " IDENTIFIER        VARCHAR(15)," +
                     " UNIQUE(ID_GLOBAL)) ";
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
@@ -94,8 +95,8 @@ public class DbTableQuestionMultipleChoice {
         if (quest.getTYPE() == 0) {
             String sql = "INSERT OR REPLACE INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE) " +
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE,HASH_CODE) " +
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
             String[] sqlArgs = new String[]{
                     quest.getLEVEL(),
                     quest.getQUESTION(),
@@ -113,7 +114,8 @@ public class DbTableQuestionMultipleChoice {
                     quest.getIMAGE(),
                     String.valueOf(quest.getID()),
                     String.valueOf(quest.getID()),
-                    String.valueOf(quest.getQCM_UPD_TMS())
+                    String.valueOf(quest.getQCM_UPD_TMS()),
+                    quest.getHashCode()
             };
 
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
@@ -135,6 +137,7 @@ public class DbTableQuestionMultipleChoice {
             questionShortAnswer.getAnswers().addAll(new ArrayList<>(Arrays.asList(quest.getOPT9().split("///"))));
             questionShortAnswer.setModifDate(quest.getQCM_UPD_TMS().toString());
             questionShortAnswer.setIdentifier(quest.getQCM_MUID());
+            questionShortAnswer.setHashCode(quest.getHashCode());
 
             DbTableQuestionShortAnswer.addShortAnswerQuestion(questionShortAnswer);
         } else if (quest.getTYPE() == 2) {
@@ -180,16 +183,16 @@ public class DbTableQuestionMultipleChoice {
         return questionMultipleChoice;
     }
 
-    static public String getAllQuestionMultipleChoiceIds() {
-        String IDs = "";
+    static public String getAllQuestionMultipleChoiceIdsAndHashCode() {
+        String IDsAndUpdTime = "";
 
         try {
-            String selectQuery = "SELECT ID_GLOBAL FROM multiple_choice_questions;";
+            String selectQuery = "SELECT ID_GLOBAL, HASH_CODE FROM multiple_choice_questions;";
             //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             while (cursor.moveToNext()) {
-                IDs += cursor.getString(0) + "|";
+                IDsAndUpdTime += cursor.getString(0) + ";" + cursor.getString(1) + "|";
             }
             cursor.close();
         } catch ( Exception e ) {
@@ -197,6 +200,6 @@ public class DbTableQuestionMultipleChoice {
             System.exit(0);
         }
 
-        return IDs;
+        return IDsAndUpdTime;
     }
 }

@@ -16,6 +16,7 @@ class QuestionShortAnswer {
     var objectives: Vector<String>? = null
     var modifDate: String? = ""
     var identifier: String? = ""
+    var hashCode: String? = ""
     var image: String?
         get() = this.toString()
         set(iMAGE) {

@@ -118,8 +118,8 @@ public class WifiCommunication {
             }
 
             //send resource ids present on the device
-            String idsOnDevice = DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIds() + "|" +
-                    DbTableQuestionShortAnswer.getAllShortAnswerIds() + "|"
+            String idsOnDevice = DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIdsAndHashCode() + "|" +
+                    DbTableQuestionShortAnswer.getAllShortAnswerIdsAndHashCode() + "|"
                     + FileHandler.getMediaFilesList(mContextWifCom);
             String[] arrayIds = idsOnDevice.split("\\|");
             String stringToSend = "RESIDS///" + deviceIdentifier + "///";
