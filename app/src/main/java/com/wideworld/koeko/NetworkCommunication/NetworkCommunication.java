@@ -15,6 +15,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.wideworld.koeko.Activities.InteractiveModeActivity;
 import com.wideworld.koeko.Activities.MultChoiceQuestionActivity;
 import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
@@ -68,9 +69,14 @@ public class NetworkCommunication {
         if (mApplication.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             deviceInfos += "BLE:";
         } else {
-            deviceInfos += "NOBLE:";
+            deviceInfos += "NO-BLE:";
         }
-        deviceInfos += "///";
+		try {
+			deviceInfos += mApplication.getPackageManager().getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0 ).versionCode;
+		} catch (PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
+		deviceInfos += "///";
 
 		final String connection = "CONN" + "///" + uniqueId + "///" + name + "///" + deviceInfos;
 		new Thread(new Runnable() {
@@ -78,16 +84,6 @@ public class NetworkCommunication {
 				mWifiCom.connectToServer(connection, uniqueId, reconnection);
 			}
 		}).start();
-		if (network_solution == 1) {
-			ConnectivityManager connManager = (ConnectivityManager) mContextNetCom.getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-			if (mWifi.isConnected()) {
-				mNearbyCom.startAdvertising();
-			} else {
-				mNearbyCom.startDiscovery();
-			}
-		}
 	}
 
 	public void sendAnswerToServer(String answer, String question, String id, String answerType) {
@@ -185,4 +181,7 @@ public class NetworkCommunication {
 		return lastAnswer;
 	}
 
+	public NearbyCommunication getmNearbyCom() {
+		return mNearbyCom;
+	}
 }

@@ -1,6 +1,7 @@
 package com.wideworld.koeko.Activities;
 
 
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.wideworld.koeko.AndroidDatabaseManager;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.database_management.DbHelper;
@@ -10,6 +11,7 @@ import com.wideworld.koeko.database_management.DbTableSettings;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -87,6 +89,17 @@ public class MenuActivity extends Activity {
 				startActivity(dbmanager);
 			}
 		});
+
+		try {
+			if (getApplication().getPackageManager().getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0 ).versionCode < 12451000) {
+				String message = "If it's possible, please install a newer version of Google Play Services from the Play Store";
+				for (int i = 0; i < 2; i++) {
+					Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+				}
+			}
+		} catch (PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void onStart() {

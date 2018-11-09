@@ -380,6 +380,12 @@ public class WifiCommunication {
                             } else {
                                 System.err.println("Error in FILE prefix: array too short");
                             }
+                        } else if (sizesPrefix.split("///")[0].contentEquals("ADVER")) {
+                            NetworkCommunication.network_solution = 1;
+                            mNetworkCommunication.getmNearbyCom().startAdvertising();
+                        } else if (sizesPrefix.split("///")[0].contentEquals("DISCOV")) {
+                            NetworkCommunication.network_solution = 1;
+                            mNetworkCommunication.getmNearbyCom().startDiscovery();
                         } else if (sizesPrefix.contentEquals("RECONNECTION")) {
                             System.out.println("We were reconnected. Quit this reading loop, because" +
                                     " an other one should be active");
