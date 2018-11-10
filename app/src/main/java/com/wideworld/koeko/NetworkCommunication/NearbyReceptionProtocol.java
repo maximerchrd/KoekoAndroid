@@ -4,12 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.gms.common.util.ArrayUtils;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
-import com.wideworld.koeko.QuestionsManagement.QuestionView;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.database_management.DbTableIndividualQuestionForResult;
@@ -44,9 +42,11 @@ public class NearbyReceptionProtocol {
                 dataPrefix.stringToPrefix(stringPrefix);
 
                 if (dataPrefix.getDataType().contentEquals(DataPref.multq)) {
-                    ReceptionProtocol.receivedMULTQ(dataConversion, bytesReceived);
+                    ReceptionProtocol.receivedQuestionData(dataConversion, bytesReceived);
                 } else if (stringPrefix.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
                     receivedSHRTA(bytesReceived);
+                }  else if (dataPrefix.getDataType().contentEquals(DataPref.subObj)) {
+                    ReceptionProtocol.receivedSubObj(dataConversion, bytesReceived);
                 } else if (stringPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
                     receivedQID(stringPrefix);
                 } else if (stringPrefix.split("///")[0].split(":")[0].contentEquals("SYNCIDS")) {
@@ -63,8 +63,11 @@ public class NearbyReceptionProtocol {
                     mIntent.putExtras(bun);
                     receptionContext.startActivity(mIntent);
                 } else if (stringPrefix.split("///")[0].split(":")[0].contentEquals("TEST")) {
-                    Test newTest = dataConversion.byteToTest(bytesReceived);
-                    DbTableTest.insertTest(newTest);
+                    if (bytesReceived.length > 80) {
+                        byte[] testBytes = Arrays.copyOfRange(bytesReceived, 80, bytesReceived.length);
+                        Test newTest = dataConversion.byteToTest(testBytes);
+                        DbTableTest.insertTest(newTest);
+                    }
                 } else if (stringPrefix.split("///")[0].split(":")[0].contentEquals("OEVAL")) {
                     //TODO: implement OEVAL
                 } else if (stringPrefix.split("///")[0].split(":")[0].contentEquals("FILE")) {

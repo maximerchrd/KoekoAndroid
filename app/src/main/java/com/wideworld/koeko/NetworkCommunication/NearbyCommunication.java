@@ -163,6 +163,18 @@ public class NearbyCommunication {
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                             Log.v(TAG, "STATUS_CONNECTION_REJECTED");
                             break;
+                        case ConnectionsStatusCodes.STATUS_ALREADY_CONNECTED_TO_ENDPOINT:
+                            Log.d(TAG, "onConnectionResult: STATUS_ALREADY_CONNECTED_TO_ENDPOINT");
+                            Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
+                            isDiscovering = false;
+                            if (Koeko.networkCommunicationSingleton.getServerHotspot() != null) {
+                                if (!Koeko.networkCommunicationSingleton.getServerHotspot().configApState()) {
+                                    Log.d(TAG, "onConnectionResult: unable to start Hotspot");
+                                    Koeko.networkCommunicationSingleton.sendStringToServer("HOTSPOTFAIL///");
+                                }
+                            } else {
+                                System.err.println("Server hotspot is null when trying to start");
+                            }
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             Log.v(TAG, "STATUS_ERROR");
                             break;
@@ -282,4 +294,15 @@ public class NearbyCommunication {
 
     };
 
+    public void closeConnection() {
+        if(isAdvertising) {
+            sendBytes( "Shutting down host".getBytes());
+            Nearby.getConnectionsClient(mNearbyContext).stopAllEndpoints();
+            isAdvertising = false;
+        } else {
+            sendBytes( "Shutting down client".getBytes());
+            Nearby.getConnectionsClient(mNearbyContext).stopAllEndpoints();
+            isDiscovering = false;
+        }
+    }
 }

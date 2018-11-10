@@ -162,7 +162,7 @@ public class WifiCommunication {
                 Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
                 mOutputStream.flush();
             } else {
-                Toast.makeText(mContextWifCom, "ERROR: output stream is null", Toast.LENGTH_LONG).show();
+                Koeko.currentTestActivitySingleton.runOnUiThread(() -> Toast.makeText(mContextWifCom, "ERROR: output stream is null", Toast.LENGTH_LONG).show());
             }
         } catch (IOException e) {
             String msg = "In sendAnswerToServer() and an exception occurred during write: " + e.getMessage();
@@ -203,38 +203,16 @@ public class WifiCommunication {
                             //read question data
                             byte[] question_buffer = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
                             byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
-                            ReceptionProtocol.receivedMULTQ(dataConversion, allBytesReceived);
+                            ReceptionProtocol.receivedQuestionData(dataConversion, allBytesReceived);
                         } else if (prefix.getDataType().contentEquals(DataPref.shrta)) {
                             //read question data
                             byte[] question_buffer = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
-                            byte[] whole_question_buffer = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
-
-                            //Convert data and save question
-                            QuestionView questionView = dataConversion.bytearrayToQuestionView(question_buffer);
-                            DbTableQuestionMultipleChoice.addQuestionFromView(questionView);
-
-                            sendStringToServer("OK///" + questionView.getID() + "///");
-
-                            if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
-                                Koeko.networkCommunicationSingleton.sendDataToClient(whole_question_buffer);
-                            }
-
-                            if (NetworkCommunication.network_solution == 1) {
-                                Koeko.networkCommunicationSingleton.idsToSync.add(questionView.getID());
-                            }
+                            byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
+                            ReceptionProtocol.receivedQuestionData(dataConversion, allBytesReceived);
                         } else if (prefix.getDataType().contentEquals(DataPref.subObj)) {
                             byte[] data = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
-                            SubjectsAndObjectivesForQuestion subObj = dataConversion.bytearrayvectorToSubjectsNObjectives(data);
-                            if (subObj != null) {
-                                String[] subjects = subObj.getSubjects();
-                                for (int i = 0; i < subjects.length; i++) {
-                                    DbTableSubject.addSubject(subjects[i], subObj.getQuestionId());
-                                }
-                                String[] objectives = subObj.getObjectives();
-                                for (int i = 0; i < objectives.length; i++) {
-                                    DbTableLearningObjective.addLearningObjective(objectives[i], -1, subObj.getQuestionId());
-                                }
-                            }
+                            byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, data);
+                            ReceptionProtocol.receivedSubObj(dataConversion, allBytesReceived);
                         } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
                             if (sizesPrefix.split(":")[1].contains("MLT")) {
                                 String id_global = sizesPrefix.split("///")[1];
@@ -354,6 +332,12 @@ public class WifiCommunication {
                                     if (dataSize == dataBuffer.length) {
                                         FileHandler.saveMediaFile(dataBuffer, sizesPrefix.split("///")[1], mContextWifCom);
                                         sendStringToServer("OK///" + sizesPrefix.split("///")[1] + "///");
+
+
+                                        if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
+                                            byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, dataBuffer);
+                                            Koeko.networkCommunicationSingleton.sendDataToClient(allBytesReceived);
+                                        }
                                     } else {
                                         System.err.println("the expected file size and the size actually read don't match");
                                     }
@@ -371,6 +355,7 @@ public class WifiCommunication {
                             Server serverHotspot = new Server(sizesPrefix.split("///")[1], sizesPrefix.split("///")[2], mContextWifCom);
                             Koeko.networkCommunicationSingleton.setServerHotspot(serverHotspot);
                             Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
+                            System.out.println("Tried to start discovery");
                         } else if (sizesPrefix.contentEquals("RECONNECTION")) {
                             System.out.println("We were reconnected. Quit this reading loop, because" +
                                     " an other one should be active");

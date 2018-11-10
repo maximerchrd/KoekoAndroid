@@ -31,6 +31,7 @@ public class Server {
 
     // toggle wifi hotspot on or off
     public boolean configApState() {
+        System.out.println("Trying to start hotspot");
         WifiManager wifimanager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         WifiConfiguration wificonfiguration = new WifiConfiguration();
         wificonfiguration.SSID = hotspotName;
