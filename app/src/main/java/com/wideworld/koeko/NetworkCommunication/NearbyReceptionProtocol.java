@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.google.android.gms.common.util.ArrayUtils;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.QuestionsManagement.QuestionView;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.database_management.DbTableIndividualQuestionForResult;
@@ -38,9 +40,11 @@ public class NearbyReceptionProtocol {
                 }
 
                 String stringPrefix = new String(prefix, "UTF-8");
+                DataPrefix dataPrefix = new DataPrefix();
+                dataPrefix.stringToPrefix(stringPrefix);
 
-                if (stringPrefix.split("///")[0].split(":")[0].contentEquals("MULTQ")) {
-                    receivedMULTQ(bytesReceived);
+                if (dataPrefix.getDataType().contentEquals(DataPref.multq)) {
+                    ReceptionProtocol.receivedMULTQ(dataConversion, bytesReceived);
                 } else if (stringPrefix.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
                     receivedSHRTA(bytesReceived);
                 } else if (stringPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
@@ -79,13 +83,6 @@ public class NearbyReceptionProtocol {
     private void receivedSYNCIDS(byte[] bytesReceived) {
         byte[] idsBytes = Arrays.copyOfRange(bytesReceived, 80, bytesReceived.length);
         Koeko.networkCommunicationSingleton.idsToSync.addAll(dataConversion.bytesToIdsList(idsBytes));
-    }
-
-    private void receivedMULTQ(byte[] bytesReceived) {
-//        QuestionMultipleChoice questionMultipleChoice = dataConversion.bytearrayToQuestionView(bytesReceived);
-//        DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice);
-//        String response = "OK///" + questionMultipleChoice.getId() + "///";
-//        nearbyCommunication.sendBytes(response.getBytes());
     }
 
     private void receivedSHRTA(byte[] bytesReceived) {

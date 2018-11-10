@@ -150,6 +150,14 @@ public class NearbyCommunication {
                             } else if (isDiscovering) {
                                 Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
                                 isDiscovering = false;
+                                if (Koeko.networkCommunicationSingleton.getServerHotspot() != null) {
+                                    if (!Koeko.networkCommunicationSingleton.getServerHotspot().configApState()) {
+                                        Log.d(TAG, "onConnectionResult: unable to start Hotspot");
+                                        Koeko.networkCommunicationSingleton.sendStringToServer("HOTSPOTFAIL///");
+                                    }
+                                } else {
+                                    System.err.println("Server hotspot is null when trying to start");
+                                }
                             }
                             break;
                         case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:

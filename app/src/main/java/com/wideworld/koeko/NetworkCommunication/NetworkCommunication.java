@@ -42,6 +42,7 @@ public class NetworkCommunication {
 	static public String directCorrection = "0";
 	public HashSet<String> idsToSync;
 	public InteractiveModeActivity mInteractiveModeActivity;
+	private Server serverHotspot;
 
 
 
@@ -51,7 +52,7 @@ public class NetworkCommunication {
 		mContextNetCom = arg_context;
 		mApplication = application;
 		mTextOut = textOut;
-		mWifiCom = new WifiCommunication(arg_context, application, logView, this);
+		mWifiCom = new WifiCommunication(arg_context, application, logView);
 		mInteractiveModeActivity = interactiveModeActivity;
 		mNearbyCom = new NearbyCommunication(mContextNetCom);
 		NetworkCommunication.deviceIdentifier = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
@@ -103,6 +104,18 @@ public class NetworkCommunication {
 			}
 		}
 	}
+
+	public void sendStringToServer(String message) {
+        if (network_solution == 0) {
+            mWifiCom.sendAnswerToServer(message);
+        } else if (network_solution == 1) {
+            if (NearbyCommunication.deviceRole == NearbyCommunication.DISCOVERER_ROLE) {
+                mNearbyCom.sendBytes(message.getBytes());
+            } else {
+                mWifiCom.sendAnswerToServer(message);
+            }
+        }
+    }
 
 	public void sendDisconnectionSignal() {
 		PowerManager pm = (PowerManager) mContextNetCom.getSystemService(Context.POWER_SERVICE);
@@ -184,5 +197,13 @@ public class NetworkCommunication {
 
 	public NearbyCommunication getmNearbyCom() {
 		return mNearbyCom;
+	}
+
+	public Server getServerHotspot() {
+		return serverHotspot;
+	}
+
+	public void setServerHotspot(Server serverHotspot) {
+		this.serverHotspot = serverHotspot;
 	}
 }

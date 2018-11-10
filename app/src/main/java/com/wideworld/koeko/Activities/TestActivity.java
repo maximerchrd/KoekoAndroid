@@ -119,10 +119,10 @@ public class TestActivity extends AppCompatActivity {
                     QuestionMultipleChoice questionMultipleChoice = mTest.getIdMapQmc().get(mTest.getQuestionsIDs().get(position));
                     if (questionMultipleChoice == null) {
                         QuestionShortAnswer questionShortAnswer = mTest.getIdMapShrtaq().get(mTest.getQuestionsIDs().get(position));
-                        Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchShortAnswerQuestionActivity(questionShortAnswer,
+                        Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer,
                                 Koeko.networkCommunicationSingleton.directCorrection);
                     } else {
-                        Koeko.wifiCommunicationSingleton.mNetworkCommunication.launchMultChoiceQuestionActivity(questionMultipleChoice,
+                        Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice,
                                 Koeko.networkCommunicationSingleton.directCorrection);
                     }
                 }
