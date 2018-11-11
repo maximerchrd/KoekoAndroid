@@ -77,14 +77,14 @@ public class WifiCommunication {
     public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
             //test specific to Nearby Connections
-//            WifiManager wifimanager = (WifiManager) mContextWifCom.getSystemService(mContextWifCom.WIFI_SERVICE);
-//            if (!wifimanager.isWifiEnabled()) {
-//                Log.d(TAG, "connectToServer: discoverer");
-//                Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
-//            } else {
-//                Log.d(TAG, "connectToServer: advertiser");
-//                Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
-//            }
+            WifiManager wifimanager = (WifiManager) mContextWifCom.getSystemService(mContextWifCom.WIFI_SERVICE);
+            if (!wifimanager.isWifiEnabled()) {
+                Log.d(TAG, "connectToServer: discoverer");
+                Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
+            } else {
+                Log.d(TAG, "connectToServer: advertiser");
+                Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
+            }
             //Automatic connection
             Integer automaticConnection = DbTableSettings.getAutomaticConnection();
             if (automaticConnection == 1 && (reconnection == 0 || reconnection == 2)) {
@@ -359,10 +359,8 @@ public class WifiCommunication {
                                 System.err.println("Error in FILE prefix: array too short");
                             }
                         } else if (sizesPrefix.split("///")[0].contentEquals("ADVER")) {
-                            NetworkCommunication.network_solution = 1;
                             Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
                         } else if (sizesPrefix.split("///")[0].contentEquals("DISCOV")) {
-                            NetworkCommunication.network_solution = 1;
                             Server serverHotspot = new Server(sizesPrefix.split("///")[1], sizesPrefix.split("///")[2], mContextWifCom);
                             Koeko.networkCommunicationSingleton.setServerHotspot(serverHotspot);
                             Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();

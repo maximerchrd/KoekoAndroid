@@ -49,6 +49,7 @@ class DataPrefix {
             DataPref.subObj -> if (length >= 2) {
                 dataLength = stringPrefix.split("///")[1]
             }
+            else -> dataType = stringPrefix.split("///")[0].split(":")[0]
         }
     }
 }

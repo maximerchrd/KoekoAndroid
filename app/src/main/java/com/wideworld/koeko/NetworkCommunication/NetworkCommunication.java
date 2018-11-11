@@ -64,15 +64,25 @@ public class NetworkCommunication {
 	 */
 	public void ConnectToMaster(int reconnection) {
 		String uniqueId = DbTableSettings.getUUID();
+		final String connection = getConnectionString();
+		new Thread(new Runnable() {
+			public void run() {
+				mWifiCom.connectToServer(connection, uniqueId, reconnection);
+			}
+		}).start();
+	}
+
+	public String getConnectionString() {
+		String uniqueId = DbTableSettings.getUUID();
 		String name = DbTableSettings.getName();
 
 		String deviceInfos = "";
-        deviceInfos += "android:" + android.os.Build.VERSION.SDK_INT + ":";
-        if (mApplication.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            deviceInfos += "BLE:";
-        } else {
-            deviceInfos += "NO-BLE:";
-        }
+		deviceInfos += "android:" + android.os.Build.VERSION.SDK_INT + ":";
+		if (mApplication.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+			deviceInfos += "BLE:";
+		} else {
+			deviceInfos += "NO-BLE:";
+		}
 		try {
 			deviceInfos += mApplication.getPackageManager().getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0 ).versionCode;
 		} catch (PackageManager.NameNotFoundException e) {
@@ -80,12 +90,7 @@ public class NetworkCommunication {
 		}
 		deviceInfos += "///";
 
-		final String connection = "CONN" + "///" + uniqueId + "///" + name + "///" + deviceInfos;
-		new Thread(new Runnable() {
-			public void run() {
-				mWifiCom.connectToServer(connection, uniqueId, reconnection);
-			}
-		}).start();
+		return "CONN" + "///" + uniqueId + "///" + name + "///" + deviceInfos;
 	}
 
 	public void sendAnswerToServer(String answer, String question, String id, String answerType) {

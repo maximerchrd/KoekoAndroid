@@ -60,6 +60,7 @@ public class NearbyCommunication {
     }
 
     public void startAdvertising() {
+        NetworkCommunication.network_solution = 1;
         deviceRole = ADVERTISER_ROLE;
         AdvertisingOptions.Builder advertisingOptionsBuilder = new AdvertisingOptions.Builder();
         advertisingOptionsBuilder.setStrategy(Strategy.P2P_CLUSTER);
@@ -114,6 +115,7 @@ public class NearbyCommunication {
             };
 
     public void startDiscovery() {
+        NetworkCommunication.network_solution = 1;
         deviceRole = DISCOVERER_ROLE;
         DiscoveryOptions.Builder discoveryOptionsBuilder = new DiscoveryOptions.Builder();
         discoveryOptionsBuilder.setStrategy(Strategy.P2P_CLUSTER);
@@ -153,6 +155,7 @@ public class NearbyCommunication {
                                 isAdvertising = false;
                             } else if (isDiscovering) {
                                 Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
+                                sendBytes(Koeko.networkCommunicationSingleton.getConnectionString().getBytes());
                                 isDiscovering = false;
                                 if (Koeko.networkCommunicationSingleton.getServerHotspot() != null) {
                                     if (!Koeko.networkCommunicationSingleton.getServerHotspot().configApState()) {
@@ -266,16 +269,6 @@ public class NearbyCommunication {
             }
         };
         new Thread(syncThread).start();
-    }
-
-    public void sendPayload(Payload payload) {
-        //Payload payload = Payload.fromBytes(bytesData);
-
-        outgoingPayloads.put(payload.getId(), payload);
-
-
-
-        Nearby.getConnectionsClient(mNearbyContext).sendPayload(singleConnectionEndpointId,payload);
     }
 
 
