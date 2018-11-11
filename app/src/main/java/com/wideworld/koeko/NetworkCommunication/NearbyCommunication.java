@@ -2,6 +2,7 @@ package com.wideworld.koeko.NetworkCommunication;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
@@ -24,18 +25,21 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.Tools.FileHandler;
+import com.wideworld.koeko.Tools.IOUtils;
 import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 public class NearbyCommunication {
     private Context mNearbyContext;
     private final SimpleArrayMap<Long, Payload> incomingPayloads = new SimpleArrayMap<>();
-    private final SimpleArrayMap<Long, String> incomingSmallData = new SimpleArrayMap<>();
     private final SimpleArrayMap<Long, Payload> outgoingPayloads = new SimpleArrayMap<>();
-    private final SimpleArrayMap<Long, String> outgoingSmallData = new SimpleArrayMap<>();
     private String singleConnectionEndpointId;
     private Boolean isDiscovering = false;
     private Boolean isAdvertising = false;
@@ -105,7 +109,7 @@ public class NearbyCommunication {
 
                 @Override
                 public void onEndpointLost(String endpointId) {
-                    Log.v(TAG, "Endpoint Lost");
+                    Log.e(TAG, "Endpoint Lost");
                 }
             };
 
@@ -215,7 +219,26 @@ public class NearbyCommunication {
             payload = Payload.fromBytes(bytesData);
             Nearby.getConnectionsClient(mNearbyContext).sendPayload(singleConnectionEndpointId,payload);
         } else {
-            System.out.println("IMPLEMENT NEARBY FOR BIGGER THAN: " + ConnectionsClient.MAX_BYTES_DATA_SIZE);
+            File directory = new File(mNearbyContext.getFilesDir(), FileHandler.mediaDirectoryNoSlash);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            File tmpFile = new File(directory, "nearby_tmp_file.out");
+            if (tmpFile.exists()) {
+                tmpFile.delete();
+            }
+            try (FileOutputStream fos = new FileOutputStream(tmpFile)) {
+                fos.write(bytesData);
+                System.out.println("Data bigger than: " + ConnectionsClient.MAX_BYTES_DATA_SIZE);
+                // Add it to the tracking list so we can update it.
+                payload = Payload.fromFile(tmpFile);
+                outgoingPayloads.put(payload.getId(), payload);
+                Nearby.getConnectionsClient(mNearbyContext).sendPayload(singleConnectionEndpointId, payload);
+                tmpFile.delete();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
         }
     }
 
@@ -223,18 +246,22 @@ public class NearbyCommunication {
         // Lambda Runnable
         Runnable syncThread = () -> {
             for (String id : Koeko.networkCommunicationSingleton.idsToSync) {
-                if (Long.valueOf(id) < 0) {
-
-                } else {
-                    QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id);
-                    if (questionMultipleChoice.getQuestion().length() > 0 && !questionMultipleChoice.getQuestion().contentEquals("none")) {
+                try {
+                    if (Long.valueOf(id) < 0) {
 
                     } else {
-                        QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id);
-                        if (questionShortAnswer.getQuestion().length() > 0 && !questionShortAnswer.getQuestion().contentEquals("none")) {
+                        QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id);
+                        if (questionMultipleChoice.getQuestion().length() > 0 && !questionMultipleChoice.getQuestion().contentEquals("none")) {
 
+                        } else {
+                            QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id);
+                            if (questionShortAnswer.getQuestion().length() > 0 && !questionShortAnswer.getQuestion().contentEquals("none")) {
+
+                            }
                         }
                     }
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -261,6 +288,7 @@ public class NearbyCommunication {
                         nearbyReceptionProtocol.receivedData(payload.asBytes());
                     } else if (payload.getType() == Payload.Type.FILE) {
                         // Add this to our tracking map, so that we can retrieve the payload later.
+                        Log.d(TAG, "onPayloadReceived: FILE");
                         incomingPayloads.put(payload.getId(), payload);
                     }
                 }
@@ -281,8 +309,13 @@ public class NearbyCommunication {
                             Log.v(TAG, "onPayloadTransferUpdate: SUCCESS: ");
                             if (deviceRole == DISCOVERER_ROLE) {
                                 Payload payload = incomingPayloads.remove(update.getPayloadId());
-                                if (payload != null) {
-                                    nearbyReceptionProtocol.receivedData(payload.asBytes());
+                                if (payload != null && payload.getType() == Payload.Type.FILE) {
+                                    try {
+                                        byte[] allData = IOUtils.readFile(payload.asFile().asJavaFile());
+                                        nearbyReceptionProtocol.receivedData(allData);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                             break;

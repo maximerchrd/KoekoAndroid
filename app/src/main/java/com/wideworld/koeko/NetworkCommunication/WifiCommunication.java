@@ -35,6 +35,8 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -74,6 +76,15 @@ public class WifiCommunication {
 
     public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
+            //test specific to Nearby Connections
+//            WifiManager wifimanager = (WifiManager) mContextWifCom.getSystemService(mContextWifCom.WIFI_SERVICE);
+//            if (!wifimanager.isWifiEnabled()) {
+//                Log.d(TAG, "connectToServer: discoverer");
+//                Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
+//            } else {
+//                Log.d(TAG, "connectToServer: advertiser");
+//                Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
+//            }
             //Automatic connection
             Integer automaticConnection = DbTableSettings.getAutomaticConnection();
             if (automaticConnection == 1 && (reconnection == 0 || reconnection == 2)) {
@@ -162,7 +173,7 @@ public class WifiCommunication {
                 Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
                 mOutputStream.flush();
             } else {
-                Koeko.currentTestActivitySingleton.runOnUiThread(() -> Toast.makeText(mContextWifCom, "ERROR: output stream is null", Toast.LENGTH_LONG).show());
+                Koeko.networkCommunicationSingleton.mInteractiveModeActivity.runOnUiThread(() -> Toast.makeText(mContextWifCom, "ERROR: output stream is null", Toast.LENGTH_LONG).show());
             }
         } catch (IOException e) {
             String msg = "In sendAnswerToServer() and an exception occurred during write: " + e.getMessage();
