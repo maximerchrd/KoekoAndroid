@@ -7,12 +7,9 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -21,9 +18,9 @@ import com.wideworld.koeko.Activities.InteractiveModeActivity;
 import com.wideworld.koeko.Activities.MultChoiceQuestionActivity;
 import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
 import com.wideworld.koeko.Activities.TestActivity;
+import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
-import com.wideworld.koeko.database_management.DbHelper;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.database_management.DbTableSettings;
 
@@ -42,7 +39,7 @@ public class NetworkCommunication {
 	static public String directCorrection = "0";
 	public HashSet<String> idsToSync;
 	public InteractiveModeActivity mInteractiveModeActivity;
-	private Server serverHotspot;
+	private HotspotServer hotspotServerHotspot;
 
 
 
@@ -216,11 +213,11 @@ public class NetworkCommunication {
 		return mNearbyCom;
 	}
 
-	public Server getServerHotspot() {
-		return serverHotspot;
+	public HotspotServer getHotspotServerHotspot() {
+		return hotspotServerHotspot;
 	}
 
-	public void setServerHotspot(Server serverHotspot) {
-		this.serverHotspot = serverHotspot;
+	public void setHotspotServerHotspot(HotspotServer hotspotServerHotspot) {
+		this.hotspotServerHotspot = hotspotServerHotspot;
 	}
 }

@@ -4,7 +4,6 @@ package com.wideworld.koeko.Activities;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.wideworld.koeko.AndroidDatabaseManager;
 import com.wideworld.koeko.Koeko;
-import com.wideworld.koeko.NetworkCommunication.Server;
 import com.wideworld.koeko.database_management.DbHelper;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableSettings;

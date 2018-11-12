@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.BindException;
+import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
@@ -14,9 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
+import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
-import com.wideworld.koeko.QuestionsManagement.QuestionView;
-import com.wideworld.koeko.QuestionsManagement.SubjectsAndObjectivesForQuestion;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.Koeko;
@@ -27,7 +27,6 @@ import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 import com.wideworld.koeko.database_management.DbTableRelationTestObjective;
 import com.wideworld.koeko.database_management.DbTableSettings;
-import com.wideworld.koeko.database_management.DbTableSubject;
 import com.wideworld.koeko.database_management.DbTableTest;
 import com.google.android.gms.common.util.ArrayUtils;
 
@@ -35,8 +34,6 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -153,6 +150,8 @@ public class WifiCommunication {
             listenForQuestions();
 
 
+        }  catch (ConnectException e) {
+            e.printStackTrace();
         } catch (UnknownHostException e) {
             Log.v("connection to server", ": failure, unknown host");
 
@@ -366,8 +365,8 @@ public class WifiCommunication {
                         } else if (sizesPrefix.split("///")[0].contentEquals("ADVER")) {
                             Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
                         } else if (sizesPrefix.split("///")[0].contentEquals("DISCOV")) {
-                            Server serverHotspot = new Server(sizesPrefix.split("///")[1], sizesPrefix.split("///")[2], mContextWifCom);
-                            Koeko.networkCommunicationSingleton.setServerHotspot(serverHotspot);
+                            HotspotServer hotspotServerHotspot = new HotspotServer(sizesPrefix.split("///")[1], sizesPrefix.split("///")[2], mContextWifCom);
+                            Koeko.networkCommunicationSingleton.setHotspotServerHotspot(hotspotServerHotspot);
                             Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
                             System.out.println("Tried to start discovery");
                         } else if (sizesPrefix.contentEquals("RECONNECTION")) {
@@ -494,7 +493,7 @@ public class WifiCommunication {
         }
         for (int i = 0; i < 30 && !NetworkCommunication.connected; i++) {
             long waitingTime = 2000;
-            if (!Koeko.networkCommunicationSingleton.getServerHotspot().isApOn()) {
+            if (!Koeko.networkCommunicationSingleton.getHotspotServerHotspot().isApOn()) {
                 Log.d(TAG, "readDataIntoArray: reconnection, trial: " + i);
                 Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showShortToast("Reconnection trial: " + (i + 1));
                 closeConnection();

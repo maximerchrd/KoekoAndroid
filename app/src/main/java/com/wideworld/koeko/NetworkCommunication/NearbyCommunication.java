@@ -2,7 +2,6 @@ package com.wideworld.koeko.NetworkCommunication;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
@@ -23,6 +22,7 @@ import com.google.android.gms.nearby.connection.Strategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.wideworld.koeko.Koeko;
+import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.Tools.FileHandler;
@@ -128,6 +128,10 @@ public class NearbyCommunication {
                 .addOnSuccessListener(
                         unusedResult -> {
                             isDiscovering = true;
+                            if (NearbyCommunication.NEARBY_TESTING == 1) {
+                                HotspotServer hotspotServer = new HotspotServer("koeko", "12345678", mNearbyContext);
+                                Koeko.networkCommunicationSingleton.setHotspotServerHotspot(hotspotServer);
+                            }
                             Log.v(TAG, "Started discovering");
                         })
                 .addOnFailureListener(
@@ -159,13 +163,15 @@ public class NearbyCommunication {
                                 Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
                                 sendBytes(Koeko.networkCommunicationSingleton.getConnectionString().getBytes());
                                 isDiscovering = false;
-                                if (Koeko.networkCommunicationSingleton.getServerHotspot() != null) {
-                                    if (!Koeko.networkCommunicationSingleton.getServerHotspot().configApState()) {
+                                if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null) {
+                                    if (!Koeko.networkCommunicationSingleton.getHotspotServerHotspot().configApState()) {
                                         Log.d(TAG, "onConnectionResult: unable to start Hotspot");
                                         Koeko.networkCommunicationSingleton.sendStringToServer("HOTSPOTFAIL///");
+                                    } else if (!HotspotServer.serverON) {
+                                        Koeko.networkCommunicationSingleton.getHotspotServerHotspot().startHotspotServer();
                                     }
                                 } else {
-                                    System.err.println("Server hotspot is null when trying to start");
+                                    System.err.println("HotspotServer hotspot is null when trying to start");
                                 }
                             }
                             break;
@@ -176,13 +182,13 @@ public class NearbyCommunication {
                             Log.d(TAG, "onConnectionResult: STATUS_ALREADY_CONNECTED_TO_ENDPOINT");
                             Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
                             isDiscovering = false;
-                            if (Koeko.networkCommunicationSingleton.getServerHotspot() != null) {
-                                if (!Koeko.networkCommunicationSingleton.getServerHotspot().configApState()) {
+                            if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null) {
+                                if (!Koeko.networkCommunicationSingleton.getHotspotServerHotspot().configApState()) {
                                     Log.d(TAG, "onConnectionResult: unable to start Hotspot");
                                     Koeko.networkCommunicationSingleton.sendStringToServer("HOTSPOTFAIL///");
                                 }
                             } else {
-                                System.err.println("Server hotspot is null when trying to start");
+                                System.err.println("HotspotServer hotspot is null when trying to start");
                             }
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             Log.v(TAG, "STATUS_ERROR");
@@ -281,6 +287,7 @@ public class NearbyCommunication {
                     Log.v(TAG, "onPayloadReceived");
                     if (payload.getType() == Payload.Type.BYTES) {
                         nearbyReceptionProtocol.receivedData(payload.asBytes());
+                        Koeko.networkCommunicationSingleton.getHotspotServerHotspot().sendDataToClients(null, payload.asBytes());
                     } else if (payload.getType() == Payload.Type.FILE) {
                         // Add this to our tracking map, so that we can retrieve the payload later.
                         Log.d(TAG, "onPayloadReceived: FILE");
@@ -308,6 +315,7 @@ public class NearbyCommunication {
                                     try {
                                         byte[] allData = IOUtils.readFile(payload.asFile().asJavaFile());
                                         nearbyReceptionProtocol.receivedData(allData);
+                                        Koeko.networkCommunicationSingleton.getHotspotServerHotspot().sendDataToClients(null, allData);
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
