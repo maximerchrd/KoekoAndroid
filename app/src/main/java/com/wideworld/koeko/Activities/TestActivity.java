@@ -189,21 +189,24 @@ public class TestActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (mTest.getMedalsInstructionsString().length() > 0) {
-            getMenuInflater().inflate(R.menu.menu_test, menu);
+        if (mTest.getMedalsInstructions() != null ) {
+            if (mTest.getMedalsInstructionsString().length() > 0) {
+                getMenuInflater().inflate(R.menu.menu_test, menu);
 
-            testChronometer = (TestChronometer) menu
-                    .findItem(R.id.chronometer)
-                    .getActionView();
+                testChronometer = (TestChronometer) menu
+                        .findItem(R.id.chronometer)
+                        .getActionView();
 
-            testChronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-            testChronometer.setTextColor(Color.WHITE);
-            if (reloadActivity) {
-                testChronometer.setStartTime(Koeko.activeTestStartTime);
-                testChronometer.run();
+                testChronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+                testChronometer.setTextColor(Color.WHITE);
+                if (reloadActivity) {
+                    testChronometer.setStartTime(Koeko.activeTestStartTime);
+                    testChronometer.run();
+                }
             }
+        } else {
+            Log.w(TAG, "Medals Instructions are null!!");
         }
-
         return (super.onCreateOptionsMenu(menu));
     }
 

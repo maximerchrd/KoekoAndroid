@@ -369,6 +369,8 @@ public class WifiCommunication {
                             Koeko.networkCommunicationSingleton.setHotspotServerHotspot(hotspotServerHotspot);
                             Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
                             System.out.println("Tried to start discovery");
+                        } else if (sizesPrefix.split("///")[0].contentEquals("CONNECTED")) {
+                            connectionSuccess = 1;
                         } else if (sizesPrefix.contentEquals("RECONNECTION")) {
                             System.out.println("We were reconnected. Quit this reading loop, because" +
                                     " an other one should be active");
