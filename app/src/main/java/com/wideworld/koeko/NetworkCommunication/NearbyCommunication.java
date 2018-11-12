@@ -51,6 +51,8 @@ public class NearbyCommunication {
     static public int deviceRole = NO_NEARBY_ROLE;
     static private int nbOfTransfers= 0;
 
+    static public int NEARBY_TESTING = 1;
+
 
     private String TAG = "NearbyCommunication";
 

@@ -17,7 +17,7 @@ public class ReceptionProtocol {
             QuestionView questionView = dataConversion.bytearrayToQuestionView(questionBytes);
             DbTableQuestionMultipleChoice.addQuestionFromView(questionView);
 
-            Koeko.networkCommunicationSingleton.sendStringToServer("OK///" + questionView.getID() + "///");
+            Koeko.networkCommunicationSingleton.sendStringToServer("OK:" + NetworkCommunication.deviceIdentifier + "///" + questionView.getID() + "///");
 
             if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
                 Koeko.networkCommunicationSingleton.sendDataToClient(bytesReceived);

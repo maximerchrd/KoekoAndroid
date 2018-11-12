@@ -34,88 +34,84 @@ public class NearbyReceptionProtocol {
 
     public void receivedData(byte[] bytesReceived) {
         try {
-            if (bytesReceived.length >= DataConversion.prefixSize) {
-                byte[] prefix = new byte[DataConversion.prefixSize];
-                for (int i = 0; i < 80; i++) {
-                    prefix[i] = bytesReceived[i];
-                }
+            byte[] prefix = new byte[DataConversion.prefixSize];
+            for (int i = 0; i < bytesReceived.length && i < DataConversion.prefixSize; i++) {
+                prefix[i] = bytesReceived[i];
+            }
 
-                String stringPrefix = new String(prefix, "UTF-8");
-                DataPrefix dataPrefix = new DataPrefix();
-                dataPrefix.stringToPrefix(stringPrefix);
+            String stringPrefix = new String(prefix, "UTF-8");
+            DataPrefix dataPrefix = new DataPrefix();
+            dataPrefix.stringToPrefix(stringPrefix);
 
-                Log.d(TAG, "receivedData: " + stringPrefix);
+            Log.d(TAG, "receivedData: " + stringPrefix);
 
-                switch (dataPrefix.getDataType()) {
-                    case DataPref.multq:
-                        ReceptionProtocol.receivedQuestionData(dataConversion, bytesReceived);
-                        break;
-                    case DataPref.shrta:
-                        ReceptionProtocol.receivedQuestionData(dataConversion, bytesReceived);
-                        break;
-                    case DataPref.subObj:
-                        ReceptionProtocol.receivedSubObj(dataConversion, bytesReceived);
-                        break;
-                    case "QID":
-                        receivedQID(stringPrefix);
-                        break;
-                    case "SYNCIDS":
-                        receivedSYNCIDS(bytesReceived);
-                        break;
-                    case "EVAL":
-                        DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(stringPrefix.split("///")[2],
-                                stringPrefix.split("///")[1], Koeko.networkCommunicationSingleton.getLastAnswer());
-                        break;
-                    case "UPDEV":
-                        DbTableIndividualQuestionForResult.setEvalForQuestion(Double.valueOf(stringPrefix.split("///")[1]),
-                                stringPrefix.split("///")[2]);
-                        break;
-                    case "CORR":
-                        Intent mIntent = new Intent(receptionContext, CorrectedQuestionActivity.class);
-                        Bundle bun = new Bundle();
-                        bun.putString("questionID", stringPrefix.split("///")[1]);
-                        mIntent.putExtras(bun);
-                        receptionContext.startActivity(mIntent);
-                        break;
-                    case "TEST":
-                        if (bytesReceived.length > 80) {
-                            byte[] testBytes = Arrays.copyOfRange(bytesReceived, 80, bytesReceived.length);
-                            Test newTest = dataConversion.byteToTest(testBytes);
-                            DbTableTest.insertTest(newTest);
-                        }
-                        break;
-                    case "OEVAL":
-                        //TODO: implement OEVAL
-                        break;
-                    case DataPref.file:
-                        receivedFILE(stringPrefix, bytesReceived);
-                        break;
-                    case "OK":
-                        System.out.println("forwarding OK");
-                        Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
-                        break;
-                    case "ANSW0":
-                        System.out.println("forwarding ANSW0");
-                        Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
-                        break;
-                    case "ANSW1":
-                        System.out.println("forwarding ANSW1");
-                        Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
-                        break;
-                    case "CONN":
-                        System.out.println("forwarding CONN");
-                        Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
-                        break;
-                    case "DISC":
-                        System.out.println("forwarding DISC");
-                        Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
-                        break;
-                    default:
-                        System.err.println("Prefix not supported");
-                        break;
-                }
-            } else {
-                System.err.println("NEARBY: Problem with prefix, bytesReceived too short!");
+            switch (dataPrefix.getDataType()) {
+                case DataPref.multq:
+                    ReceptionProtocol.receivedQuestionData(dataConversion, bytesReceived);
+                    break;
+                case DataPref.shrta:
+                    ReceptionProtocol.receivedQuestionData(dataConversion, bytesReceived);
+                    break;
+                case DataPref.subObj:
+                    ReceptionProtocol.receivedSubObj(dataConversion, bytesReceived);
+                    break;
+                case "QID":
+                    receivedQID(stringPrefix);
+                    break;
+                case "SYNCIDS":
+                    receivedSYNCIDS(bytesReceived);
+                    break;
+                case "EVAL":
+                    DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(stringPrefix.split("///")[2],
+                            stringPrefix.split("///")[1], Koeko.networkCommunicationSingleton.getLastAnswer());
+                    break;
+                case "UPDEV":
+                    DbTableIndividualQuestionForResult.setEvalForQuestion(Double.valueOf(stringPrefix.split("///")[1]),
+                            stringPrefix.split("///")[2]);
+                    break;
+                case "CORR":
+                    Intent mIntent = new Intent(receptionContext, CorrectedQuestionActivity.class);
+                    Bundle bun = new Bundle();
+                    bun.putString("questionID", stringPrefix.split("///")[1]);
+                    mIntent.putExtras(bun);
+                    receptionContext.startActivity(mIntent);
+                    break;
+                case "TEST":
+                    if (bytesReceived.length > 80) {
+                        byte[] testBytes = Arrays.copyOfRange(bytesReceived, 80, bytesReceived.length);
+                        Test newTest = dataConversion.byteToTest(testBytes);
+                        DbTableTest.insertTest(newTest);
+                    }
+                    break;
+                case "OEVAL":
+                    //TODO: implement OEVAL
+                    break;
+                case DataPref.file:
+                    receivedFILE(stringPrefix, bytesReceived);
+                    break;
+                case "OK":
+                    System.out.println("forwarding OK");
+                    Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
+                    break;
+                case "ANSW0":
+                    System.out.println("forwarding ANSW0");
+                    Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
+                    break;
+                case "ANSW1":
+                    System.out.println("forwarding ANSW1");
+                    Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
+                    break;
+                case "CONN":
+                    System.out.println("forwarding CONN");
+                    Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
+                    break;
+                case "DISC":
+                    System.out.println("forwarding DISC");
+                    Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
+                    break;
+                default:
+                    System.err.println("Prefix not supported");
+                    break;
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -125,13 +121,6 @@ public class NearbyReceptionProtocol {
     private void receivedSYNCIDS(byte[] bytesReceived) {
         byte[] idsBytes = Arrays.copyOfRange(bytesReceived, 80, bytesReceived.length);
         Koeko.networkCommunicationSingleton.idsToSync.addAll(dataConversion.bytesToIdsList(idsBytes));
-    }
-
-    private void receivedSHRTA(byte[] bytesReceived) {
-        QuestionShortAnswer questionShortAnswer = dataConversion.bytearrayvectorToShortAnswerQuestion(bytesReceived);
-        DbTableQuestionShortAnswer.addShortAnswerQuestion(questionShortAnswer);
-        String response = "OK///" + questionShortAnswer.getId() + "///";
-        nearbyCommunication.sendBytes(response.getBytes());
     }
 
     private void receivedQID(String stringPrefix) {
@@ -176,8 +165,8 @@ public class NearbyReceptionProtocol {
                 //check if we got all the data
                 if (dataSize == dataBuffer.length) {
                     FileHandler.saveMediaFile(dataBuffer, stringPrefix.split("///")[1], receptionContext);
-                    String response = "OK///" + stringPrefix.split("///")[1] + "///";
-                    Koeko.networkCommunicationSingleton.sendDataToClient(response.getBytes());
+                    String response = "OK:" + NetworkCommunication.deviceIdentifier + "///" + stringPrefix.split("///")[1] + "///";
+                    Koeko.networkCommunicationSingleton.sendStringToServer(response);
                 } else {
                     System.err.println("the expected file size and the size actually read don't match");
                 }

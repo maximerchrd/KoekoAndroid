@@ -55,7 +55,7 @@ public class NetworkCommunication {
 		mWifiCom = new WifiCommunication(arg_context, application, logView);
 		mInteractiveModeActivity = interactiveModeActivity;
 		mNearbyCom = new NearbyCommunication(mContextNetCom);
-		NetworkCommunication.deviceIdentifier = android.provider.Settings.Secure.getString(mContextNetCom.getContentResolver(), "bluetooth_address");
+		NetworkCommunication.deviceIdentifier = DbTableSettings.getUUID();
 		idsToSync = new HashSet<>();
 		Koeko.networkCommunicationSingleton = this;
 	}
@@ -63,7 +63,7 @@ public class NetworkCommunication {
 	 * method to launch the network of smartphones and 1 laptop communicating using wifi
 	 */
 	public void ConnectToMaster(int reconnection) {
-		String uniqueId = DbTableSettings.getUUID();
+		String uniqueId = NetworkCommunication.deviceIdentifier;
 		final String connection = getConnectionString();
 		new Thread(new Runnable() {
 			public void run() {
@@ -73,7 +73,7 @@ public class NetworkCommunication {
 	}
 
 	public String getConnectionString() {
-		String uniqueId = DbTableSettings.getUUID();
+		String uniqueId = NetworkCommunication.deviceIdentifier;
 		String name = DbTableSettings.getName();
 
 		String deviceInfos = "";
@@ -94,7 +94,7 @@ public class NetworkCommunication {
 	}
 
 	public void sendAnswerToServer(String answer, String question, String id, String answerType) {
-		String uuid = DbTableSettings.getUUID();
+		String uuid = NetworkCommunication.deviceIdentifier;
 		String name = DbTableSettings.getName();
 
 		lastAnswer = answer; //save the answer for when we receive the evaluation from the server
@@ -127,7 +127,7 @@ public class NetworkCommunication {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
 			//check if device locked
 			if (pm.isInteractive()) {
-                String uuid = DbTableSettings.getUUID();
+                String uuid = NetworkCommunication.deviceIdentifier;
                 String name = DbTableSettings.getName();
                 String signal = "DISC///" + uuid + "///" + name + "///";
                 mWifiCom.sendStringToServer(signal);
@@ -137,7 +137,7 @@ public class NetworkCommunication {
                 mNearbyCom.stopNearbyDiscoveryAndAdvertising();
             }
 		} else {
-			String uuid = DbTableSettings.getUUID();
+			String uuid = NetworkCommunication.deviceIdentifier;
 			String name = DbTableSettings.getName();
 			String signal = "DISC///" + uuid + "///" + name + "///Android///";
 			sendStringToServer(signal);

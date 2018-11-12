@@ -77,13 +77,18 @@ public class WifiCommunication {
     public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
             //test specific to Nearby Connections
-            WifiManager wifimanager = (WifiManager) mContextWifCom.getSystemService(mContextWifCom.WIFI_SERVICE);
-            if (!wifimanager.isWifiEnabled()) {
-                Log.d(TAG, "connectToServer: discoverer");
-                Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
+            if (NearbyCommunication.NEARBY_TESTING == 1) {
+                WifiManager wifimanager = (WifiManager) mContextWifCom.getSystemService(mContextWifCom.WIFI_SERVICE);
+                if (!wifimanager.isWifiEnabled()) {
+                    Log.d(TAG, "connectToServer: discoverer");
+                    Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
+                } else {
+                    Log.d(TAG, "connectToServer: advertiser");
+                    Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
+                }
             } else {
-                Log.d(TAG, "connectToServer: advertiser");
-                Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
+                //Reset the networking solution to 0
+                NetworkCommunication.network_solution = 0;
             }
             //Automatic connection
             Integer automaticConnection = DbTableSettings.getAutomaticConnection();
@@ -342,7 +347,7 @@ public class WifiCommunication {
                                     //check if we got all the data
                                     if (dataSize == dataBuffer.length) {
                                         FileHandler.saveMediaFile(dataBuffer, sizesPrefix.split("///")[1], mContextWifCom);
-                                        sendStringToServer("OK///" + sizesPrefix.split("///")[1] + "///");
+                                        sendStringToServer("OK:" + NetworkCommunication.deviceIdentifier + "///" + sizesPrefix.split("///")[1] + "///");
 
 
                                         if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
