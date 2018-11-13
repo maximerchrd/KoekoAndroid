@@ -32,9 +32,11 @@ public class InteractiveModeActivity extends AppCompatActivity {
     private TextView logView = null;
     private MenuItem forwardButton;
     private InteractiveModeActivity interactiveModeActivity;
+    private String TAG = "InteractiveModeActivity";
 
     //launch scanning QR code
     private Button scanQQButton;
+    private Button toggleConnectionButton;
     private final static String DEBUG_TAG = "Interactive Mode";
     private Camera camera;
     private int cameraId = 0;
@@ -49,11 +51,15 @@ public class InteractiveModeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         interactiveModeActivity = this;
+        if (Koeko.networkCommunicationSingleton != null) {
+            Koeko.networkCommunicationSingleton.mInteractiveModeActivity = this;
+        }
 
         //initialize view
         setContentView(R.layout.activity_interactivemode);
         intmod_wait_for_question = (TextView) findViewById(R.id.textView2);
 
+        //START code for functional testing
         if (Koeko.testConnectivity > 0) {
             new Thread(new Runnable() {
                 public void run() {
@@ -65,12 +71,15 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
                     Runnable myRunnable = new Runnable() {
                         @Override
-                        public void run() {onBackPressed();} // This is your code
+                        public void run() {
+                            onBackPressed();
+                        } // This is your code
                     };
                     mainHandler.post(myRunnable);
                 }
             }).start();
         }
+        //END code for functional testing
 
         // do we have a camera?
         if (!getPackageManager()
@@ -85,7 +94,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
             }
         }
 
-        scanQQButton = findViewById(R.id.scanQRButton);
+        scanQQButton = findViewById(R.id.scan_qr_button);
         scanQQButton.setOnClickListener(e -> {
             // Check if we have write permission
             int permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
@@ -103,6 +112,21 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 startActivity(capturecodeIntent);
             }
         });
+
+        toggleConnectionButton = findViewById(R.id.toggle_connection);
+        toggleConnectionButton.setOnClickListener(l -> toggleConnection());
+
+        connectToTeacher();
+    }
+
+    private void toggleConnection() {
+        if (NetworkCommunication.connected) {
+            Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
+            Koeko.networkCommunicationSingleton.closeConnection();
+            showDisconnected();
+        } else {
+            connectToTeacher();
+        }
     }
 
     private void connectToTeacher() {
@@ -118,14 +142,13 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 Boolean connectionInfo = false;
                 for (int i = 0; !connectionInfo && i < 24; i++) {
                     if (((Koeko) getApplication()).getAppWifi().connectionSuccess == 1) {
-                        interactiveModeActivity.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.keep_calm_and_wait)));
-
+                        showConnected();
                         connectionInfo = true;
                     } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -1) {
-                        interactiveModeActivity.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.keep_calm_and_restart)));
+                        this.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.keep_calm_and_restart)));
                         connectionInfo = true;
                     } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -2) {
-                        interactiveModeActivity.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.automatic_connection_failed)));
+                        this.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.automatic_connection_failed)));
                         connectionInfo = true;
                     }
                     try {
@@ -134,7 +157,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     if (i >= 23) {
-                        interactiveModeActivity.runOnUiThread(new Runnable() {
+                        this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 intmod_wait_for_question.setText(getString(R.string.keep_calm_problem));
@@ -146,6 +169,9 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
 
             ((Koeko) this.getApplication()).resetQuitApp();
+        } else {
+            Log.d(TAG, "connectToTeacher: Sending Connection String from OnCreate");
+            Koeko.networkCommunicationSingleton.sendStringToServer(Koeko.networkCommunicationSingleton.getConnectionString());
         }
     }
 
@@ -186,6 +212,12 @@ public class InteractiveModeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        if (NetworkCommunication.connected) {
+            showConnected();
+        } else {
+            showDisconnected();
+        }
+
         if (forwardButton != null) {
             if (Koeko.qmcActivityState != null || Koeko.shrtaqActivityState != null) {
                 forwardButton.setTitle(getString(R.string.back_to_question) + " >");
@@ -209,29 +241,34 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 }
             }
         }
-
-        connectToTeacher();
     }
 
     public void showDisconnected() {
-        interactiveModeActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                intmod_wait_for_question.setText(getString(R.string.disconnected));
-            }
+        this.runOnUiThread(() -> {
+            Log.d(TAG, "showDisconnected");
+            intmod_wait_for_question.setText(getString(R.string.disconnected));
+            toggleConnectionButton.setText(R.string.start_connection);
+        });
+    }
+
+    public void showConnected() {
+        this.runOnUiThread(() -> {
+            Log.d(TAG, "showConnected");
+            intmod_wait_for_question.setText(getString(R.string.keep_calm_and_wait));
+            toggleConnectionButton.setText(R.string.stop_connection);
         });
     }
 
     public void showMessage(String message) {
-        interactiveModeActivity.runOnUiThread(() -> intmod_wait_for_question.setText(message));
+        this.runOnUiThread(() -> intmod_wait_for_question.setText(message));
     }
 
     public void showLongToast(String message) {
-        interactiveModeActivity.runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+        this.runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
     }
 
     public void showShortToast(String message) {
-        interactiveModeActivity.runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show());
+        this.runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show());
     }
 
     private void launchResourceFromCode() {
@@ -253,7 +290,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 }
             }
         } else {
-            Log.w(TAG,"Array from QR code string is too short");
+            Log.w(TAG, "Array from QR code string is too short");
         }
     }
 
@@ -294,6 +331,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
     /**
      * method used to know if we send a disconnection signal to the server
+     *
      * @param hasFocus
      */
     public void onWindowFocusChanged(boolean hasFocus) {

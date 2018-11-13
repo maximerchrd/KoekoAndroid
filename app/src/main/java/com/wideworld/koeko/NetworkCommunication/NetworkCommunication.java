@@ -127,25 +127,19 @@ public class NetworkCommunication {
                 String uuid = NetworkCommunication.deviceIdentifier;
                 String name = DbTableSettings.getName();
                 String signal = "DISC///" + uuid + "///" + name + "///";
-                mWifiCom.sendStringToServer(signal);
-                mWifiCom.closeConnection();
-                mInteractiveModeActivity.showDisconnected();
-                NetworkCommunication.connected = false;
-                mNearbyCom.stopNearbyDiscoveryAndAdvertising();
+                sendStringToServer(signal);
             }
 		} else {
 			String uuid = NetworkCommunication.deviceIdentifier;
 			String name = DbTableSettings.getName();
 			String signal = "DISC///" + uuid + "///" + name + "///Android///";
 			sendStringToServer(signal);
-			closeConnection();
-			mInteractiveModeActivity.showDisconnected();
-			NetworkCommunication.connected = false;
 			Log.w("sending disc sign:","Too old API doesn't allow to check for disconnection because of screen turned off");
 		}
 	}
 
-	private void closeConnection() {
+	public void closeConnection() {
+		NetworkCommunication.connected = false;
 		if (network_solution == 0) {
 			mWifiCom.closeConnection();
 		} else if (network_solution == 1) {

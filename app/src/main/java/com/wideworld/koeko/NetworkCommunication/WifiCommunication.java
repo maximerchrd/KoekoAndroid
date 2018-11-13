@@ -73,6 +73,7 @@ public class WifiCommunication {
 
     public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
+            connectionSuccess = 0;
             //test specific to Nearby Connections
             if (NearbyCommunication.NEARBY_TESTING == 1) {
                 WifiManager wifimanager = (WifiManager) mContextWifCom.getSystemService(mContextWifCom.WIFI_SERVICE);
@@ -376,12 +377,15 @@ public class WifiCommunication {
                             System.out.println("Tried to start discovery");
                         } else if (sizesPrefix.split("///")[0].contentEquals("CONNECTED")) {
                             connectionSuccess = 1;
+                            Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showConnected();
                         } else if (sizesPrefix.contentEquals("RECONNECTION")) {
                             System.out.println("We were reconnected. Quit this reading loop, because" +
                                     " an other one should be active");
                             able_to_read = false;
                         } else {
                             Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
+                            Koeko.networkCommunicationSingleton.closeConnection();
+                            Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showDisconnected();
                             Log.d(TAG, "no byte read or prefix not supported");
                         }
                     }

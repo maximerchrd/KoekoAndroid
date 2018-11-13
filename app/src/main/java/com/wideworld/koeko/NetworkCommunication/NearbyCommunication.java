@@ -155,12 +155,13 @@ public class NearbyCommunication {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.v(TAG, "STATUS_OK");
-                            NetworkCommunication.connected = true;
                             singleConnectionEndpointId = endpointId;
                             if (isAdvertising) {
                                 Nearby.getConnectionsClient(mNearbyContext).stopAdvertising();
                                 isAdvertising = false;
                             } else if (isDiscovering) {
+                                NetworkCommunication.connected = true;
+                                Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showConnected();
                                 Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
                                 sendBytes(Koeko.networkCommunicationSingleton.getConnectionString().getBytes());
                                 isDiscovering = false;
