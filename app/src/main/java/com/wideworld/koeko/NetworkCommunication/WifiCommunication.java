@@ -87,69 +87,70 @@ public class WifiCommunication {
                 //Reset the networking solution to 0
                 NetworkCommunication.network_solution = 0;
             }
-            //Automatic connection
-            Integer automaticConnection = DbTableSettings.getAutomaticConnection();
-            if (automaticConnection == 1 && (reconnection == 0 || reconnection == 2)) {
-                listenForIPThroughUDP();
-                for (int i = 0; i < 10; i++) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if (!ip_address.contentEquals("no IP")) {
-                        break;
-                    }
-                }
 
-                if (ip_address.contentEquals("no IP")) {
+            //Don't try to connect through wifi if we are discoverer
+            if (NetworkCommunication.network_solution == 0 || NearbyCommunication.deviceRole != NearbyCommunication.DISCOVERER_ROLE) {
+                //Automatic connection
+                Integer automaticConnection = DbTableSettings.getAutomaticConnection();
+                if (automaticConnection == 1 && (reconnection == 0 || reconnection == 2)) {
+                    listenForIPThroughUDP();
+                    for (int i = 0; i < 10; i++) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (!ip_address.contentEquals("no IP")) {
+                            break;
+                        }
+                    }
+
+                    if (ip_address.contentEquals("no IP")) {
+                        ip_address = DbTableSettings.getMaster();
+                        connectionSuccess = -2;
+                    }
+                } else {
                     ip_address = DbTableSettings.getMaster();
-                    connectionSuccess = -2;
                 }
-            } else {
-                ip_address = DbTableSettings.getMaster();
-            }
 
-            Log.v("connectToServer", "beginning");
-            Socket s = new Socket(ip_address, PORTNUMBER);
-            connectionSuccess = 1;
-            //outgoing stream redirect to socket
-            mOutputStream = s.getOutputStream();
-            mInputStream = s.getInputStream();
+                Log.v("connectToServer", "beginning");
+                Socket s = new Socket(ip_address, PORTNUMBER);
+                connectionSuccess = 1;
+                //outgoing stream redirect to socket
+                mOutputStream = s.getOutputStream();
+                mInputStream = s.getInputStream();
 
-            NetworkCommunication.connected = true;
+                NetworkCommunication.connected = true;
 
-            byte[] conBuffer = connectionString.getBytes();
-            try {
-                mOutputStream.write(conBuffer, 0, conBuffer.length);
-                mOutputStream.flush();
-            } catch (IOException e) {
-                String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
-                Log.e("Fatal Error", msg);
-            }
+                byte[] conBuffer = connectionString.getBytes();
+                try {
+                    mOutputStream.write(conBuffer, 0, conBuffer.length);
+                    mOutputStream.flush();
+                } catch (IOException e) {
+                    String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
+                    Log.e("Fatal Error", msg);
+                }
 
-            //send resource ids present on the device
-            String idsOnDevice = DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIdsAndHashCode() + "|" +
-                    DbTableQuestionShortAnswer.getAllShortAnswerIdsAndHashCode() + "|"
-                    + FileHandler.getMediaFilesList(mContextWifCom);
-            String[] arrayIds = idsOnDevice.split("\\|");
-            String stringToSend = "RESIDS///" + deviceIdentifier + "///";
-            for (int i = 0; i < arrayIds.length; i++) {
-                if (arrayIds[i].length() > 0) {
-                    stringToSend += arrayIds[i] + "|";
-                    if (stringToSend.getBytes().length >= 900) {
-                        stringToSend += "///";
-                        sendStringToServer(stringToSend);
-                        stringToSend = "RESIDS///" + deviceIdentifier + "///";
+                //send resource ids present on the device
+                String idsOnDevice = DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIdsAndHashCode() + "|" +
+                        DbTableQuestionShortAnswer.getAllShortAnswerIdsAndHashCode() + "|"
+                        + FileHandler.getMediaFilesList(mContextWifCom);
+                String[] arrayIds = idsOnDevice.split("\\|");
+                String stringToSend = "RESIDS///" + deviceIdentifier + "///";
+                for (int i = 0; i < arrayIds.length; i++) {
+                    if (arrayIds[i].length() > 0) {
+                        stringToSend += arrayIds[i] + "|";
+                        if (stringToSend.getBytes().length >= 900) {
+                            stringToSend += "///";
+                            sendStringToServer(stringToSend);
+                            stringToSend = "RESIDS///" + deviceIdentifier + "///";
+                        }
                     }
                 }
+                sendStringToServer(stringToSend + "///ENDTRSM///");
+
+                listenForQuestions();
             }
-            sendStringToServer(stringToSend + "///ENDTRSM///");
-
-
-            listenForQuestions();
-
-
         }  catch (ConnectException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {
@@ -302,6 +303,10 @@ public class WifiCommunication {
 
                             if (NetworkCommunication.network_solution == 1) {
                                 Koeko.networkCommunicationSingleton.idsToSync.add(String.valueOf(newTest.getIdGlobal()));
+                                if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
+                                    byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, testDataBuffer);
+                                    Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(allBytesReceived);
+                                }
                             }
                         } else if (sizesPrefix.split(":")[0].contentEquals("OEVAL")) {
                             if (sizesPrefix.split(":").length > 1) {

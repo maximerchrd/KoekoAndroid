@@ -155,6 +155,7 @@ public class NearbyCommunication {
                     switch (result.getStatus().getStatusCode()) {
                         case ConnectionsStatusCodes.STATUS_OK:
                             Log.v(TAG, "STATUS_OK");
+                            NetworkCommunication.connected = true;
                             singleConnectionEndpointId = endpointId;
                             if (isAdvertising) {
                                 Nearby.getConnectionsClient(mNearbyContext).stopAdvertising();
@@ -199,6 +200,7 @@ public class NearbyCommunication {
                 @Override
                 public void onDisconnected(String endpointId) {
                     Log.v(TAG, "DISCONNECTED");
+                    NetworkCommunication.connected = false;
                     if (deviceRole == ADVERTISER_ROLE) {
                         startAdvertising();
                     } else if (deviceRole == DISCOVERER_ROLE) {
@@ -254,7 +256,6 @@ public class NearbyCommunication {
     }
 
     public void syncWithClients() {
-        // Lambda Runnable
         Runnable syncThread = () -> {
             for (String id : Koeko.networkCommunicationSingleton.idsToSync) {
                 try {
@@ -287,7 +288,10 @@ public class NearbyCommunication {
                     Log.v(TAG, "onPayloadReceived");
                     if (payload.getType() == Payload.Type.BYTES) {
                         nearbyReceptionProtocol.receivedData(payload.asBytes());
-                        Koeko.networkCommunicationSingleton.getHotspotServerHotspot().sendDataToClients(null, payload.asBytes());
+                        if (NearbyCommunication.deviceRole == NearbyCommunication.DISCOVERER_ROLE
+                                && Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null) {
+                            Koeko.networkCommunicationSingleton.getHotspotServerHotspot().sendDataToClients(null, payload.asBytes());
+                        }
                     } else if (payload.getType() == Payload.Type.FILE) {
                         // Add this to our tracking map, so that we can retrieve the payload later.
                         Log.d(TAG, "onPayloadReceived: FILE");
