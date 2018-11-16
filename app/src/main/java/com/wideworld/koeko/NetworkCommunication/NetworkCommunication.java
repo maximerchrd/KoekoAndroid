@@ -59,11 +59,12 @@ public class NetworkCommunication {
 	/**
 	 * method to launch the network of smartphones and 1 laptop communicating using wifi
 	 */
-	public void ConnectToMaster(int reconnection) {
+	public void connectToMaster(int reconnection) {
 		String uniqueId = NetworkCommunication.deviceIdentifier;
 		final String connection = getConnectionString();
 		new Thread(new Runnable() {
 			public void run() {
+				//TODO: put a WifiLock
 				mWifiCom.connectToServer(connection, uniqueId, reconnection);
 			}
 		}).start();
@@ -144,7 +145,7 @@ public class NetworkCommunication {
 			mWifiCom.closeConnection();
 		} else if (network_solution == 1) {
 			if (NearbyCommunication.deviceRole == NearbyCommunication.DISCOVERER_ROLE) {
-				mNearbyCom.closeConnection();
+				mNearbyCom.closeNearbyConnection();
 			} else {
 				mWifiCom.closeConnection();
 			}

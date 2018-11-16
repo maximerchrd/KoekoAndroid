@@ -109,6 +109,10 @@ public class NearbyReceptionProtocol {
                     System.out.println("forwarding DISC");
                     Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
                     break;
+                case "HOTSPOTIP":
+                    System.out.println("forwarding HOTSPOTIP");
+                    Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
+                    break;
                 default:
                     System.err.println("Prefix not supported");
                     break;

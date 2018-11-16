@@ -1,7 +1,7 @@
 package com.wideworld.koeko.Activities;
 
 import com.wideworld.koeko.Koeko;
-import com.wideworld.koeko.NetworkCommunication.NearbyCommunication;
+import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
@@ -23,8 +23,6 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import static android.content.ContentValues.TAG;
 
 public class InteractiveModeActivity extends AppCompatActivity {
     public TextView intmod_out;
@@ -61,22 +59,16 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
         //START code for functional testing
         if (Koeko.testConnectivity > 0) {
-            new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        Thread.sleep(1500);
-                    } catch (Exception e) {
-                    }
-                    Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
-
-                    Runnable myRunnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            onBackPressed();
-                        } // This is your code
-                    };
-                    mainHandler.post(myRunnable);
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1500);
+                } catch (Exception e) {
                 }
+                Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
+
+                // This is your code
+                Runnable myRunnable = () -> onBackPressed();
+                mainHandler.post(myRunnable);
             }).start();
         }
         //END code for functional testing
@@ -120,6 +112,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
     }
 
     private void toggleConnection() {
+        //TODO: fix problem when stopping connection when wifi was lost (keeps displaying "stop connection" when we are disconnected)
         if (NetworkCommunication.connected) {
             Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
             Koeko.networkCommunicationSingleton.closeConnection();
@@ -134,7 +127,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
             if (((Koeko) getApplication()).getAppNetwork() == null) {
                 ((Koeko) getApplication()).setAppNetwork(new NetworkCommunication(this, getApplication(), intmod_out, logView, interactiveModeActivity));
             }
-            ((Koeko) getApplication()).getAppNetwork().ConnectToMaster(0);
+            ((Koeko) getApplication()).getAppNetwork().connectToMaster(0);
 
             intmod_wait_for_question.setText(getString(R.string.connecting));
 

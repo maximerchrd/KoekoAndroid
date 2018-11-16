@@ -51,7 +51,7 @@ public class NearbyCommunication {
     static public int deviceRole = NO_NEARBY_ROLE;
     static private int nbOfTransfers= 0;
 
-    static public int NEARBY_TESTING = 1;
+    static public int NEARBY_TESTING = 0;
 
 
     private String TAG = "NearbyCommunication";
@@ -62,6 +62,8 @@ public class NearbyCommunication {
     }
 
     public void startAdvertising() {
+        stopNearbyDiscoveryAndAdvertising();
+        closeNearbyConnection();
         NetworkCommunication.network_solution = 1;
         deviceRole = ADVERTISER_ROLE;
         AdvertisingOptions.Builder advertisingOptionsBuilder = new AdvertisingOptions.Builder();
@@ -117,6 +119,9 @@ public class NearbyCommunication {
             };
 
     public void startDiscovery() {
+        stopNearbyDiscoveryAndAdvertising();
+        closeNearbyConnection();
+        Koeko.networkCommunicationSingleton.closeConnection();
         NetworkCommunication.network_solution = 1;
         deviceRole = DISCOVERER_ROLE;
         DiscoveryOptions.Builder discoveryOptionsBuilder = new DiscoveryOptions.Builder();
@@ -157,6 +162,7 @@ public class NearbyCommunication {
                             Log.v(TAG, "STATUS_OK");
                             singleConnectionEndpointId = endpointId;
                             if (isAdvertising) {
+                                //TODO: check if the device is the right one (could be another device that failed to stop discovering correctly)
                                 Nearby.getConnectionsClient(mNearbyContext).stopAdvertising();
                                 isAdvertising = false;
                             } else if (isDiscovering) {
@@ -166,9 +172,9 @@ public class NearbyCommunication {
                                 sendBytes(Koeko.networkCommunicationSingleton.getConnectionString().getBytes());
                                 isDiscovering = false;
                                 if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null) {
-                                    if (!Koeko.networkCommunicationSingleton.getHotspotServerHotspot().configApState()) {
+                                    if (!Koeko.networkCommunicationSingleton.getHotspotServerHotspot().configHotspotState()) {
                                         Log.d(TAG, "onConnectionResult: unable to start Hotspot");
-                                        Koeko.networkCommunicationSingleton.sendStringToServer("HOTSPOTFAIL///");
+                                        Koeko.networkCommunicationSingleton.sendStringToServer("FAIL///" + NetworkCommunication.deviceIdentifier + "///");
                                     } else if (!HotspotServer.serverON) {
                                         Koeko.networkCommunicationSingleton.getHotspotServerHotspot().startHotspotServer();
                                     }
@@ -181,17 +187,7 @@ public class NearbyCommunication {
                             Log.v(TAG, "STATUS_CONNECTION_REJECTED");
                             break;
                         case ConnectionsStatusCodes.STATUS_ALREADY_CONNECTED_TO_ENDPOINT:
-                            Log.d(TAG, "onConnectionResult: STATUS_ALREADY_CONNECTED_TO_ENDPOINT");
-                            Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
-                            isDiscovering = false;
-                            if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null) {
-                                if (!Koeko.networkCommunicationSingleton.getHotspotServerHotspot().configApState()) {
-                                    Log.d(TAG, "onConnectionResult: unable to start Hotspot");
-                                    Koeko.networkCommunicationSingleton.sendStringToServer("HOTSPOTFAIL///");
-                                }
-                            } else {
-                                System.err.println("HotspotServer hotspot is null when trying to start");
-                            }
+                            Log.w(TAG, "onConnectionResult: STATUS_ALREADY_CONNECTED_TO_ENDPOINT");
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             Log.v(TAG, "STATUS_ERROR");
                             break;
@@ -335,7 +331,7 @@ public class NearbyCommunication {
 
     };
 
-    public void closeConnection() {
+    public void closeNearbyConnection() {
         if(isAdvertising) {
             sendBytes( "Shutting down host".getBytes());
             Nearby.getConnectionsClient(mNearbyContext).stopAllEndpoints();

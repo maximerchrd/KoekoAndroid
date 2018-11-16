@@ -3,18 +3,13 @@ package com.wideworld.koeko.NetworkCommunication.HotspotServer;
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.os.Handler;
-import android.text.format.Formatter;
 import android.util.Log;
 
 import com.wideworld.koeko.Koeko;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -42,7 +37,7 @@ public class HotspotServer {
     }
 
     //check whether wifi hotspot on or off
-    public boolean isApOn() {
+    public boolean isHotspotOn() {
         WifiManager wifimanager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         try {
             Method method = wifimanager.getClass().getDeclaredMethod("isWifiApEnabled");
@@ -59,7 +54,7 @@ public class HotspotServer {
     }
 
     // toggle wifi hotspot on or off
-    public boolean configApState() {
+    public boolean configHotspotState() {
         System.out.println("Trying to start hotspot");
         WifiManager wifimanager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         WifiConfiguration wificonfiguration = new WifiConfiguration();
@@ -80,21 +75,30 @@ public class HotspotServer {
                 wifimanager.setWifiEnabled(false);
             }
             Method method = wifimanager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
-            if (isApOn()) {
-                method.invoke(wifimanager, wificonfiguration, !isApOn());
+            if (isHotspotOn()) {
+                method.invoke(wifimanager, wificonfiguration, !isHotspotOn());
                 Thread.sleep(600);
             }
-            method.invoke(wifimanager, wificonfiguration, !isApOn());
-            Thread.sleep(4500);
-            Boolean apOn = isApOn();
+            method.invoke(wifimanager, wificonfiguration, !isHotspotOn());
+            Boolean apOn = false;
+            for (int i = 0; i < 7 && !apOn; i++) {
+                Thread.sleep(3000);
+                apOn = isHotspotOn();
+            }
             if (apOn) {
-                serverIpAddress = getLocalIpAddress();
+                for (int i = 0; i < 10 && (serverIpAddress == null || serverIpAddress.length() == 0); i++) {
+                    serverIpAddress = getLocalIpAddress();
+                    Thread.sleep(500);
+                }
+                System.out.println("Local ip was read to be: " + serverIpAddress);
+            } else {
+                System.out.println("Didn't manage to launch hotspot (fast enough?)");
             }
             return apOn;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "configApState: something bad happened, returning false");
+        Log.d(TAG, "configHotspotState: something bad happened, returning false");
         return false;
     }
 
@@ -102,17 +106,15 @@ public class HotspotServer {
         try {
             Log.d(TAG, "startHotspotServer: ipAddress=" + serverIpAddress);
 
-
-            WifiManager wm = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
-            String ipAddress = BigInteger.valueOf(wm.getDhcpInfo().netmask).toString();
-            Log.d(TAG, "startHotspotServer: ipAddress=" + ipAddress);
-
             HotspotServer.serverON = true;
             // we create a server socket and bind it to port 9090.
             ServerSocket myServerSocket = new ServerSocket(PORTNUMBER);
 
+            String ipAddressMessage = "HOTSPOTIP///" + serverIpAddress + "///" + hotspotPassword + "///";
+            Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(ipAddressMessage.getBytes());
+
             //Wait for client connection
-            System.out.println("\nHotspotServer Started. Waiting for clients to connect...");
+            System.out.println("HotspotServer Started. Waiting for clients to connect...");
             Thread connectionthread = new Thread(() -> {
                 while (true) {
                     try {
