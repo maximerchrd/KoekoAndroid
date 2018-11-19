@@ -49,15 +49,11 @@ import static android.content.Context.WIFI_SERVICE;
 public class WifiCommunication {
     final private int PORTNUMBER = 9090;
     public Integer connectionSuccess = 0;
-    List<android.net.wifi.ScanResult> mScanResults = new ArrayList<android.net.wifi.ScanResult>();
-    BroadcastReceiver scanningreceiver;
-    private WifiManager mWifi;
     private Context mContextWifCom;
     private Application mApplication;
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
-    private int current = 0;
-    private int bytes_read = 0;
+
     private String ip_address = "no IP";
     private TextView logView = null;
     private DatagramSocket socket;
@@ -74,7 +70,6 @@ public class WifiCommunication {
         mApplication = arg_application;
         ((Koeko) mApplication).setAppWifi(this);
         mContextWifCom = arg_context;
-        mWifi = (WifiManager) mContextWifCom.getSystemService(WIFI_SERVICE);
         this.logView = logView;
         this.dataConversion = new DataConversion(arg_context);
     }
@@ -87,7 +82,8 @@ public class WifiCommunication {
      */
     public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
-            connectionSuccess = 0;
+            NetworkCommunication.connected = 2;
+            ip_address = "no IP"; 
             //test specific to Nearby Connections
             if (NearbyCommunication.NEARBY_TESTING == 1) {
                 WifiManager wifimanager = (WifiManager) mContextWifCom.getSystemService(WIFI_SERVICE);
@@ -142,7 +138,7 @@ public class WifiCommunication {
                 mOutputStream = s.getOutputStream();
                 mInputStream = s.getInputStream();
 
-                NetworkCommunication.connected = true;
+                NetworkCommunication.connected = 1;
 
                 byte[] conBuffer = connectionString.getBytes();
                 try {
@@ -183,7 +179,19 @@ public class WifiCommunication {
             }
         } catch (ConnectException e) {
             //TODO: warn student that he is maybe not connected to the right wifi
-            e.printStackTrace();
+            Log.d(TAG, "connectToServer: warn student that he is maybe not connected to the right wifi");
+            if (connectionSuccess != -2) {
+                connectionSuccess = -1;
+            }
+        } catch (SocketException e) {
+            if (e.toString().contains("Network is unreachable")) {
+                Log.d(TAG, "connectToServer: network is unreachable");
+            } else {
+                e.printStackTrace();
+            }
+            if (connectionSuccess != -2) {
+                connectionSuccess = -1;
+            }
         } catch (UnknownHostException e) {
             Log.v("connection to server", ": failure, unknown host");
             if (connectionSuccess != -2) {
@@ -236,7 +244,6 @@ public class WifiCommunication {
             try {
                 Boolean able_to_read = true;
                 while (able_to_read && mInputStream != null) {
-                    current = 0;
                     byte[] prefix_buffer = readDataIntoArray(80, able_to_read);
                     String sizesPrefix = null;
                     sizesPrefix = new String(prefix_buffer, "UTF-8");
@@ -443,7 +450,7 @@ public class WifiCommunication {
                 Log.v(TAG, "number of bytes read:" + Integer.toString(bytesReadAlready));
             } catch (IOException e) {
                 able_to_read = false;
-                NetworkCommunication.connected = false;
+                NetworkCommunication.connected = 0;
                 if (e.toString().contains("Socket closed")) {
                     Log.d(TAG, "Reading data stream: input stream was closed");
                 } else {
@@ -535,7 +542,7 @@ public class WifiCommunication {
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
-        for (int i = 0; i < 30 && !NetworkCommunication.connected; i++) {
+        for (int i = 0; i < 30 && NetworkCommunication.connected == 0; i++) {
             long waitingTime = 2000;
             if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null && !Koeko.networkCommunicationSingleton.getHotspotServerHotspot().isHotspotOn()) {
                 Log.d(TAG, "readDataIntoArray: reconnection, trial: " + i);
@@ -556,7 +563,7 @@ public class WifiCommunication {
                 e1.printStackTrace();
             }
         }
-        if (!NetworkCommunication.connected) {
+        if (NetworkCommunication.connected == 1) {
             System.out.println("Display lost connection message");
             Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showMessage("We lost the connection :-( \n" +
                     "Try to reconnect when you are on the Wifi.");

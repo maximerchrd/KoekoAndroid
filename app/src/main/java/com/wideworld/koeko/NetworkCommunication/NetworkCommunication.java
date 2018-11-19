@@ -34,7 +34,7 @@ public class NetworkCommunication {
 	private NearbyCommunication mNearbyCom;
 	private TextView mTextOut;
 	private String lastAnswer = "";
-	static public Boolean connected = false;
+	static public int connected = 0;
 	static public int network_solution = 0; //0: all devices connected to a WAN; 1: 3 layers, 1->WAN, 2->Wan to Nearby, 3-> Nearby to hotspot
 	static public String directCorrection = "0";
 	public HashSet<String> idsToSync;
@@ -141,7 +141,7 @@ public class NetworkCommunication {
 	}
 
 	public void closeConnection() {
-		NetworkCommunication.connected = false;
+		NetworkCommunication.connected = 0;
 		if (network_solution == 0) {
 			mWifiCom.closeConnection();
 		} else if (network_solution == 1) {

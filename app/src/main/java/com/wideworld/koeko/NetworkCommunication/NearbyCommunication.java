@@ -158,7 +158,7 @@ public class NearbyCommunication {
                                 Nearby.getConnectionsClient(mNearbyContext).stopAdvertising();
                                 isAdvertising = false;
                             } else if (isDiscovering) {
-                                NetworkCommunication.connected = true;
+                                NetworkCommunication.connected = 1;
                                 Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showConnected();
                                 Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
                                 Koeko.networkCommunicationSingleton.closeConnection();
@@ -191,7 +191,7 @@ public class NearbyCommunication {
                 @Override
                 public void onDisconnected(String endpointId) {
                     Log.v(TAG, "DISCONNECTED");
-                    NetworkCommunication.connected = false;
+                    NetworkCommunication.connected = 0;
                     if (deviceRole == ADVERTISER_ROLE) {
                         startAdvertising();
                     } else if (deviceRole == DISCOVERER_ROLE) {

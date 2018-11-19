@@ -111,21 +111,28 @@ public class InteractiveModeActivity extends AppCompatActivity {
     }
 
     private void toggleConnection() {
+        Log.d(TAG, "toggleConnection: NetworkCommunication.connected=" + NetworkCommunication.connected);
         //TODO: fix problem when stopping connection when wifi was lost (keeps displaying "stop connection" when we are disconnected)
-        if (NetworkCommunication.connected) {
+        if (NetworkCommunication.connected == 1) {
             Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
             Koeko.networkCommunicationSingleton.closeConnection();
             showDisconnected();
-        } else {
+        } else if (NetworkCommunication.connected == 0) {
+            this.runOnUiThread(() -> toggleConnectionButton.setText(R.string.stop_connection));
             connectToTeacher();
+        } else {
+            Koeko.networkCommunicationSingleton.closeConnection();
+            showDisconnected();
         }
     }
 
     private void connectToTeacher() {
-        if (!NetworkCommunication.connected) {
+        Log.d(TAG, "connectToTeacher, NetworkCommunication.connected: " + NetworkCommunication.connected);
+        if (NetworkCommunication.connected == 0) {
             if (((Koeko) getApplication()).getAppNetwork() == null) {
                 ((Koeko) getApplication()).setAppNetwork(new NetworkCommunication(this, getApplication(), intmod_out, logView, interactiveModeActivity));
             }
+            ((Koeko) getApplication()).getAppWifi().connectionSuccess = 0;
             ((Koeko) getApplication()).getAppNetwork().connectToMaster(0);
 
             intmod_wait_for_question.setText(getString(R.string.connecting));
@@ -139,9 +146,15 @@ public class InteractiveModeActivity extends AppCompatActivity {
                     } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -1) {
                         this.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.keep_calm_and_restart)));
                         connectionInfo = true;
+                        NetworkCommunication.connected = 0;
+                        this.runOnUiThread(() -> toggleConnectionButton.setText(R.string.start_connection));
+                        Log.d(TAG, "connectToTeacher: connectionSuccess = -1");
                     } else if (((Koeko) getApplication()).getAppWifi().connectionSuccess == -2) {
                         this.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.automatic_connection_failed)));
                         connectionInfo = true;
+                        NetworkCommunication.connected = 0;
+                        this.runOnUiThread(() -> toggleConnectionButton.setText(R.string.start_connection));
+                        Log.d(TAG, "connectToTeacher: connectionSuccess = -2");
                     }
                     try {
                         Thread.sleep(250);
@@ -149,18 +162,16 @@ public class InteractiveModeActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     if (i >= 23) {
-                        this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                intmod_wait_for_question.setText(getString(R.string.keep_calm_problem));
-                            }
-                        });
+                        this.runOnUiThread(() -> intmod_wait_for_question.setText(getString(R.string.keep_calm_problem)));
+                        NetworkCommunication.connected = 0;
+                        this.runOnUiThread(() -> toggleConnectionButton.setText(R.string.start_connection));
                     }
                 }
             }).start();
 
-
             ((Koeko) this.getApplication()).resetQuitApp();
+        } else if (NetworkCommunication.connected == 2) {
+            Log.d(TAG, "connectToTeacher: trying to connect but already connecting");
         } else {
             Log.d(TAG, "connectToTeacher: Sending Connection String from OnCreate");
             Koeko.networkCommunicationSingleton.sendStringToServer(Koeko.networkCommunicationSingleton.getConnectionString());
@@ -204,10 +215,16 @@ public class InteractiveModeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (NetworkCommunication.connected) {
+        if (NetworkCommunication.connected == 1) {
             showConnected();
-        } else {
+        } else if (NetworkCommunication.connected == 0){
             showDisconnected();
+        } else {
+            this.runOnUiThread(() -> {
+                Log.d(TAG, "showConnecting");
+                intmod_wait_for_question.setText(getString(R.string.connecting));
+                toggleConnectionButton.setText(R.string.stop_connection);
+            });
         }
 
         if (forwardButton != null) {
