@@ -18,6 +18,7 @@ public class DbTableSettings {
     private static final String KEY_UUID = "uuid";
     private static final String KEY_MASTER = "master";
     private static final String KEY_AUTOMATIC_CONNECTION = "automatic_connection";
+    private static final String KEY_HOTSPOT_AVAILABLE = "hotspot_available";
 
     private static String TAG = "DbTableSettings";
 
@@ -28,7 +29,8 @@ public class DbTableSettings {
                 + KEY_NAME +" TEXT,"
                 + KEY_MASTER + " TEXT,"
                 + KEY_UUID + " TEXT,"
-                + KEY_AUTOMATIC_CONNECTION +" INTEGER)";
+                + KEY_AUTOMATIC_CONNECTION +" INTEGER,"
+                + KEY_HOTSPOT_AVAILABLE +" INTEGER)";
         DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         if (uuid != null && uuid.contentEquals("")) {
             ContentValues values = new ContentValues();
@@ -36,6 +38,7 @@ public class DbTableSettings {
             values.put(KEY_MASTER, "192.168.1.100");
             values.put(KEY_UUID, UUID.randomUUID().toString());
             values.put(KEY_AUTOMATIC_CONNECTION, 1);
+            values.put(KEY_HOTSPOT_AVAILABLE, 0);
             // Inserting of Replacing Row
             DbHelper.dbHelperSingleton.getDatabase().insert(TABLE_SETTINGS, null, values);
         }
@@ -120,5 +123,25 @@ public class DbTableSettings {
         }
         // return string name
         return automaticCorrection;
+    }
+
+    static public void setHotspotAvailable(Integer hotspotAvailable) {
+        //SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_HOTSPOT_AVAILABLE, hotspotAvailable);
+        // Replacing Row
+        DbHelper.dbHelperSingleton.getDatabase().update(TABLE_SETTINGS, values, null, null);
+    }
+
+    static public Integer getHotspotAvailable() {
+        // Select All Query
+        Integer hotspotAvailable = 0;
+        String selectQuery = "SELECT " + KEY_HOTSPOT_AVAILABLE + " FROM " + TABLE_SETTINGS;
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
+        if (cursor.moveToPosition(0)) {
+            hotspotAvailable = cursor.getInt(0);
+        }
+        // return string name
+        return hotspotAvailable;
     }
 }

@@ -63,6 +63,7 @@
     <string name="good">դեռ չի թարգմանվել</string>
     <string name="excellent">դեռ չի թարգմանվել</string>
     <string name="disconnected">Disconnected</string>
-    <string name="start_connection">Démarrer la connection</string>
-    <string name="stop_connection">Arrêter la connection</string>
+    <string name="start_connection">Start Connection</string>
+    <string name="stop_connection">Stop Connection</string>
+    <string name="hotspot_available">Hotspot Available</string>
 </resources>

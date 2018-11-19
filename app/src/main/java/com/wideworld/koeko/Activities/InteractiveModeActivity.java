@@ -35,7 +35,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
     //launch scanning QR code
     private Button scanQQButton;
     private Button toggleConnectionButton;
-    private final static String DEBUG_TAG = "Interactive Mode";
     private Camera camera;
     private int cameraId = 0;
     private Camera camer;
@@ -176,7 +175,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
             Camera.CameraInfo info = new Camera.CameraInfo();
             Camera.getCameraInfo(i, info);
             if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                Log.d(DEBUG_TAG, "Camera found");
+                Log.d(TAG, "Camera found");
                 cameraId = i;
                 break;
             }

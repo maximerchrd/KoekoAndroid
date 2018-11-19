@@ -25,7 +25,7 @@ import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.database_management.DbTableSettings;
 
 public class NetworkCommunication {
-	static public String nearbyServiceID = "org.wideowrld.koeko";
+	final static public String nearbyServiceID = "org.wideoworld.koeko";
 	static public String deviceIdentifier = "";
 	private Context mContextNetCom;
 	private Application mApplication;
@@ -62,12 +62,10 @@ public class NetworkCommunication {
 	public void connectToMaster(int reconnection) {
 		String uniqueId = NetworkCommunication.deviceIdentifier;
 		final String connection = getConnectionString();
-		new Thread(new Runnable() {
-			public void run() {
-				//TODO: put a WifiLock
-				mWifiCom.connectToServer(connection, uniqueId, reconnection);
-			}
-		}).start();
+		new Thread(() -> {
+            //TODO: put a WifiLock
+            mWifiCom.connectToServer(connection, uniqueId, reconnection);
+        }).start();
 	}
 
 	public String getConnectionString() {
@@ -83,9 +81,12 @@ public class NetworkCommunication {
 		}
 		try {
 			deviceInfos += mApplication.getPackageManager().getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0 ).versionCode;
+			deviceInfos += ":";
 		} catch (PackageManager.NameNotFoundException e) {
 			e.printStackTrace();
 		}
+		deviceInfos += DbTableSettings.getHotspotAvailable() + ":";
+		deviceInfos += Build.MODEL + ":";
 		deviceInfos += "///";
 
 		return "CONN" + "///" + uniqueId + "///" + name + "///" + deviceInfos;

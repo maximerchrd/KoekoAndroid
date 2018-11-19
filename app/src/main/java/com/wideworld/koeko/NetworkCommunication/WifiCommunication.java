@@ -66,6 +66,8 @@ public class WifiCommunication {
     private String ServerWifiSSID = "";
     private String secondLayerMasterIp = "";
 
+    private String defaultHotspotServerIp = "192.168.43.1";
+
     private String TAG = "WifiCommunication";
 
     public WifiCommunication(Context arg_context, Application arg_application, TextView logView) {
@@ -83,6 +85,7 @@ public class WifiCommunication {
      * @param connectionString
      * @param deviceIdentifier
      * @param reconnection/    0: no reconnection; 1: reconnection; 3: connect to 2nd layer server; 4: reconnect after fail: must send FAIL before CONN
+     *                    reconnection (continuing) 5: try to connect default hotspot ip
      */
     public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
@@ -100,6 +103,11 @@ public class WifiCommunication {
             } else {
                 //Reset the networking solution to 0
                 NetworkCommunication.network_solution = 0;
+            }
+
+            if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null && Koeko.networkCommunicationSingleton.getHotspotServerHotspot().isHotspotOn()) {
+                NetworkCommunication.network_solution = 1;
+                NearbyCommunication.deviceRole = NearbyCommunication.DISCOVERER_ROLE;
             }
 
             //Don't try to connect through wifi if we are discoverer
@@ -125,6 +133,8 @@ public class WifiCommunication {
                     }
                 } else if (reconnection == 3) {
                     ip_address = secondLayerMasterIp;
+                } else if (reconnection == 5) {
+                    ip_address = defaultHotspotServerIp;
                 } else {
                     ip_address = DbTableSettings.getMaster();
                 }
@@ -172,12 +182,17 @@ public class WifiCommunication {
                 sendStringToServer(stringToSend + "///ENDTRSM///");
 
                 listenForQuestions();
+            } else {
+                Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
             }
         } catch (ConnectException e) {
             //TODO: warn student that he is maybe not connected to the right wifi
             e.printStackTrace();
         } catch (UnknownHostException e) {
             Log.v("connection to server", ": failure, unknown host");
+            if (reconnection != 5) {
+                connectToServer(connectionString, deviceIdentifier, 5);
+            }
 
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
@@ -185,6 +200,10 @@ public class WifiCommunication {
             e.printStackTrace();
         } catch (IOException e) {
             Log.v("connection to server", ": failure, i/o exception");
+
+            if (reconnection != 5) {
+                connectToServer(connectionString, deviceIdentifier, 5);
+            }
 
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
@@ -467,39 +486,37 @@ public class WifiCommunication {
 
     //Get the IP address of the server through UDP listening
     private void listenForIPThroughUDP() {
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    System.out.println("Open socket");
-                    if (socket == null) {
-                        try {
-                            socket = new DatagramSocket(9346);
-                            DatagramPacket packet = new DatagramPacket(new byte[100], 100);
-                            socket.receive(packet);
-                            socket.close();
-                            System.out.println("Close socket");
-
-
-                            byte[] data = packet.getData();
-                            String message = new String(data);
-                            System.out.println(message);
-
-                            if (message.split("///")[0].contentEquals("IPADDRESS")) {
-                                ip_address = message.split("///")[1];
-                                DbTableSettings.addMaster(message.split("///")[1]);
-                            }
-                        } catch (BindException ex) {
-                            System.err.println("Encountered BindException. Address is probably already in use");
-                        }
-                    } else {
+        new Thread(() -> {
+            try {
+                System.out.println("Open socket");
+                if (socket == null) {
+                    try {
+                        socket = new DatagramSocket(9346);
+                        DatagramPacket packet = new DatagramPacket(new byte[100], 100);
+                        socket.receive(packet);
                         socket.close();
-                        socket = null;
+                        System.out.println("Close socket");
+
+
+                        byte[] data = packet.getData();
+                        String message = new String(data);
+                        System.out.println(message);
+
+                        if (message.split("///")[0].contentEquals("IPADDRESS")) {
+                            ip_address = message.split("///")[1];
+                            DbTableSettings.addMaster(message.split("///")[1]);
+                        }
+                    } catch (BindException ex) {
+                        System.err.println("Encountered BindException. Address is probably already in use");
                     }
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } else {
+                    socket.close();
+                    socket = null;
                 }
+            } catch (SocketException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }).start();
     }

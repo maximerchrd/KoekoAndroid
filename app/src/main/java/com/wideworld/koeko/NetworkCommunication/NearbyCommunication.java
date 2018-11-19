@@ -56,7 +56,7 @@ public class NearbyCommunication {
 
     private String TAG = "NearbyCommunication";
 
-    NearbyCommunication(Context context) {
+    public NearbyCommunication(Context context) {
         mNearbyContext = context;
         nearbyReceptionProtocol = new NearbyReceptionProtocol(mNearbyContext, this);
     }
@@ -93,22 +93,14 @@ public class NearbyCommunication {
                             endpointId,
                             mConnectionLifecycleCallback)
                             .addOnSuccessListener(
-                                    new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unusedResult) {
-                                            Log.v(TAG, "Successfull Connection");
-                                            if (deviceRole == ADVERTISER_ROLE) {
-                                                syncWithClients();
-                                            }
+                                    unusedResult -> {
+                                        Log.v(TAG, "Successfull Connection");
+                                        if (deviceRole == ADVERTISER_ROLE) {
+                                            syncWithClients();
                                         }
                                     })
                             .addOnFailureListener(
-                                    new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
+                                    e -> e.printStackTrace());
                 }
 
 
@@ -121,7 +113,6 @@ public class NearbyCommunication {
     public void startDiscovery() {
         stopNearbyDiscoveryAndAdvertising();
         closeNearbyConnection();
-        Koeko.networkCommunicationSingleton.closeConnection();
         NetworkCommunication.network_solution = 1;
         deviceRole = DISCOVERER_ROLE;
         DiscoveryOptions.Builder discoveryOptionsBuilder = new DiscoveryOptions.Builder();
@@ -152,6 +143,7 @@ public class NearbyCommunication {
                 public void onConnectionInitiated(
                         String endpointId, ConnectionInfo connectionInfo) {
                     // Automatically accept the connection on both sides.
+                    Log.d(TAG, "onConnectionInitiated");
                     Nearby.getConnectionsClient(mNearbyContext).acceptConnection(endpointId, mPayloadCallback);
                 }
 
@@ -169,7 +161,9 @@ public class NearbyCommunication {
                                 NetworkCommunication.connected = true;
                                 Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showConnected();
                                 Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
-                                sendBytes(Koeko.networkCommunicationSingleton.getConnectionString().getBytes());
+                                Koeko.networkCommunicationSingleton.closeConnection();
+                                String successString = "SUCCESS///" + NetworkCommunication.deviceIdentifier + "///";
+                                sendBytes(successString.getBytes());
                                 isDiscovering = false;
                                 if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null) {
                                     if (!Koeko.networkCommunicationSingleton.getHotspotServerHotspot().configHotspotState()) {
