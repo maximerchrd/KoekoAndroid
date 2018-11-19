@@ -66,8 +66,6 @@ public class WifiCommunication {
     private String ServerWifiSSID = "";
     private String secondLayerMasterIp = "";
 
-    private String defaultHotspotServerIp = "192.168.43.1";
-
     private String TAG = "WifiCommunication";
 
     public WifiCommunication(Context arg_context, Application arg_application, TextView logView) {
@@ -85,7 +83,7 @@ public class WifiCommunication {
      * @param connectionString
      * @param deviceIdentifier
      * @param reconnection/    0: no reconnection; 1: reconnection; 3: connect to 2nd layer server; 4: reconnect after fail: must send FAIL before CONN
-     *                    reconnection (continuing) 5: try to connect default hotspot ip
+     *                    reconnection (continuing)
      */
     public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
@@ -133,8 +131,6 @@ public class WifiCommunication {
                     }
                 } else if (reconnection == 3) {
                     ip_address = secondLayerMasterIp;
-                } else if (reconnection == 5) {
-                    ip_address = defaultHotspotServerIp;
                 } else {
                     ip_address = DbTableSettings.getMaster();
                 }
@@ -190,21 +186,12 @@ public class WifiCommunication {
             e.printStackTrace();
         } catch (UnknownHostException e) {
             Log.v("connection to server", ": failure, unknown host");
-            if (reconnection != 5) {
-                connectToServer(connectionString, deviceIdentifier, 5);
-            }
-
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
             }
             e.printStackTrace();
         } catch (IOException e) {
             Log.v("connection to server", ": failure, i/o exception");
-
-            if (reconnection != 5) {
-                connectToServer(connectionString, deviceIdentifier, 5);
-            }
-
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
             }
@@ -220,7 +207,7 @@ public class WifiCommunication {
                 Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
                 mOutputStream.flush();
             } else {
-                Koeko.networkCommunicationSingleton.mInteractiveModeActivity.runOnUiThread(() -> Toast.makeText(mContextWifCom, "ERROR: output stream is null", Toast.LENGTH_LONG).show());
+                Log.d(TAG, "sendAnswerToServer: ERROR, outputStream is null");
             }
         } catch (IOException e) {
             String msg = "In sendAnswerToServer() and an exception occurred during write: " + e.getMessage();
