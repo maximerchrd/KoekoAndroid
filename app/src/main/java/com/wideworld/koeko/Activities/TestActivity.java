@@ -212,7 +212,7 @@ public class TestActivity extends AppCompatActivity {
 
     public void checkIfTestFinished() {
         if (mTest.getAnsweredQuestionIds().containsAll(mTest.getActiveQuestionIds()) &&
-                mTest.getActiveQuestionIds().containsAll(mTest.getAnsweredQuestionIds())) {
+                mTest.getActiveQuestionIds().containsAll(mTest.getAnsweredQuestionIds()) && testChronometer != null) {
             testChronometer.stop();
             Long testDuration = testChronometer.getOverallDuration();
 
