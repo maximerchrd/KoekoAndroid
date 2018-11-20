@@ -83,7 +83,7 @@ public class WifiCommunication {
     public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
             NetworkCommunication.connected = 2;
-            ip_address = "no IP"; 
+            ip_address = "no IP";
             //test specific to Nearby Connections
             if (NearbyCommunication.NEARBY_TESTING == 1) {
                 WifiManager wifimanager = (WifiManager) mContextWifCom.getSystemService(WIFI_SERVICE);
@@ -426,10 +426,15 @@ public class WifiCommunication {
                                 " an other one should be active");
                         able_to_read = false;
                     } else {
-                        Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
-                        Koeko.networkCommunicationSingleton.closeConnection();
-                        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showDisconnected();
-                        Log.d(TAG, "no byte read or prefix not supported");
+                        if (NearbyCommunication.deviceRole != NearbyCommunication.DISCOVERER_ROLE) {
+                            Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
+                            Koeko.networkCommunicationSingleton.closeConnection();
+                            Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showDisconnected();
+                            Log.d(TAG, "no byte read or prefix not supported");
+                        } else {
+                            able_to_read = false;
+                            Log.d(TAG, "listenForQuestions: closing wifi reading loop");
+                        }
                     }
                 }
             } catch (UnsupportedEncodingException e) {

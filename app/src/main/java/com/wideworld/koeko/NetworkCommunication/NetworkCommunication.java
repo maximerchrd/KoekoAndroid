@@ -153,6 +153,10 @@ public class NetworkCommunication {
 		}
 	}
 
+	public void closeOnlyWifiConnection() {
+		mWifiCom.closeConnection();
+	}
+
 	public void sendDataToClient(byte[] data) {
 		if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
 			mNearbyCom.sendBytes(data);

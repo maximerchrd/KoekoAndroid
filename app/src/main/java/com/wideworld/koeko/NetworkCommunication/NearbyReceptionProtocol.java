@@ -90,31 +90,35 @@ public class NearbyReceptionProtocol {
                     receivedFILE(stringPrefix, bytesReceived);
                     break;
                 case "OK":
-                    System.out.println("forwarding OK");
+                    Log.d(TAG, "forwarding OK");
                     Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
                     break;
                 case "ANSW0":
-                    System.out.println("forwarding ANSW0");
+                    Log.d(TAG, "forwarding ANSW0");
                     Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
                     break;
                 case "ANSW1":
-                    System.out.println("forwarding ANSW1");
+                    Log.d(TAG, "forwarding ANSW1");
                     Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
                     break;
                 case "CONN":
-                    System.out.println("forwarding CONN");
+                    Log.d(TAG, "forwarding CONN");
                     Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
                     break;
                 case "DISC":
-                    System.out.println("forwarding DISC");
+                    Log.d(TAG, "forwarding DISC");
                     Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
                     break;
                 case "HOTSPOTIP":
-                    System.out.println("forwarding HOTSPOTIP");
+                    Log.d(TAG, "forwarding HOTSPOTIP");
+                    Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
+                    break;
+                case "SUCCESS":
+                    Log.d(TAG, "forwarding SUCCESS");
                     Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
                     break;
                 default:
-                    System.err.println("Prefix not supported");
+                    Log.e(TAG, "Prefix not supported");
                     break;
             }
         } catch (UnsupportedEncodingException e) {

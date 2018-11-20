@@ -161,8 +161,9 @@ public class NearbyCommunication {
                                 NetworkCommunication.connected = 1;
                                 Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showConnected();
                                 Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
-                                Koeko.networkCommunicationSingleton.closeConnection();
+                                Koeko.networkCommunicationSingleton.closeOnlyWifiConnection();
                                 String successString = "SUCCESS///" + NetworkCommunication.deviceIdentifier + "///";
+                                System.out.println("sending SUCCESS");
                                 sendBytes(successString.getBytes());
                                 isDiscovering = false;
                                 if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null) {
@@ -182,6 +183,7 @@ public class NearbyCommunication {
                             break;
                         case ConnectionsStatusCodes.STATUS_ALREADY_CONNECTED_TO_ENDPOINT:
                             Log.w(TAG, "onConnectionResult: STATUS_ALREADY_CONNECTED_TO_ENDPOINT");
+                            break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             Log.v(TAG, "STATUS_ERROR");
                             break;
