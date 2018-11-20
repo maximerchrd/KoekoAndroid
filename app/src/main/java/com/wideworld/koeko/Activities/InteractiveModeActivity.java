@@ -285,18 +285,23 @@ public class InteractiveModeActivity extends AppCompatActivity {
         if (codeArray.length >= 3) {
             String directCorrection = codeArray[2];
             String resCodeString = codeArray[0];
-            Long resCode = Long.valueOf(resCodeString);
-            if (resCode < 0) {
-                resCode = -resCode;
-                Koeko.networkCommunicationSingleton.launchTestActivity(resCode, directCorrection);
-            } else {
-                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(resCodeString);
-                if (questionShortAnswer.getQuestion().length() == 0 || questionShortAnswer.getQuestion().contentEquals("none")) {
-                    QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(resCodeString);
-                    Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
+            if (DbTableQuestionMultipleChoice.checkIfIdMatchResource(resCodeString)) {
+                Long resCode = Long.valueOf(resCodeString);
+                if (resCode < 0) {
+                    resCode = -resCode;
+                    Koeko.networkCommunicationSingleton.launchTestActivity(resCode, directCorrection);
                 } else {
-                    Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
+                    QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(resCodeString);
+                    if (questionShortAnswer.getQuestion().length() == 0 || questionShortAnswer.getQuestion().contentEquals("none")) {
+                        QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(resCodeString);
+                        Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
+                    } else {
+                        Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
+                    }
                 }
+            } else {
+                Koeko.networkCommunicationSingleton.sendStringToServer("REQUEST///"
+                        + NetworkCommunication.deviceIdentifier + "///" + resCodeString + "///");
             }
         } else {
             Log.w(TAG, "Array from QR code string is too short");

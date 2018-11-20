@@ -1,6 +1,7 @@
 package com.wideworld.koeko.database_management;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
@@ -181,6 +182,34 @@ public class DbTableQuestionMultipleChoice {
             System.exit(0);
         }
         return questionMultipleChoice;
+    }
+
+    static public Boolean checkIfIdMatchResource(String id) {
+        String sql = "SELECT * FROM multiple_choice_questions WHERE ID_GLOBAL=?";
+        try {
+            //check for multiple choice question
+            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, new String[]{id});
+            if (cursor.moveToNext()) {
+                return true;
+            }
+
+            //check for short answer question
+            sql = "SELECT * FROM short_answer_questions WHERE ID_GLOBAL=?";
+            cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, new String[]{id});
+            if (cursor.moveToNext()) {
+                return true;
+            }
+
+            //check for test
+            sql = "SELECT * FROM " + DbTableTest.getTableName() + " WHERE " + DbTableTest.getKey_idGlobal() + "=?";
+            cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, new String[]{id});
+            if (cursor.moveToNext()) {
+                return true;
+            }
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     static public String getAllQuestionMultipleChoiceIdsAndHashCode() {
