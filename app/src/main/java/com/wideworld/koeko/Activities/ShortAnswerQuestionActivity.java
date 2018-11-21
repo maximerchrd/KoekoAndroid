@@ -228,6 +228,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		} else {
 			((Koeko)this.getApplication()).stopActivityTransitionTimer();
 			Log.v("Question activity: ", "has focus");
+            ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
 		}
 	}
 

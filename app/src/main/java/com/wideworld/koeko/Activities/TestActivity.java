@@ -309,6 +309,7 @@ public class TestActivity extends AppCompatActivity {
         } else {
             ((Koeko) this.getApplication()).stopActivityTransitionTimer();
             Log.v("test activity: ", "has focus");
+            ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
         }
     }
 
