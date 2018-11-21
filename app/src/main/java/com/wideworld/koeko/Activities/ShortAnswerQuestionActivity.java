@@ -59,7 +59,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		Bundle bun = getIntent().getExtras();
 		final String question = bun.getString("question");
 		String id = bun.getString("id");
-		String image_path = FileHandler.mediaDirectory + bun.getString("image_name");
+		String image_path = bun.getString("image_name");
 		currentQ = new QuestionShortAnswer("1",question,image_path);
 		currentQ.setId(id);
 		if (currentQ.getImage().length() > 0) {

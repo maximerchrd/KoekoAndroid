@@ -17,10 +17,13 @@ class QuestionShortAnswer {
     var modifDate: String? = ""
     var identifier: String? = ""
     var hashCode: String? = ""
+    private var IMAGE: String? = null
     var image: String?
-        get() = this.toString()
-        set(iMAGE) {
-            if (iMAGE == null || iMAGE == "") field = "none" else field = iMAGE
+        get() = IMAGE
+        set(iMAGE) = if (iMAGE != null && iMAGE.isEmpty()) {
+            IMAGE = "none"
+        } else {
+            IMAGE = iMAGE
         }
 
     constructor() {

@@ -39,7 +39,7 @@ public class DbTableQuestionShortAnswer {
     static public void addShortAnswerQuestion(QuestionShortAnswer quest) {
         try {
             String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL, MODIF_DATE, IDENTIFIER, HASH_CODE) " +
-                    "VALUES (?,?,?,?,?,?)";
+                    "VALUES (?,?,?,?,?,?,?)";
             String[] sqlArgs = new String[]{
                     quest.getLevel(),
                     quest.getQuestion(),
