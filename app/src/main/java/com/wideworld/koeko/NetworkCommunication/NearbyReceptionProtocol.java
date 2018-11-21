@@ -117,6 +117,10 @@ public class NearbyReceptionProtocol {
                     Log.d(TAG, "forwarding SUCCESS");
                     Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
                     break;
+                case "ACTID":
+                    Log.d(TAG, "forwarding ACTID");
+                    Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
+                    break;
                 default:
                     Log.e(TAG, "Prefix not supported");
                     break;

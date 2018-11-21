@@ -186,6 +186,11 @@ public class NearbyCommunication {
                             break;
                         case ConnectionsStatusCodes.STATUS_ERROR:
                             Log.v(TAG, "STATUS_ERROR");
+                            if (deviceRole == ADVERTISER_ROLE) {
+                                startAdvertising();
+                            } else if (deviceRole == DISCOVERER_ROLE) {
+                                startDiscovery();
+                            }
                             break;
                     }
                 }
