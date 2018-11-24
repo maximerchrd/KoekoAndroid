@@ -181,6 +181,7 @@ public class NetworkCommunication {
 		bun.putString("image_name", question_to_display.getImage());
 		bun.putString("directCorrection", directCorrection);
 		bun.putInt("nbCorrectAnswers", question_to_display.getNB_CORRECT_ANS());
+		bun.putInt("timerSeconds", question_to_display.getTimerSeconds());
 		mIntent.putExtras(bun);
 		mContextNetCom.startActivity(mIntent);
 	}
@@ -192,6 +193,7 @@ public class NetworkCommunication {
 		bun.putString("id", question_to_display.getId());
 		bun.putString("image_name", question_to_display.getImage());
 		bun.putString("directCorrection", directCorrection);
+		bun.putInt("timerSeconds", question_to_display.getTimerSeconds());
 		mIntent.putExtras(bun);
 		mContextNetCom.startActivity(mIntent);
 	}

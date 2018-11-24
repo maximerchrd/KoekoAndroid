@@ -17,6 +17,7 @@ class QuestionShortAnswer {
     var modifDate: String? = ""
     var identifier: String? = ""
     var hashCode: String? = ""
+    var timerSeconds: Int? = null
     private var IMAGE: String? = null
     var image: String?
         get() = IMAGE

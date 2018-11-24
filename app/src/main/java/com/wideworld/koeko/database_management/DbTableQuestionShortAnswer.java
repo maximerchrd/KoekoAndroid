@@ -23,6 +23,7 @@ public class DbTableQuestionShortAnswer {
                     " MODIF_DATE       TEXT, " +
                     " HASH_CODE       TEXT, " +
                     " IDENTIFIER        VARCHAR(15)," +
+                    " TIMER_SECONDS       INTEGER, " +
                     " UNIQUE(ID_GLOBAL)) ";
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
@@ -38,8 +39,9 @@ public class DbTableQuestionShortAnswer {
      */
     static public void addShortAnswerQuestion(QuestionShortAnswer quest) {
         try {
-            String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL, MODIF_DATE, IDENTIFIER, HASH_CODE) " +
-                    "VALUES (?,?,?,?,?,?,?)";
+            String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH," +
+                    "ID_GLOBAL, MODIF_DATE, IDENTIFIER, HASH_CODE, TIMER_SECONDS) " +
+                    "VALUES (?,?,?,?,?,?,?,?)";
             String[] sqlArgs = new String[]{
                     quest.getLevel(),
                     quest.getQuestion(),
@@ -47,7 +49,8 @@ public class DbTableQuestionShortAnswer {
                     quest.getId(),
                     quest.getModifDate(),
                     quest.getIdentifier(),
-                    quest.getHashCode()
+                    quest.getHashCode(),
+                    String.valueOf(quest.getTimerSeconds())
             };
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
             Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getId()));
@@ -62,7 +65,8 @@ public class DbTableQuestionShortAnswer {
     static public QuestionShortAnswer getShortAnswerQuestionWithId(String globalID) {
         QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
         try {
-            String selectQuery = "SELECT  LEVEL,QUESTION,IMAGE_PATH FROM short_answer_questions WHERE ID_GLOBAL=" + globalID + ";";
+            String selectQuery = "SELECT  LEVEL,QUESTION,IMAGE_PATH,TIMER_SECONDS" +
+                    " FROM short_answer_questions WHERE ID_GLOBAL=" + globalID + ";";
             //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
@@ -70,6 +74,7 @@ public class DbTableQuestionShortAnswer {
                 questionShortAnswer.setLevel(cursor.getString(0));
                 questionShortAnswer.setQuestion(cursor.getString(1));
                 questionShortAnswer.setImage(cursor.getString(2));
+                questionShortAnswer.setTimerSeconds(cursor.getInt(3));
             }
             questionShortAnswer.setId(globalID);
             cursor.close();

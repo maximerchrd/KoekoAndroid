@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -36,7 +37,8 @@ public class ShortAnswerQuestionActivity extends Activity {
 	ImageView picture;
 	boolean isImageFitToScreen = true;
 	LinearLayout linearLayout;
-	private Context mContext;
+	private Activity mContext;
+	private Long startingTime = 0L;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		picture = new ImageView(getApplicationContext());
 		submitButton = new Button(getApplicationContext());
 		textAnswer = new EditText(getApplicationContext());
+		TextView timerView = findViewById(R.id.timerViewShrtaq);
 
 
 		//get bluetooth client object
@@ -60,8 +63,10 @@ public class ShortAnswerQuestionActivity extends Activity {
 		final String question = bun.getString("question");
 		String id = bun.getString("id");
 		String image_path = bun.getString("image_name");
+		Integer timerSeconds = bun.getInt("timerSeconds");
 		currentQ = new QuestionShortAnswer("1",question,image_path);
 		currentQ.setId(id);
+		currentQ.setTimerSeconds(timerSeconds);
 		if (currentQ.getImage().length() > 0) {
 			picture.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -114,6 +119,29 @@ public class ShortAnswerQuestionActivity extends Activity {
 				}
 			}
 		});
+
+		if (timerSeconds > 0 && submitButton.isEnabled()) {
+			timerView.setVisibility(View.VISIBLE);
+			if (startingTime == 0L) {
+				startingTime = SystemClock.elapsedRealtime();
+			}
+			String remainingTime = String.valueOf(timerSeconds - (SystemClock.elapsedRealtime() - startingTime) / 1000);
+			timerView.setText(remainingTime);
+			new Thread(() -> {
+				while ((timerSeconds - (SystemClock.elapsedRealtime() - startingTime) / 1000) > 0) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					mContext.runOnUiThread(() -> timerView.setText(String.valueOf((timerSeconds -
+							(SystemClock.elapsedRealtime() - startingTime) / 1000))));
+				}
+				mContext.runOnUiThread(() -> {
+					disactivateQuestion();
+				});
+			}).start();
+		}
 	}
 	private void setQuestionView()
 	{
@@ -163,13 +191,26 @@ public class ShortAnswerQuestionActivity extends Activity {
 				Koeko.currentQuestionShortAnswerSingleton != null &&
 				Koeko.currentQuestionShortAnswerSingleton.getId().contentEquals(currentQ.getId()))) {
 			String[] parsedState = activityState.split("///");
-			if (parsedState[parsedState.length - 1].contentEquals("true")) {
+			if (parsedState[parsedState.length - 2].contentEquals("true")) {
 				submitButton.setEnabled(false);
 				submitButton.setAlpha(0.3f);
 				wasAnswered = true;
 			}
 
 			textAnswer.setText(parsedState[0]);
+
+			//restore timer
+			try {
+				startingTime = Long.valueOf(parsedState[parsedState.length - 1]);
+				Long elapsedTime = SystemClock.elapsedRealtime();
+				Long effectiveElapsedTime = elapsedTime - startingTime;
+				if ((Koeko.currentQuestionShortAnswerSingleton.getTimerSeconds()
+						- effectiveElapsedTime / 1000) < 0) {
+					disactivateQuestion();
+				}
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
 		}
 		//finished restoring activity
 	}
@@ -183,7 +224,8 @@ public class ShortAnswerQuestionActivity extends Activity {
 
 	private void saveActivityState() {
 		String activityState = textAnswer.getText().toString() + "///";
-		activityState += wasAnswered;
+		activityState += wasAnswered + "///";
+		activityState += String.valueOf(startingTime);
 		if (Koeko.currentTestActivitySingleton != null) {
 			Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
 		} else {
@@ -218,6 +260,12 @@ public class ShortAnswerQuestionActivity extends Activity {
 		CustomAlertDialog customAlertDialog = new CustomAlertDialog(this);
 		customAlertDialog.show();
 		customAlertDialog.setProperties(message, this);
+	}
+
+	private void disactivateQuestion() {
+		submitButton.setEnabled(false);
+		submitButton.setAlpha(0.3f);
+		wasAnswered = true;
 	}
 
 	public void onWindowFocusChanged(boolean hasFocus) {

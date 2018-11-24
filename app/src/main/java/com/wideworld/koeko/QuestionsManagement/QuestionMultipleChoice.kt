@@ -30,6 +30,7 @@ class QuestionMultipleChoice {
     var opt7: String? = null
     var opt8: String? = null
     var opt9: String? = null
+    var timerSeconds: Int? = null
     private var IMAGE: String? = null
     var subjects: Vector<String>? = null
     var objectives: Vector<String>? = null

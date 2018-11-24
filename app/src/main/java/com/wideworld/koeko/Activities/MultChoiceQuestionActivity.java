@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +41,8 @@ public class MultChoiceQuestionActivity extends Activity {
     private ImageView picture;
     private boolean isImageFitToScreen = true;
     private LinearLayout linearLayout;
-    private Context mContext;
+    private Activity mContext;
+    private Long startingTime = 0L;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -54,6 +56,7 @@ public class MultChoiceQuestionActivity extends Activity {
         picture = new ImageView(getApplicationContext());
         submitButton = new Button(getApplicationContext());
         checkBoxesArray = new ArrayList<>();
+        TextView timerView = findViewById(R.id.timerViewMcq);
 
 
         //get bluetooth client object
@@ -74,9 +77,11 @@ public class MultChoiceQuestionActivity extends Activity {
         String opt9 = bun.getString("opt9");
         String id = bun.getString("id");
         String image_path = bun.getString("image_name");
+        Integer timerSeconds = bun.getInt("timerSeconds");
         currentQ = new QuestionMultipleChoice("1", question, opt0, opt1, opt2, opt3, opt4, opt5, opt6, opt7, opt8, opt9, image_path);
         currentQ.setId(id);
         currentQ.setNB_CORRECT_ANS(bun.getInt("nbCorrectAnswers"));
+        currentQ.setTimerSeconds(timerSeconds);
         if (currentQ.getImage().length() > 0) {
             picture.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -139,6 +144,29 @@ public class MultChoiceQuestionActivity extends Activity {
                 }
             }
         });
+
+        if (timerSeconds > 0 && submitButton.isEnabled()) {
+            timerView.setVisibility(View.VISIBLE);
+            if (startingTime == 0L) {
+                startingTime = SystemClock.elapsedRealtime();
+            }
+            String remainingTime = String.valueOf(timerSeconds - (SystemClock.elapsedRealtime() - startingTime) / 1000);
+            timerView.setText(remainingTime);
+            new Thread(() -> {
+                while ((timerSeconds - (SystemClock.elapsedRealtime() - startingTime) / 1000) > 0) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mContext.runOnUiThread(() -> timerView.setText(String.valueOf((timerSeconds -
+                            (SystemClock.elapsedRealtime() - startingTime) / 1000))));
+                }
+                mContext.runOnUiThread(() -> {
+                    disactivateQuestion();
+                });
+            }).start();
+        }
 
         /**
          * START CODE USED FOR TESTING
@@ -256,12 +284,11 @@ public class MultChoiceQuestionActivity extends Activity {
                 Koeko.currentQuestionMultipleChoiceSingleton != null &&
                 Koeko.currentQuestionMultipleChoiceSingleton.getId().contentEquals(currentQ.getId()))) {
             String[] parsedState = activityState.split("///");
-            if (parsedState[parsedState.length - 1].contentEquals("true")) {
-                submitButton.setEnabled(false);
-                submitButton.setAlpha(0.3f);
-                wasAnswered = true;
+            if (parsedState[parsedState.length - 2].contentEquals("true")) {
+                disactivateQuestion();
             }
 
+            //restore checkboxes
             for (CheckBox checkBox : checkBoxesArray) {
                 for (int i = 0; i < parsedState.length; i++) {
                     if (parsedState[i].contentEquals(checkBox.getText())) {
@@ -269,6 +296,19 @@ public class MultChoiceQuestionActivity extends Activity {
                         break;
                     }
                 }
+            }
+
+            //restore timer
+            try {
+                startingTime = Long.valueOf(parsedState[parsedState.length - 1]);
+                Long elapsedTime = SystemClock.elapsedRealtime();
+                Long effectiveElapsedTime = elapsedTime - startingTime;
+                if ((Koeko.currentQuestionMultipleChoiceSingleton.getTimerSeconds()
+                        - effectiveElapsedTime / 1000) < 0) {
+                    disactivateQuestion();
+                }
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
             }
         }
         //finished restoring activity
@@ -288,7 +328,8 @@ public class MultChoiceQuestionActivity extends Activity {
                 activityState += checkbox.getText() + "///";
             }
         }
-        activityState += wasAnswered;
+        activityState += wasAnswered + "///";
+        activityState += String.valueOf(startingTime);
         if (Koeko.currentTestActivitySingleton != null) {
             Koeko.currentTestActivitySingleton.mcqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
         } else {
@@ -330,6 +371,16 @@ public class MultChoiceQuestionActivity extends Activity {
         CustomAlertDialog customAlertDialog = new CustomAlertDialog(this);
         customAlertDialog.show();
         customAlertDialog.setProperties(message, this);
+    }
+
+    private void disactivateQuestion() {
+        submitButton.setEnabled(false);
+        submitButton.setAlpha(0.3f);
+        for (CheckBox checkBox : checkBoxesArray) {
+            checkBox.setEnabled(false);
+            checkBox.setAlpha(0.3f);
+        }
+        wasAnswered = true;
     }
 
     /**

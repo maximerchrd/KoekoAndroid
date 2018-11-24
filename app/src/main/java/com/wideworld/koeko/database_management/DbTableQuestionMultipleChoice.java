@@ -41,48 +41,13 @@ public class DbTableQuestionMultipleChoice {
                     " ID_GLOBAL           INT    NOT NULL, " +
                     " MODIF_DATE       TEXT, " +
                     " HASH_CODE       TEXT, " +
+                    " TIMER_SECONDS       INTEGER, " +
                     " IDENTIFIER        VARCHAR(15)," +
                     " UNIQUE(ID_GLOBAL)) ";
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
-        }
-    }
-
-    /**
-     * method for inserting new question into table multiple_choice_question
-     * @param quest
-     * @throws Exception
-     */
-    static public void addMultipleChoiceQuestion(QuestionMultipleChoice quest) {
-        try {
-            String sql = 	"INSERT OR REPLACE INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
-                    "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL) " +
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            String[] sqlArgs = new String[]{
-                    quest.getLevel(),
-                    quest.getQuestion(),
-                    quest.getOpt0(),
-                    quest.getOpt1(),
-                    quest.getOpt2(),
-                    quest.getOpt3(),
-                    quest.getOpt4(),
-                    quest.getOpt5(),
-                    quest.getOpt6(),
-                    quest.getOpt7(),
-                    quest.getOpt8(),
-                    quest.getOpt9(),
-                    String.valueOf(quest.getNB_CORRECT_ANS()),
-                    quest.getImage(),
-                    String.valueOf(quest.getId())
-            };
-
-            DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
-            Log.v("insert multQuest, ID: ", String.valueOf(quest.getId()));
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }
     }
 
@@ -96,8 +61,8 @@ public class DbTableQuestionMultipleChoice {
         if (quest.getTYPE() == 0) {
             String sql = "INSERT OR REPLACE INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE,HASH_CODE) " +
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE,HASH_CODE,TIMER_SECONDS) " +
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
             String[] sqlArgs = new String[]{
                     quest.getLEVEL(),
                     quest.getQUESTION(),
@@ -116,7 +81,8 @@ public class DbTableQuestionMultipleChoice {
                     String.valueOf(quest.getID()),
                     String.valueOf(quest.getID()),
                     String.valueOf(quest.getQCM_UPD_TMS()),
-                    quest.getHashCode()
+                    quest.getHashCode(),
+                    String.valueOf(quest.getTimerSeconds())
             };
 
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
@@ -139,6 +105,7 @@ public class DbTableQuestionMultipleChoice {
             questionShortAnswer.setModifDate(quest.getQCM_UPD_TMS().toString());
             questionShortAnswer.setIdentifier(quest.getQCM_MUID());
             questionShortAnswer.setHashCode(quest.getHashCode());
+            questionShortAnswer.setTimerSeconds(quest.getTimerSeconds());
 
             DbTableQuestionShortAnswer.addShortAnswerQuestion(questionShortAnswer);
         } else if (quest.getTYPE() == 2) {
@@ -154,8 +121,9 @@ public class DbTableQuestionMultipleChoice {
     static public QuestionMultipleChoice getQuestionWithId(String globalID) {
         QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
         try {
-            String selectQuery = "SELECT  LEVEL,QUESTION,OPTION0,OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9,NB_CORRECT_ANS," +
-                    "IMAGE_PATH FROM multiple_choice_questions WHERE ID_GLOBAL=" + globalID + ";";
+            String selectQuery = "SELECT  LEVEL,QUESTION,OPTION0,OPTION1,OPTION2,OPTION3,OPTION4,OPTION5," +
+                    "OPTION6,OPTION7,OPTION8,OPTION9,NB_CORRECT_ANS," +
+                    "IMAGE_PATH,TIMER_SECONDS FROM multiple_choice_questions WHERE ID_GLOBAL=" + globalID + ";";
             //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
@@ -174,6 +142,7 @@ public class DbTableQuestionMultipleChoice {
                 questionMultipleChoice.setOpt9(cursor.getString(11));
                 questionMultipleChoice.setNB_CORRECT_ANS(Integer.valueOf(cursor.getString(12)));
                 questionMultipleChoice.setImage(cursor.getString(13));
+                questionMultipleChoice.setTimerSeconds(cursor.getInt(14));
             }
             questionMultipleChoice.setId(globalID);
             cursor.close();
