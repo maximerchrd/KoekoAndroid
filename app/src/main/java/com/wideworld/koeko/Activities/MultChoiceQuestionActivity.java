@@ -162,9 +162,7 @@ public class MultChoiceQuestionActivity extends Activity {
                     mContext.runOnUiThread(() -> timerView.setText(String.valueOf((timerSeconds -
                             (SystemClock.elapsedRealtime() - startingTime) / 1000))));
                 }
-                mContext.runOnUiThread(() -> {
-                    disactivateQuestion();
-                });
+                mContext.runOnUiThread(() -> disactivateQuestion());
             }).start();
         }
 
@@ -303,8 +301,7 @@ public class MultChoiceQuestionActivity extends Activity {
                 startingTime = Long.valueOf(parsedState[parsedState.length - 1]);
                 Long elapsedTime = SystemClock.elapsedRealtime();
                 Long effectiveElapsedTime = elapsedTime - startingTime;
-                if ((Koeko.currentQuestionMultipleChoiceSingleton.getTimerSeconds()
-                        - effectiveElapsedTime / 1000) < 0) {
+                if ((currentQ.getTimerSeconds() - effectiveElapsedTime / 1000) < 0) {
                     disactivateQuestion();
                 }
             } catch (NumberFormatException e) {

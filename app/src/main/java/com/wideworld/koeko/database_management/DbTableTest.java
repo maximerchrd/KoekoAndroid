@@ -116,7 +116,9 @@ public class DbTableTest {
             Vector<String> questionIds = new Vector<>();
             String[] idsArray = cursor.getString(4).split("\\|");
             for (String id: idsArray) {
-                questionIds.add(id);
+                if (!id.contentEquals("0")) {
+                    questionIds.add(id);
+                }
             }
             test.setQuestionsIDs(questionIds);
         } else {
@@ -136,7 +138,9 @@ public class DbTableTest {
 
         String[] idsArray = unparsedIDs.split("\\|");
         for (String id: idsArray) {
-            questionIds.add(id);
+            if (!id.contentEquals("0")) {
+                questionIds.add(id);
+            }
         }
 
         return questionIds;

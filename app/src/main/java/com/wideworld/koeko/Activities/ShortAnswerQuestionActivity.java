@@ -204,8 +204,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 				startingTime = Long.valueOf(parsedState[parsedState.length - 1]);
 				Long elapsedTime = SystemClock.elapsedRealtime();
 				Long effectiveElapsedTime = elapsedTime - startingTime;
-				if ((Koeko.currentQuestionShortAnswerSingleton.getTimerSeconds()
-						- effectiveElapsedTime / 1000) < 0) {
+				if ((currentQ.getTimerSeconds()	- effectiveElapsedTime / 1000) < 0) {
 					disactivateQuestion();
 				}
 			} catch (NumberFormatException e) {
