@@ -173,6 +173,7 @@ public class TestActivity extends AppCompatActivity {
         Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
 
         Koeko.currentTestActivitySingleton = this;
+        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
     }
     @Override
     public void onResume() {
@@ -279,7 +280,7 @@ public class TestActivity extends AppCompatActivity {
                 play_pauseButton.setImageResource(R.drawable.pause_icon);
             }
         } else if (mTest.getMediaFileType() == 3) {
-            ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 1400;
+            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.LONG_TRANSITION_TIME;
             Intent intent = new Intent(TestActivity.this, WebViewActivity.class);
             startActivity(intent);
         }
@@ -309,13 +310,15 @@ public class TestActivity extends AppCompatActivity {
         } else {
             ((Koeko) this.getApplication()).stopActivityTransitionTimer();
             Log.v("test activity: ", "has focus");
-            ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
+            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
         }
     }
 
     @Override
     public void onPause() {
         Log.d(TAG, "onPause");
+
+        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer = null;

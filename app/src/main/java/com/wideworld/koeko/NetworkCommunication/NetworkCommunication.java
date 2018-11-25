@@ -164,6 +164,7 @@ public class NetworkCommunication {
 	}
 
 	public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display, String directCorrection) {
+		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
 		Intent mIntent = new Intent(mContextNetCom, MultChoiceQuestionActivity.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQuestion());
@@ -187,6 +188,7 @@ public class NetworkCommunication {
 	}
 
 	public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display, String directCorrection) {
+		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
 		Intent mIntent = new Intent(mContextNetCom, ShortAnswerQuestionActivity.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQuestion());
@@ -199,6 +201,7 @@ public class NetworkCommunication {
 	}
 
 	public void launchTestActivity(Long testID, String directCorrection) {
+		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
 		Intent mIntent = new Intent(mContextNetCom, TestActivity.class);
 		Bundle bun = new Bundle();
 		bun.putLong("testID", testID);

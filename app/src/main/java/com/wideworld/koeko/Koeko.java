@@ -27,7 +27,10 @@ public class Koeko extends MultiDexApplication {
     public static NetworkCommunication networkCommunicationSingleton;
     private NetworkCommunication appNetwork = null;
     private Integer quitApp = 0;
-    public long MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
+    static public long MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
+    static public long SHORT_TRANSITION_TIME = 200;
+    static public long MEDIUM_TRANSITION_TIME = 800;
+    static public long LONG_TRANSITION_TIME = 1400;
 
     public WifiCommunication getAppWifi() {return wifiCommunicationSingleton;}
     public NetworkCommunication getAppNetwork() {
@@ -48,7 +51,7 @@ public class Koeko extends MultiDexApplication {
             @Override
             public void run() {
                 try {
-                    sleep(MAX_ACTIVITY_TRANSITION_TIME_MS);
+                    sleep(Koeko.MEDIUM_TRANSITION_TIME);
                     quitApp = 0;
                 } catch (InterruptedException e) {
                     e.printStackTrace();

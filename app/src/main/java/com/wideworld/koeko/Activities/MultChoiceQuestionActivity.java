@@ -166,6 +166,8 @@ public class MultChoiceQuestionActivity extends Activity {
             }).start();
         }
 
+        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
+
         /**
          * START CODE USED FOR TESTING
          */
@@ -315,6 +317,7 @@ public class MultChoiceQuestionActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
+        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
         saveActivityState();
     }
 
@@ -392,7 +395,7 @@ public class MultChoiceQuestionActivity extends Activity {
         } else {
             ((Koeko) this.getApplication()).stopActivityTransitionTimer();
             Log.v("Question activity: ", "has focus");
-            ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
+            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
         }
     }
 

@@ -35,7 +35,7 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         Log.v(TAG, "onStart");
-        ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
+        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
         super.onStart();
     }
 

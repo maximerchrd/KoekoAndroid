@@ -142,6 +142,8 @@ public class ShortAnswerQuestionActivity extends Activity {
 				});
 			}).start();
 		}
+
+		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
 	}
 	private void setQuestionView()
 	{
@@ -218,6 +220,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 
+		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
 		saveActivityState();
 	}
 
@@ -275,7 +278,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		} else {
 			((Koeko)this.getApplication()).stopActivityTransitionTimer();
 			Log.v("Question activity: ", "has focus");
-            ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
+            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
 		}
 	}
 

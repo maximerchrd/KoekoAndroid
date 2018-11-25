@@ -98,7 +98,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
                         1
                 );
             } else {
-                ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 1200;
+                Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.LONG_TRANSITION_TIME;
                 Intent capturecodeIntent = new Intent(InteractiveModeActivity.this, QRCodeReaderActivity.class);
                 startActivity(capturecodeIntent);
             }
@@ -250,6 +250,8 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 }
             }
         }
+
+        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
     }
 
     public void showDisconnected() {
