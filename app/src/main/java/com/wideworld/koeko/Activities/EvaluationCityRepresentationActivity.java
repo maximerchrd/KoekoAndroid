@@ -251,10 +251,10 @@ public class EvaluationCityRepresentationActivity extends AppCompatActivity {
                     imageView.setImageResource(R.drawable.building_worst);
                     qualitativeResult = getResources().getString(R.string.candobetter);
                 } else if (Double.valueOf(result) < 70) {
-                    imageView.setImageResource(R.drawable.building_best);
+                    imageView.setImageResource(R.drawable.building_medium);
                     qualitativeResult = getResources().getString(R.string.ok);
                 } else if (Double.valueOf(result) < 90) {
-                    imageView.setImageResource(R.drawable.building_best);
+                    imageView.setImageResource(R.drawable.building_good);
                     qualitativeResult = getResources().getString(R.string.good) + "!";
                 } else {
                     imageView.setImageResource(R.drawable.building_best);
