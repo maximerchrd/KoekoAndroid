@@ -83,7 +83,8 @@ public class NetworkCommunication {
 			deviceInfos += mApplication.getPackageManager().getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0 ).versionCode;
 			deviceInfos += ":";
 		} catch (PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
+			System.out.println("PackageManager.NameNotFoundException: substituting GOOGLE_PLAY_SERVICES_PACKAGE version number by 0");
+			deviceInfos += "0:";
 		}
 		deviceInfos += DbTableSettings.getHotspotAvailable() + ":";
 		deviceInfos += Build.MODEL + ":";

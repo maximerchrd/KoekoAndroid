@@ -153,6 +153,7 @@ public class WifiCommunication {
                 } catch (IOException e) {
                     String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
                     Log.e("Fatal Error", msg);
+                    NetworkCommunication.connected = 0;
                 }
 
                 //send resource ids present on the device
@@ -183,6 +184,7 @@ public class WifiCommunication {
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
             }
+            NetworkCommunication.connected = 0;
         } catch (SocketException e) {
             if (e.toString().contains("Network is unreachable")) {
                 Log.d(TAG, "connectToServer: network is unreachable");
@@ -192,17 +194,20 @@ public class WifiCommunication {
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
             }
+            NetworkCommunication.connected = 0;
         } catch (UnknownHostException e) {
             Log.v("connection to server", ": failure, unknown host");
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
             }
+            NetworkCommunication.connected = 0;
             e.printStackTrace();
         } catch (IOException e) {
             Log.v("connection to server", ": failure, i/o exception");
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
             }
+            NetworkCommunication.connected = 0;
             e.printStackTrace();
         }
     }
@@ -219,7 +224,7 @@ public class WifiCommunication {
             }
         } catch (IOException e) {
             String msg = "In sendAnswerToServer() and an exception occurred during write: " + e.getMessage();
-            Log.e("Fatal Error", msg);
+            Log.e("IOException", msg);
         }
         answer = "";
     }
@@ -541,15 +546,17 @@ public class WifiCommunication {
     }
 
     private void wifiReconnectionTrial() {
+        Log.v(TAG, "Showing toast trying to reconnect");
         Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showShortToast("SocketException: trying to reconnect");
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
+        Log.v(TAG, "NetworkCommunication.connected:" + NetworkCommunication.connected);
         for (int i = 0; i < 30 && NetworkCommunication.connected == 0; i++) {
             long waitingTime = 2000;
-            if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null && !Koeko.networkCommunicationSingleton.getHotspotServerHotspot().isHotspotOn()) {
+            if (NetworkCommunication.network_solution == 0 || (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null && !Koeko.networkCommunicationSingleton.getHotspotServerHotspot().isHotspotOn())) {
                 Log.d(TAG, "readDataIntoArray: reconnection, trial: " + i);
                 Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showShortToast("Reconnection trial: " + (i + 1));
                 closeConnection();
@@ -568,8 +575,7 @@ public class WifiCommunication {
                 e1.printStackTrace();
             }
         }
-        if (NetworkCommunication.connected == 1) {
-            System.out.println("Display lost connection message");
+        if (NetworkCommunication.connected == 0) {
             Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showMessage("We lost the connection :-( \n" +
                     "Try to reconnect when you are on the Wifi.");
         } else {
