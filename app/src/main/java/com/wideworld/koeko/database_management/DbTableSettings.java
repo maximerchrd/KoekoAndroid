@@ -19,6 +19,7 @@ public class DbTableSettings {
     private static final String KEY_MASTER = "master";
     private static final String KEY_AUTOMATIC_CONNECTION = "automatic_connection";
     private static final String KEY_HOTSPOT_AVAILABLE = "hotspot_available";
+    private static String uuid = "";
 
     private static String TAG = "DbTableSettings";
 
@@ -86,23 +87,26 @@ public class DbTableSettings {
     }
 
     static public String getUUID() {
-        // Select All Query
-        String name = "";
-        String selectQuery = "SELECT " + KEY_UUID + " FROM " + TABLE_SETTINGS;
-        try {
-            Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
-            if (cursor.moveToPosition(0)) {
-                name = cursor.getString(0);
+        if (DbTableSettings.uuid.length() == 0) {
+            String name = "";
+            String selectQuery = "SELECT " + KEY_UUID + " FROM " + TABLE_SETTINGS;
+            try {
+                Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
+                if (cursor.moveToPosition(0)) {
+                    name = cursor.getString(0);
+                }
+            } catch (SQLiteException sqe) {
+                if (sqe.toString().contains("no such table")) {
+                    Log.v(TAG, "no table settings yet");
+                } else {
+                    sqe.printStackTrace();
+                }
             }
-        } catch (SQLiteException sqe) {
-            if (sqe.toString().contains("no such table")) {
-                Log.v(TAG, "no table settings yet");
-            } else {
-                sqe.printStackTrace();
-            }
+            // return string name
+            return name;
+        } else {
+            return DbTableSettings.uuid;
         }
-        // return string name
-        return name;
     }
 
     static public void setAutomaticConnection(Integer automaticConnection) {
