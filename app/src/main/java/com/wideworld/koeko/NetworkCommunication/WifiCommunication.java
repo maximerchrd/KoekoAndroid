@@ -15,9 +15,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
+import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.QuestionsManagement.QuestionView;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.Koeko;
@@ -425,6 +430,36 @@ public class WifiCommunication {
                             WifiManager wifiManager = (WifiManager) mContextWifCom.getSystemService(WIFI_SERVICE);
                             WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                             ServerWifiSSID = wifiInfo.getSSID();
+                        }
+                    } else if (sizesPrefix.split("///")[0].contentEquals("GAME")) {
+                        if (sizesPrefix.split("///").length >= 3) {
+                            try {
+                                int dataSize = Integer.valueOf(sizesPrefix.split("///")[1]);
+                                byte[] dataBuffer = readDataIntoArray(dataSize, able_to_read);
+
+                                //check if we got all the data
+                                if (dataSize == dataBuffer.length) {
+                                    ObjectMapper mapper = new ObjectMapper();
+                                    String stringJson = new String(dataBuffer, "UTF-8");
+                                    GameView gameView = mapper.readValue(stringJson, GameView.class);
+                                    Koeko.networkCommunicationSingleton.launchGameActivity(gameView);
+                                    Koeko.shrtaqActivityState = null;
+                                    Koeko.qmcActivityState = null;
+                                    Koeko.currentTestActivitySingleton = null;
+                                } else {
+                                    System.err.println("the expected file size and the size actually read don't match");
+                                }
+                            } catch (NumberFormatException e) {
+                                System.err.println("Error in GAME prefix: unable to read file size");
+                            } catch (JsonParseException e) {
+                                e.printStackTrace();
+                            } catch (JsonMappingException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            System.err.println("Error in GAME prefix: array too short");
                         }
                     } else if (sizesPrefix.contentEquals("RECONNECTION")) {
                         System.out.println("We were reconnected. Quit this reading loop, because" +

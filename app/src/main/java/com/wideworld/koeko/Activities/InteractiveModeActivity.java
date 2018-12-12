@@ -37,7 +37,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
     private Button toggleConnectionButton;
     private Camera camera;
     private int cameraId = 0;
-    private Camera camer;
     private int PERMISSION_REQUEST_CODE = 1;
 
     /**

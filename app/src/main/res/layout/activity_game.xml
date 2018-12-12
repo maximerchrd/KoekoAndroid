@@ -1,0 +1,55 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+	android:layout_height="match_parent" android:background="@color/white"
+	tools:context=".Activities.InteractiveModeActivity">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_alignParentTop="true"
+		android:keepScreenOn="true"
+		android:orientation="vertical"
+		android:weightSum="10">
+
+		<ImageView
+			android:id="@+id/imageView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_weight="8"
+			android:contentDescription="@string/keepcalmimage"
+			android:src="@drawable/keep_calm_crown" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="20dp"
+			android:layout_marginLeft="30dp"
+			android:layout_marginRight="30dp"
+			android:layout_marginTop="30dp"
+			android:layout_weight="2"
+			android:orientation="horizontal">
+
+			<Button
+				android:id="@+id/ready_button"
+				android:layout_width="wrap_content"
+				android:layout_height="90dp"
+				android:layout_gravity="center"
+				android:backgroundTint="@color/koekored"
+				android:text="Ready" />
+
+			<View
+				android:layout_width="0dp"
+				android:layout_height="0dp"
+				android:layout_weight="1" />
+
+			<Button
+				android:id="@+id/scan_qr_button_game"
+				android:layout_width="wrap_content"
+				android:layout_height="90dp"
+				android:layout_gravity="center"
+				android:backgroundTint="@color/white"
+				android:drawableTop="@drawable/qrimage" />
+		</LinearLayout>
+	</LinearLayout>
+</RelativeLayout>

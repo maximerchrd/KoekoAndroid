@@ -14,11 +14,13 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.wideworld.koeko.Activities.GameActivity;
 import com.wideworld.koeko.Activities.InteractiveModeActivity;
 import com.wideworld.koeko.Activities.MultChoiceQuestionActivity;
 import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
 import com.wideworld.koeko.Activities.TestActivity;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
+import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.Koeko;
@@ -207,6 +209,16 @@ public class NetworkCommunication {
 		Bundle bun = new Bundle();
 		bun.putLong("testID", testID);
 		bun.putString("directCorrection", directCorrection);
+		mIntent.putExtras(bun);
+		mContextNetCom.startActivity(mIntent);
+	}
+
+	public void launchGameActivity(GameView gameView) {
+		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
+		Intent mIntent = new Intent(mContextNetCom, GameActivity.class);
+		Bundle bun = new Bundle();
+		bun.putInt("endScore", gameView.getEndScore());
+		bun.putInt("gameType", gameView.getGameType());
 		mIntent.putExtras(bun);
 		mContextNetCom.startActivity(mIntent);
 	}
