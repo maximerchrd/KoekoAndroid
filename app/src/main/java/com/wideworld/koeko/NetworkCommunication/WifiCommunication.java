@@ -461,6 +461,16 @@ public class WifiCommunication {
                         } else {
                             System.err.println("Error in GAME prefix: array too short");
                         }
+                    } else if (sizesPrefix.split("///")[0].contentEquals("GAMESCORE")) {
+                        if (sizesPrefix.split("///").length >= 3) {
+                            Double scoreTeamOne = Double.valueOf(sizesPrefix.split("///")[1]);
+                            Double scoreTeamTwo = Double.valueOf(sizesPrefix.split("///")[2]);
+                            if (Koeko.currentGameActivity != null) {
+                                Koeko.currentGameActivity.changeScore(scoreTeamOne, scoreTeamTwo);
+                            }
+                        } else {
+                            System.err.println("Error in GAMESCORE prefix: array too short");
+                        }
                     } else if (sizesPrefix.contentEquals("RECONNECTION")) {
                         System.out.println("We were reconnected. Quit this reading loop, because" +
                                 " an other one should be active");

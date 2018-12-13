@@ -1,6 +1,7 @@
 package com.wideworld.koeko.Activities;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -13,6 +14,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +32,17 @@ public class GameActivity extends AppCompatActivity {
     private MenuItem forwardButton;
     private String TAG = "GameActivity";
 
+    private float widthToCoverToTop = 0.23f;
+    private float heightToCoverToTop = 0.37f;
+    private float imageRatio = 0.9257f;
+    private ImageView blueClimber;
+    private float blueClimberInitx = 0;
+    private float blueClimberInity = 0;
+    private float redClimberInitx = 0;
+    private float redClimberInity = 0;
+    private ImageView redClimber;
+    private RelativeLayout backgroundView;
+    private ImageView backgroudImage;
     private Integer gameType = -1;
     private Integer endScore = 0;
 
@@ -39,9 +53,22 @@ public class GameActivity extends AppCompatActivity {
     private int cameraId = 0;
     private int PERMISSION_REQUEST_CODE = 1;
 
-    /**
-     * Called when the activity is first created.
-     */
+
+    public void changeScore (Double teamOneScore, Double teamTwoScore) {
+        Log.d(TAG, "changeScore: " + teamOneScore + "; " + teamTwoScore);
+
+        final float newXTeamone = blueClimberInitx + (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * widthToCoverToTop);
+        final float newYTeamOne = blueClimberInity - (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * imageRatio * heightToCoverToTop);
+        final float newXTeamTwo = redClimberInitx - (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * widthToCoverToTop);
+        final float newYTeamTwo = redClimberInity - (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * imageRatio * heightToCoverToTop);
+        this.runOnUiThread(() -> {
+            blueClimber.setX(newXTeamone);
+            blueClimber.setY(newYTeamOne);
+            redClimber.setX(newXTeamTwo);
+            redClimber.setY(newYTeamTwo);
+        });
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +79,9 @@ public class GameActivity extends AppCompatActivity {
         Bundle bun = getIntent().getExtras();
         endScore = bun.getInt("endScore");
         gameType = bun.getInt("gameType");
+
+        backgroundView = findViewById(R.id.background_landscape_layout);
+        backgroudImage = findViewById(R.id.background_landscape);
 
         // do we have a camera?
         if (!getPackageManager()
@@ -95,6 +125,38 @@ public class GameActivity extends AppCompatActivity {
         } else {
             readyButton.setVisibility(View.GONE);
         }
+
+
+        final Context context = this;
+        backgroudImage.post(() -> {
+            //position climbers
+            blueClimber = new ImageView(context);
+            blueClimber.setImageResource(R.drawable.blueclimber);
+            backgroundView.addView(blueClimber);
+            blueClimberInitx = backgroudImage.getWidth() * 0.22f;
+            blueClimberInity = backgroudImage.getHeight() * 0.5f;
+            blueClimber.setX(blueClimberInitx);
+            blueClimber.setY(blueClimberInity);
+            Double imageRatio = (double)backgroudImage.getHeight() / (double)backgroudImage.getWidth();
+            int imageWidth = (int)(backgroudImage.getWidth() * 0.1f);
+            int imageHeight = (int)(backgroudImage.getWidth() * 0.1f * imageRatio);
+            blueClimber.getLayoutParams().width = imageWidth;
+            blueClimber.getLayoutParams().height = imageHeight;
+            blueClimber.requestLayout();
+
+            redClimber = new ImageView(context);
+            redClimber.setImageResource(R.drawable.redclimber);
+            backgroundView.addView(redClimber);
+            redClimberInitx = backgroudImage.getWidth() * 0.67f;
+            redClimberInity = backgroudImage.getHeight() * 0.5f;
+            redClimber.setX(redClimberInitx);
+            redClimber.setY(redClimberInity);
+            redClimber.getLayoutParams().width = imageWidth;
+            redClimber.getLayoutParams().height = imageHeight;
+            redClimber.requestLayout();
+        });
+
+        Koeko.currentGameActivity = this;
     }
 
     private int findFrontFacingCamera() {
