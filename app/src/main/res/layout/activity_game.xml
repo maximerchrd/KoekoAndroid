@@ -23,6 +23,12 @@
 				android:layout_gravity="center_horizontal"
 				android:contentDescription="@string/keepcalmimage"
 				android:src="@drawable/landscape" />
+			<pl.droidsonroids.gif.GifImageView
+				android:id="@+id/red_celebration"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:visibility="gone"
+				android:src="@drawable/red_celeb"/>
 		</RelativeLayout>
 
 		<LinearLayout

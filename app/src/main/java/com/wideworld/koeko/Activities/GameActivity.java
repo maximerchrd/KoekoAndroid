@@ -28,6 +28,8 @@ import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 
+import pl.droidsonroids.gif.GifImageView;
+
 public class GameActivity extends AppCompatActivity {
     private MenuItem forwardButton;
     private String TAG = "GameActivity";
@@ -41,6 +43,8 @@ public class GameActivity extends AppCompatActivity {
     private float redClimberInitx = 0;
     private float redClimberInity = 0;
     private ImageView redClimber;
+    private GifImageView redCelebration;
+    private GifImageView blueCelebration;
     private RelativeLayout backgroundView;
     private ImageView backgroudImage;
     private Integer gameType = -1;
@@ -59,13 +63,33 @@ public class GameActivity extends AppCompatActivity {
 
         final float newXTeamone = blueClimberInitx + (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * widthToCoverToTop);
         final float newYTeamOne = blueClimberInity - (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * imageRatio * heightToCoverToTop);
-        final float newXTeamTwo = redClimberInitx - (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * widthToCoverToTop);
-        final float newYTeamTwo = redClimberInity - (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * imageRatio * heightToCoverToTop);
+        final float newXTeamTwo = redClimberInitx - (float) ((teamTwoScore / endScore) * backgroudImage.getWidth() * widthToCoverToTop);
+        final float newYTeamTwo = redClimberInity - (float) ((teamTwoScore / endScore) * backgroudImage.getWidth() * imageRatio * heightToCoverToTop);
         this.runOnUiThread(() -> {
             blueClimber.setX(newXTeamone);
             blueClimber.setY(newYTeamOne);
             redClimber.setX(newXTeamTwo);
             redClimber.setY(newYTeamTwo);
+            if (teamOneScore / endScore == 1) {
+                if (blueClimber != null) {
+                    blueClimber.setVisibility(View.GONE);
+                    blueCelebration.setX(blueClimber.getX());
+                    blueCelebration.setY(blueClimber.getY());
+                    blueCelebration.getLayoutParams().width = blueClimber.getLayoutParams().width;
+                    blueCelebration.getLayoutParams().height = blueClimber.getLayoutParams().height;
+                    blueCelebration.setVisibility(View.VISIBLE);
+                }
+            }
+            if (teamTwoScore / endScore == 1) {
+                if (redClimber != null) {
+                    redClimber.setVisibility(View.GONE);
+                    redCelebration.setVisibility(View.VISIBLE);
+                    redCelebration.setX(redClimber.getX());
+                    redCelebration.setY(redClimber.getY());
+                    redCelebration.getLayoutParams().width = redClimber.getLayoutParams().width;
+                    redCelebration.getLayoutParams().height = redClimber.getLayoutParams().height;
+                }
+            }
         });
     }
 
@@ -126,6 +150,8 @@ public class GameActivity extends AppCompatActivity {
             readyButton.setVisibility(View.GONE);
         }
 
+        redCelebration = findViewById(R.id.red_celebration);
+        blueCelebration = findViewById(R.id.red_celebration);
 
         final Context context = this;
         backgroudImage.post(() -> {
