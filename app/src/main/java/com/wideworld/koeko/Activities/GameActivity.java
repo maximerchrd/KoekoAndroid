@@ -27,6 +27,7 @@ import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
+import com.wideworld.koeko.database_management.DbTableSettings;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -145,13 +146,15 @@ public class GameActivity extends AppCompatActivity {
 
         readyButton = findViewById(R.id.ready_button);
         if (gameType == GameType.orderedAutomaticSending || gameType == GameType.randomAutomaticSending) {
-
+            readyButton.setOnClickListener(e -> {
+                Koeko.networkCommunicationSingleton.sendStringToServer("READY///" + DbTableSettings.getUUID() + "///");
+            });
         } else {
             readyButton.setVisibility(View.GONE);
         }
 
         redCelebration = findViewById(R.id.red_celebration);
-        blueCelebration = findViewById(R.id.red_celebration);
+        blueCelebration = findViewById(R.id.blue_celebration);
 
         final Context context = this;
         backgroudImage.post(() -> {

@@ -29,6 +29,12 @@
 				android:layout_height="match_parent"
 				android:visibility="gone"
 				android:src="@drawable/red_celeb"/>
+			<pl.droidsonroids.gif.GifImageView
+				android:id="@+id/blue_celebration"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:visibility="gone"
+				android:src="@drawable/blue_celebration"/>
 		</RelativeLayout>
 
 		<LinearLayout
