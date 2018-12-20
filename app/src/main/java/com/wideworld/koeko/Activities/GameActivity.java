@@ -37,6 +37,9 @@ public class GameActivity extends AppCompatActivity {
     private MenuItem forwardButton;
     private String TAG = "GameActivity";
 
+    private TextView redScore;
+    private TextView blueScore;
+
     private float widthToCoverToTop = 0.23f;
     private float heightToCoverToTop = 0.37f;
     private float imageRatio = 0.9257f;
@@ -93,6 +96,10 @@ public class GameActivity extends AppCompatActivity {
                     redCelebration.getLayoutParams().height = redClimber.getLayoutParams().height;
                 }
             }
+
+            //change score text
+            blueScore.setText(String.valueOf(teamOneScore.intValue()));
+            redScore.setText(String.valueOf(teamTwoScore.intValue()));
         });
     }
 
@@ -190,6 +197,12 @@ public class GameActivity extends AppCompatActivity {
             redClimber.getLayoutParams().width = imageWidth;
             redClimber.getLayoutParams().height = imageHeight;
             redClimber.requestLayout();
+
+            //initialize scores
+            blueScore = findViewById(R.id.blue_score);
+            blueScore.setText("0");
+            redScore = findViewById(R.id.red_score);
+            redScore.setText("0");
         });
 
         Koeko.currentGameActivity = this;

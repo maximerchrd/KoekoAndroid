@@ -69,4 +69,29 @@
 				android:drawableTop="@drawable/qrimage" />
 		</LinearLayout>
 	</LinearLayout>
+
+	<TextView
+		android:id="@+id/blue_score"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentTop="true"
+		android:text="blue Score"
+		android:textColor="@android:color/holo_blue_dark"
+		android:layout_marginLeft="35dp"
+		android:layout_marginTop="15dp"
+		android:textSize="22sp" />
+
+	<TextView
+		android:id="@+id/red_score"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:layout_alignParentEnd="true"
+		android:layout_alignParentRight="true"
+		android:text="red Score"
+		android:textColor="@color/red"
+		android:layout_marginRight="35dp"
+		android:layout_marginTop="15dp"
+		android:textSize="22sp" />
 </RelativeLayout>
