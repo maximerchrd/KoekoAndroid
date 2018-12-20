@@ -5,30 +5,32 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.BindException;
+import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
-import com.wideworld.koeko.Activities.MultChoiceQuestionActivity;
-import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
-import com.wideworld.koeko.Activities.TestActivity;
+import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
+import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.QuestionsManagement.QuestionView;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.Tools.FileHandler;
-import com.wideworld.koeko.Tools.StringTools;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableIndividualQuestionForResult;
 import com.wideworld.koeko.database_management.DbTableLearningObjective;
 import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
-import com.wideworld.koeko.database_management.DbTableRelationQuestionQuestion;
 import com.wideworld.koeko.database_management.DbTableRelationTestObjective;
 import com.wideworld.koeko.database_management.DbTableSettings;
 import com.wideworld.koeko.database_management.DbTableTest;
@@ -38,139 +40,196 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import static android.content.Context.WIFI_SERVICE;
 
 public class WifiCommunication {
     final private int PORTNUMBER = 9090;
     public Integer connectionSuccess = 0;
-    public String directCorrection = "0";
-    List<android.net.wifi.ScanResult> mScanResults = new ArrayList<android.net.wifi.ScanResult>();
-    BroadcastReceiver scanningreceiver;
-    private WifiManager mWifi;
     private Context mContextWifCom;
     private Application mApplication;
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
-    private int current = 0;
-    private int bytes_read = 0;
+
     private String ip_address = "no IP";
-    private String lastAnswer = "";
     private TextView logView = null;
     private DatagramSocket socket;
-    public NetworkCommunication mNetworkCommunication;
+    private DataConversion dataConversion;
+
+    private String ServerWifiSSID = "";
+    private String secondLayerMasterIp = "";
 
     private String TAG = "WifiCommunication";
 
-    public WifiCommunication(Context arg_context, Application arg_application, TextView logView, NetworkCommunication networkCommunication) {
+    public WifiCommunication(Context arg_context, Application arg_application, TextView logView) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         mApplication = arg_application;
         ((Koeko) mApplication).setAppWifi(this);
         mContextWifCom = arg_context;
-        mWifi = (WifiManager) mContextWifCom.getSystemService(Context.WIFI_SERVICE);
-        mNetworkCommunication = networkCommunication;
         this.logView = logView;
+        this.dataConversion = new DataConversion(arg_context);
     }
 
-
-    public void connectToServer(String connectionString, String deviceIdentifier) {
+    /**
+     * @param connectionString
+     * @param deviceIdentifier
+     * @param reconnection/    0: no reconnection; 1: reconnection; 3: connect to 2nd layer server; 4: reconnect after fail: must send FAIL before CONN
+     *                    reconnection (continuing)
+     */
+    public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
         try {
-            //Automatic connection
-            Integer automaticConnection = DbTableSettings.getAutomaticConnection();
-            if (automaticConnection == 1) {
-                listenForIPThroughUDP();
-                for (int i = 0; i < 10; i++) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if (!ip_address.contentEquals("no IP")) {
-                        break;
-                    }
-                }
-
-                if (ip_address.contentEquals("no IP")) {
-                    ip_address = DbTableSettings.getMaster();
-                    connectionSuccess = -2;
+            NetworkCommunication.connected = 2;
+            ip_address = "no IP";
+            //test specific to Nearby Connections
+            if (NearbyCommunication.NEARBY_TESTING == 1) {
+                WifiManager wifimanager = (WifiManager) mContextWifCom.getSystemService(WIFI_SERVICE);
+                if (!wifimanager.isWifiEnabled()) {
+                    Log.d(TAG, "connectToServer: discoverer");
+                    Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
+                } else {
+                    Log.d(TAG, "connectToServer: advertiser");
+                    Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
                 }
             } else {
-                ip_address = DbTableSettings.getMaster();
+                //Reset the networking solution to 0
+                NetworkCommunication.network_solution = 0;
             }
 
-            Log.v("connectToServer", "beginning");
-            Socket s = new Socket(ip_address, PORTNUMBER);
-            connectionSuccess = 1;
-            //outgoing stream redirect to socket
-            mOutputStream = s.getOutputStream();
-            mInputStream = s.getInputStream();
-
-            NetworkCommunication.connected = true;
-
-            byte[] conBuffer = connectionString.getBytes();
-            try {
-                mOutputStream.write(conBuffer, 0, conBuffer.length);
-                mOutputStream.flush();
-            } catch (IOException e) {
-                String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
-                Log.e("Fatal Error", msg);
+            if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null && Koeko.networkCommunicationSingleton.getHotspotServerHotspot().isHotspotOn()) {
+                NetworkCommunication.network_solution = 1;
+                NearbyCommunication.deviceRole = NearbyCommunication.DISCOVERER_ROLE;
             }
 
-            //send resource ids present on the device
-            String idsOnDevice = DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIds() + "|" +
-                    DbTableQuestionShortAnswer.getAllShortAnswerIds() + "|"
-                    + FileHandler.getMediaFilesList(mContextWifCom);
-            String[] arrayIds = idsOnDevice.split("\\|");
-            String stringToSend = "RESIDS///" + deviceIdentifier + "///";
-            for (int i = 0; i < arrayIds.length; i++) {
-                if (arrayIds[i].length() > 0) {
-                    stringToSend += arrayIds[i] + "|";
-                    if (stringToSend.getBytes().length >= 900) {
-                        stringToSend += "///";
-                        sendStringToServer(stringToSend);
-                        stringToSend = "RESIDS///" + deviceIdentifier + "///";
+            //Don't try to connect through wifi if we are discoverer
+            if (NetworkCommunication.network_solution == 0 || NearbyCommunication.deviceRole != NearbyCommunication.DISCOVERER_ROLE) {
+                //Automatic connection
+                Integer automaticConnection = DbTableSettings.getAutomaticConnection();
+                if (automaticConnection == 1 && (reconnection == 0 || reconnection == 2)) {
+                    listenForIPThroughUDP();
+                    for (int i = 0; i < 10; i++) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (!ip_address.contentEquals("no IP")) {
+                            break;
+                        }
+                    }
+
+                    if (ip_address.contentEquals("no IP")) {
+                        ip_address = DbTableSettings.getMaster();
+                        connectionSuccess = -2;
+                    }
+                } else if (reconnection == 3) {
+                    ip_address = secondLayerMasterIp;
+                } else {
+                    ip_address = DbTableSettings.getMaster();
+                }
+
+                Log.v("connectToServer", "beginning");
+                Socket s = new Socket(ip_address, PORTNUMBER);
+                connectionSuccess = 1;
+                //outgoing stream redirect to socket
+                mOutputStream = s.getOutputStream();
+                mInputStream = s.getInputStream();
+
+                NetworkCommunication.connected = 1;
+
+                byte[] conBuffer = connectionString.getBytes();
+                try {
+                    if (reconnection == 4) {
+                        System.out.println("Reconnection code 4 failed ");
+                        String failString = "FAIL///" + NetworkCommunication.deviceIdentifier + "///";
+                        mOutputStream.write(failString.getBytes(), 0, conBuffer.length);
+                        mOutputStream.flush();
+                    }
+                    mOutputStream.write(conBuffer, 0, conBuffer.length);
+                    mOutputStream.flush();
+                } catch (IOException e) {
+                    String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
+                    Log.e("Fatal Error", msg);
+                    NetworkCommunication.connected = 0;
+                }
+
+                //send resource ids present on the device
+                String idsOnDevice = DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIdsAndHashCode() + "|" +
+                        DbTableQuestionShortAnswer.getAllShortAnswerIdsAndHashCode() + "|"
+                        + FileHandler.getMediaFilesList(mContextWifCom);
+                String[] arrayIds = idsOnDevice.split("\\|");
+                String stringToSend = "RESIDS///" + deviceIdentifier + "///";
+                for (int i = 0; i < arrayIds.length; i++) {
+                    if (arrayIds[i].length() > 0) {
+                        stringToSend += arrayIds[i] + "|";
+                        if (stringToSend.getBytes().length >= 900) {
+                            stringToSend += "///";
+                            sendStringToServer(stringToSend);
+                            stringToSend = "RESIDS///" + deviceIdentifier + "///";
+                        }
                     }
                 }
+                sendStringToServer(stringToSend + "///ENDTRSM///");
+
+                listenForQuestions();
+            } else {
+                Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
             }
-            sendStringToServer(stringToSend + "///ENDTRSM///");
-
-
-            listenForQuestions();
-
-
-        } catch (UnknownHostException e) {
-            Log.v("connection to server", ": failure, unknown host");
-
+        } catch (ConnectException e) {
+            //TODO: warn student that he is maybe not connected to the right wifi
+            Log.d(TAG, "connectToServer: warn student that he is maybe not connected to the right wifi");
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
             }
+            NetworkCommunication.connected = 0;
+        } catch (SocketException e) {
+            if (e.toString().contains("Network is unreachable")) {
+                Log.d(TAG, "connectToServer: network is unreachable");
+            } else {
+                e.printStackTrace();
+            }
+            if (connectionSuccess != -2) {
+                connectionSuccess = -1;
+            }
+            NetworkCommunication.connected = 0;
+        } catch (UnknownHostException e) {
+            Log.v("connection to server", ": failure, unknown host");
+            if (connectionSuccess != -2) {
+                connectionSuccess = -1;
+            }
+            NetworkCommunication.connected = 0;
             e.printStackTrace();
         } catch (IOException e) {
             Log.v("connection to server", ": failure, i/o exception");
-
             if (connectionSuccess != -2) {
                 connectionSuccess = -1;
             }
+            NetworkCommunication.connected = 0;
             e.printStackTrace();
         }
     }
 
     public void sendAnswerToServer(String answer) {
-        if (answer.split("///").length > 3) {
-            lastAnswer = answer.split("///")[3]; //save the answer for when we receive the evaluation from the server
-        }
         byte[] ansBuffer = answer.getBytes();
         try {
-            mOutputStream.write(ansBuffer, 0, ansBuffer.length);
-            Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
-            mOutputStream.flush();
+            if (mOutputStream != null) {
+                mOutputStream.write(ansBuffer, 0, ansBuffer.length);
+                Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
+                mOutputStream.flush();
+            } else {
+                Log.d(TAG, "sendAnswerToServer: ERROR, outputStream is null");
+            }
         } catch (IOException e) {
             String msg = "In sendAnswerToServer() and an exception occurred during write: " + e.getMessage();
-            Log.e("Fatal Error", msg);
+            Log.e("IOException", msg);
         }
         answer = "";
     }
@@ -191,98 +250,118 @@ public class WifiCommunication {
     }
 
     public void listenForQuestions() {
-        final WifiCommunication selfWifiCommunication = this;
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Boolean able_to_read = true;
-                    while (able_to_read && mInputStream != null) {
-                        current = 0;
-                        byte[] prefix_buffer = readDataIntoArray(80, able_to_read);
-                        String sizesPrefix = null;
-                        sizesPrefix = new String(prefix_buffer, "UTF-8");
-                        Log.v("WifiCommunication", "received string: " + sizesPrefix);
-                        if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("MULTQ")) {
-                            //read question data
-                            int size_of_image = Integer.parseInt(sizesPrefix.split(":")[1]);
-                            int size_of_text = Integer.parseInt(sizesPrefix.split(":")[2].replaceAll("\\D+", ""));
-                            byte[] question_buffer = readDataIntoArray(size_of_image + size_of_text, able_to_read);
-                            byte[] whole_question_buffer = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
+        new Thread(() -> {
+            try {
+                Boolean able_to_read = true;
+                while (able_to_read && mInputStream != null) {
+                    byte[] prefix_buffer = readDataIntoArray(80, able_to_read);
+                    String sizesPrefix = null;
+                    sizesPrefix = new String(prefix_buffer, "UTF-8");
+                    DataPrefix prefix = new DataPrefix();
+                    prefix.stringToPrefix(sizesPrefix);
+                    Log.v("WifiCommunication", "received string: " + sizesPrefix);
+                    if (prefix.getDataType().contentEquals(DataPref.multq)) {
+                        //read question data
+                        byte[] question_buffer = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
+                        byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
+                        ReceptionProtocol.receivedQuestionData(dataConversion, allBytesReceived);
+                    } else if (prefix.getDataType().contentEquals(DataPref.shrta)) {
+                        //read question data
+                        byte[] question_buffer = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
+                        byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
+                        ReceptionProtocol.receivedQuestionData(dataConversion, allBytesReceived);
+                    } else if (prefix.getDataType().contentEquals(DataPref.subObj)) {
+                        byte[] data = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
+                        byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, data);
+                        ReceptionProtocol.receivedSubObj(dataConversion, allBytesReceived);
+                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
+                        if (sizesPrefix.split(":")[1].contains("MLT")) {
+                            String id_global = sizesPrefix.split("///")[1];
 
-                            //Convert data and save question
-                            DataConversion convert_question = new DataConversion(mContextWifCom);
-                            QuestionMultipleChoice multquestion_to_save = convert_question.bytearrayvectorToMultChoiceQuestion(whole_question_buffer);
-                            DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(multquestion_to_save);
+                            //reinitializing all types of displays
+                            Koeko.currentTestActivitySingleton = null;
+                            Koeko.shrtaqActivityState = null;
+                            Koeko.qmcActivityState = null;
 
-                            sendStringToServer("OK///" + multquestion_to_save.getID() + "///");
-
-                            if (multquestion_to_save.getQUESTION().contains("7492qJfzdDSB")) {
-                                sendStringToServer("ACCUSERECEPTION");
-                            }
-                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("SHRTA")) {
-                            //read question data
-                            int size_of_image = Integer.parseInt(sizesPrefix.split(":")[1]);
-                            int size_of_text = Integer.parseInt(sizesPrefix.split(":")[2].replaceAll("\\D+", ""));
-                            byte[] question_buffer = readDataIntoArray(size_of_image + size_of_text, able_to_read);
-                            byte[] whole_question_buffer = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
-
-                            DataConversion convert_question = new DataConversion(mContextWifCom);
-                            QuestionShortAnswer shrtquestion_to_save = convert_question.bytearrayvectorToShortAnswerQuestion(whole_question_buffer);
-                            DbTableQuestionShortAnswer.addShortAnswerQuestion(shrtquestion_to_save);
-
-                            sendStringToServer("OK///" + shrtquestion_to_save.getID() + "///");
-                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
-                            if (sizesPrefix.split(":")[1].contains("MLT")) {
-                                String id_global = sizesPrefix.split("///")[1];
-
-                                //reinitializing all types of displays
-                                Koeko.currentTestActivitySingleton = null;
+                            if (Long.valueOf(id_global) < 0) {
+                                //setup test and show it
+                                Long testId = -(Long.valueOf(sizesPrefix.split("///")[1]));
+                                Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
+                                Koeko.networkCommunicationSingleton.launchTestActivity(testId, Koeko.networkCommunicationSingleton.directCorrection);
                                 Koeko.shrtaqActivityState = null;
                                 Koeko.qmcActivityState = null;
-
-                                if (Long.valueOf(id_global) < 0) {
-                                    //setup test and show it
-                                    Long testId = -(Long.valueOf(sizesPrefix.split("///")[1]));
-                                    directCorrection = sizesPrefix.split("///")[2];
-                                    launchTestActivity(testId, directCorrection);
+                            } else {
+                                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
+                                if (questionMultipleChoice.getQuestion().length() > 0) {
+                                    questionMultipleChoice.setId(id_global);
+                                    Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
+                                    Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, Koeko.networkCommunicationSingleton.directCorrection);
                                     Koeko.shrtaqActivityState = null;
-                                    Koeko.qmcActivityState = null;
+                                    Koeko.currentTestActivitySingleton = null;
                                 } else {
-                                    QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
-                                    if (questionMultipleChoice.getQUESTION().length() > 0) {
-                                        questionMultipleChoice.setID(id_global);
-                                        directCorrection = sizesPrefix.split("///")[2];
-                                        launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
-                                        Koeko.shrtaqActivityState = null;
-                                        Koeko.currentTestActivitySingleton = null;
-                                    } else {
-                                        QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
-                                        questionShortAnswer.setID(id_global);
-                                        directCorrection = sizesPrefix.split("///")[2];
-                                        launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
-                                        Koeko.qmcActivityState = null;
-                                        Koeko.currentTestActivitySingleton = null;
-                                    }
+                                    QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
+                                    questionShortAnswer.setId(id_global);
+                                    Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
+                                    Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, Koeko.networkCommunicationSingleton.directCorrection);
+                                    Koeko.qmcActivityState = null;
+                                    Koeko.currentTestActivitySingleton = null;
                                 }
                             }
-                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("EVAL")) {
-                            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizesPrefix.split("///")[2], sizesPrefix.split("///")[1], lastAnswer);
-                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("UPDEV")) {
-                            DbTableIndividualQuestionForResult.setEvalForQuestion(Double.valueOf(sizesPrefix.split("///")[1]), sizesPrefix.split("///")[2]);
-                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("CORR")) {
-                            Intent mIntent = new Intent(mContextWifCom, CorrectedQuestionActivity.class);
-                            Bundle bun = new Bundle();
-                            bun.putString("questionID", sizesPrefix.split("///")[1]);
-                            mIntent.putExtras(bun);
-                            mContextWifCom.startActivity(mIntent);
-                        } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("TEST")) {
-                            //2000001///test1///2000005;;;2000006:::EVALUATION<60|||2000006;;;2000007:::EVALUATION<60|||2000007|||///objectives///TESTMODE///
-                            //first, fetch the size we'll have to read
+                        }
+
+                        if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
+                            Koeko.networkCommunicationSingleton.sendDataToClient(prefix_buffer);
+                        }
+                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("SYNCIDS")) {
+                        if (sizesPrefix.split("///").length >= 2) {
+                            Integer sizeToread = Integer.valueOf(sizesPrefix.split("///")[1]);
+                            byte[] idsBytes = readDataIntoArray(sizeToread, able_to_read);
+                            Koeko.networkCommunicationSingleton.idsToSync.addAll(dataConversion.bytesToIdsList(idsBytes));
+                            for (String id : Koeko.networkCommunicationSingleton.idsToSync) {
+                                System.out.println(id);
+                            }
+                            System.out.println("________________");
+                        }
+                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("EVAL")) {
+                        DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizesPrefix.split("///")[2],
+                                sizesPrefix.split("///")[1], Koeko.networkCommunicationSingleton.getLastAnswer());
+                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("UPDEV")) {
+                        DbTableIndividualQuestionForResult.setEvalForQuestion(Double.valueOf(sizesPrefix.split("///")[1]),
+                                sizesPrefix.split("///")[2]);
+                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("CORR")) {
+                        Intent mIntent = new Intent(mContextWifCom, CorrectedQuestionActivity.class);
+                        Bundle bun = new Bundle();
+                        bun.putString("questionID", sizesPrefix.split("///")[1]);
+                        mIntent.putExtras(bun);
+                        mContextWifCom.startActivity(mIntent);
+                    } else if (sizesPrefix.split("///")[0].contentEquals("TEST")) {
+                        //2000001///test1///2000005;;;2000006:::EVALUATION<60|||2000006;;;2000007:::EVALUATION<60|||2000007|||///objectives///TESTMODE///
+                        //first, fetch the size we'll have to read
+                        Integer textBytesSize = 0;
+                        textBytesSize = Integer.valueOf(sizesPrefix.split("///")[1]);
+
+                        byte[] testDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
+
+                        Test newTest = dataConversion.byteToTest(testDataBuffer);
+
+                        DbTableTest.insertTest(newTest);
+
+                        if (NetworkCommunication.network_solution == 1) {
+                            Koeko.networkCommunicationSingleton.idsToSync.add(String.valueOf(newTest.getIdGlobal()));
+                            if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
+                                byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, testDataBuffer);
+                                Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(allBytesReceived);
+                            }
+                        }
+                    } else if (sizesPrefix.split(":")[0].contentEquals("OEVAL")) {
+                        if (sizesPrefix.split(":").length > 1) {
+                            //Read text data into array
                             Integer textBytesSize = 0;
                             textBytesSize = Integer.valueOf(sizesPrefix.split("///")[0].split(":")[1]);
 
                             byte[] wholeDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
 
+                            //Convert data to string
                             String testString = "";
                             try {
                                 testString = new String(wholeDataBuffer, "UTF-8");
@@ -290,107 +369,128 @@ public class WifiCommunication {
                                 e.printStackTrace();
                             }
 
-                            Test newTest = new Test();
-                            newTest.setIdGlobal(Long.valueOf(testString.split("///")[0]));
-                            newTest.setTestName(testString.split("///")[1]);
+                            if (testString.split("///").length > 4) {
+                                String testID = testString.split("///")[0];
+                                String testName = testString.split("///")[1];
+                                String objectiveID = testString.split("///")[2];
+                                String objective = testString.split("///")[3];
+                                String evaluation = testString.split("///")[4];
 
-                            //read objectives
+                                DbTableLearningObjective.addLearningObjective(objectiveID, objective, 0);
+                                DbTableRelationTestObjective.insertRelationTestObjective(testID, objectiveID);
+                                Test certificativeTest = new Test();
+                                certificativeTest.setTestName(testName);
+                                certificativeTest.setTestType("CERTIF");
+                                certificativeTest.setIdGlobal(Long.getLong(testID));
+                                DbTableTest.insertTest(certificativeTest);
+                                DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(objectiveID, evaluation, 2, testName);
+                                Log.d("INFO", "received OEVAL");
+                            }
+                        }
+                    } else if (sizesPrefix.split("///")[0].contentEquals("FILE")) {
+                        if (sizesPrefix.split("///").length >= 3) {
                             try {
-                                String[] objectives = testString.split("///")[3].split("\\|\\|\\|");
-                                for (String objective : objectives) {
-                                    DbTableRelationTestObjective.insertRelationTestObjective(String.valueOf(newTest.getIdGlobal()), objective);
-                                }
-                            } catch (ArrayIndexOutOfBoundsException e) {
-                                Log.e("WifiCommunication", "ArrayOutOfBound when parsing objectives from: " + testString);
-                                e.printStackTrace();
-                            }
+                                int dataSize = Integer.valueOf(sizesPrefix.split("///")[2]);
+                                byte[] dataBuffer = readDataIntoArray(dataSize, able_to_read);
 
-                            String[] questionRelation = testString.split("///")[2].split("\\|\\|\\|");
-                            for (String relation : questionRelation) {
-                                String[] relationSplit = relation.split(";;;");
-                                String questionId = relationSplit[0];
-                                newTest.getQuestionsIDs().add(questionId);
-                                for (int i = 1; i < relationSplit.length; i++) {
-                                    try {
-                                        String[] array = relationSplit[i].split(":::");
-                                        DbTableRelationQuestionQuestion.insertRelationQuestionQuestion(StringTools.stringToLongID(questionId),
-                                                StringTools.stringToLongID(array[0]), newTest.getTestName(),
-                                                array[1]);
-                                    } catch (ArrayIndexOutOfBoundsException e) {
-                                        //ERROR HERE
-                                        Log.e("WifiCommunication", "Array out of bound when inserting the condition for insertRelationQuestionQuestion");
-                                        e.printStackTrace();
+                                //check if we got all the data
+                                if (dataSize == dataBuffer.length) {
+                                    FileHandler.saveMediaFile(dataBuffer, sizesPrefix.split("///")[1], mContextWifCom);
+                                    sendStringToServer("OK:" + NetworkCommunication.deviceIdentifier + "///" + sizesPrefix.split("///")[1] + "///");
+
+
+                                    if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
+                                        byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, dataBuffer);
+                                        Koeko.networkCommunicationSingleton.sendDataToClient(allBytesReceived);
                                     }
+                                } else {
+                                    System.err.println("the expected file size and the size actually read don't match");
                                 }
-                            }
-                            newTest.setMedalsInstructionsString(testString.split("///")[5]);
-                            if (testString.split("///").length > 6) {
-                                newTest.setMediaFileName(testString.split("///")[6]);
-                            }
-                            DbTableTest.insertTest(newTest);
-                        } else if (sizesPrefix.split(":")[0].contentEquals("OEVAL")) {
-                            if (sizesPrefix.split(":").length > 1) {
-                                //Read text data into array
-                                Integer textBytesSize = 0;
-                                textBytesSize = Integer.valueOf(sizesPrefix.split("///")[0].split(":")[1]);
-
-                                byte[] wholeDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
-
-                                //Convert data to string
-                                String testString = "";
-                                try {
-                                    testString = new String(wholeDataBuffer, "UTF-8");
-                                } catch (UnsupportedEncodingException e) {
-                                    e.printStackTrace();
-                                }
-
-                                if (testString.split("///").length > 4) {
-                                    String testID = testString.split("///")[0];
-                                    String testName = testString.split("///")[1];
-                                    String objectiveID = testString.split("///")[2];
-                                    String objective = testString.split("///")[3];
-                                    String evaluation = testString.split("///")[4];
-
-                                    DbTableLearningObjective.addLearningObjective(objectiveID, objective, 0);
-                                    DbTableRelationTestObjective.insertRelationTestObjective(testID, objectiveID);
-                                    Test certificativeTest = new Test();
-                                    certificativeTest.setTestName(testName);
-                                    certificativeTest.setTestType("CERTIF");
-                                    certificativeTest.setIdGlobal(Long.getLong(testID));
-                                    DbTableTest.insertTest(certificativeTest);
-                                    DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(objectiveID, evaluation, 2, testName);
-                                    Log.d("INFO", "received OEVAL");
-                                }
-                            }
-                        } else if (sizesPrefix.split("///")[0].contentEquals("FILE")) {
-                            if (sizesPrefix.split("///").length >= 3) {
-                                try {
-                                    int dataSize = Integer.valueOf(sizesPrefix.split("///")[2]);
-                                    byte[] dataBuffer = readDataIntoArray(dataSize, able_to_read);
-
-                                    //check if we got all the data
-                                    if (dataSize == dataBuffer.length) {
-                                        FileHandler.saveMediaFile(dataBuffer, sizesPrefix.split("///")[1], mContextWifCom);
-                                        sendStringToServer("OK///" + sizesPrefix.split("///")[1] + "///");
-                                    } else {
-                                        System.err.println("the expected file size and the size actually read don't match");
-                                    }
-                                } catch (NumberFormatException e) {
-                                    System.err.println("Error in FILE prefix: unable to read file size");
-                                }
-                            } else {
-                                System.err.println("Error in FILE prefix: array too short");
+                            } catch (NumberFormatException e) {
+                                System.err.println("Error in FILE prefix: unable to read file size");
                             }
                         } else {
-                            mNetworkCommunication.sendDisconnectionSignal();
+                            System.err.println("Error in FILE prefix: array too short");
+                        }
+                    } else if (sizesPrefix.split("///")[0].contentEquals("ADVER")) {
+                        Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
+                    } else if (sizesPrefix.split("///")[0].contentEquals("DISCOV")) {
+                        HotspotServer hotspotServerHotspot = new HotspotServer(sizesPrefix.split("///")[1], sizesPrefix.split("///")[2], mContextWifCom);
+                        Koeko.networkCommunicationSingleton.setHotspotServerHotspot(hotspotServerHotspot);
+                        Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
+                        System.out.println("Tried to start discovery");
+                    } else if (sizesPrefix.split("///")[0].contentEquals("THIRDLAY")) {
+                        secondLayerMasterIp = sizesPrefix.split("///")[3];
+                        tryToJoinWifi(sizesPrefix.split("///")[1], sizesPrefix.split("///")[2]);
+                        System.out.println("Try to join third layer");
+                    } else if (sizesPrefix.split("///")[0].contentEquals("CONNECTED")) {
+                        connectionSuccess = 1;
+                        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showConnected();
+                        if (ServerWifiSSID.length() == 0) {
+                            WifiManager wifiManager = (WifiManager) mContextWifCom.getSystemService(WIFI_SERVICE);
+                            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                            ServerWifiSSID = wifiInfo.getSSID();
+                        }
+                    } else if (sizesPrefix.split("///")[0].contentEquals("GAME")) {
+                        if (sizesPrefix.split("///").length >= 3) {
+                            try {
+                                int dataSize = Integer.valueOf(sizesPrefix.split("///")[1]);
+                                byte[] dataBuffer = readDataIntoArray(dataSize, able_to_read);
+
+                                //check if we got all the data
+                                if (dataSize == dataBuffer.length) {
+                                    ObjectMapper mapper = new ObjectMapper();
+                                    String stringJson = new String(dataBuffer, "UTF-8");
+                                    GameView gameView = mapper.readValue(stringJson, GameView.class);
+                                    Koeko.networkCommunicationSingleton.launchGameActivity(gameView);
+                                    Koeko.shrtaqActivityState = null;
+                                    Koeko.qmcActivityState = null;
+                                    Koeko.currentTestActivitySingleton = null;
+                                } else {
+                                    System.err.println("the expected file size and the size actually read don't match");
+                                }
+                            } catch (NumberFormatException e) {
+                                System.err.println("Error in GAME prefix: unable to read file size");
+                            } catch (JsonParseException e) {
+                                e.printStackTrace();
+                            } catch (JsonMappingException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            System.err.println("Error in GAME prefix: array too short");
+                        }
+                    } else if (sizesPrefix.split("///")[0].contentEquals("GAMESCORE")) {
+                        if (sizesPrefix.split("///").length >= 3) {
+                            Double scoreTeamOne = Double.valueOf(sizesPrefix.split("///")[1]);
+                            Double scoreTeamTwo = Double.valueOf(sizesPrefix.split("///")[2]);
+                            if (Koeko.currentGameActivity != null) {
+                                Koeko.currentGameActivity.changeScore(scoreTeamOne, scoreTeamTwo);
+                            }
+                        } else {
+                            System.err.println("Error in GAMESCORE prefix: array too short");
+                        }
+                    } else if (sizesPrefix.contentEquals("RECONNECTION")) {
+                        System.out.println("We were reconnected. Quit this reading loop, because" +
+                                " an other one should be active");
+                        able_to_read = false;
+                    } else {
+                        if (NearbyCommunication.deviceRole != NearbyCommunication.DISCOVERER_ROLE) {
+                            Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
+                            Koeko.networkCommunicationSingleton.closeConnection();
+                            Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showDisconnected();
                             Log.d(TAG, "no byte read or prefix not supported");
+                        } else {
+                            able_to_read = false;
+                            Log.d(TAG, "listenForQuestions: closing wifi reading loop");
                         }
                     }
-                } catch (UnsupportedEncodingException e) {
-                    Log.e("ListenToServer", "not able to read prefix:" + e.getMessage());
-                } catch (NumberFormatException e) {
-                    Log.e("ListenToServer", "not able to read sizes from prefix:" + e.getMessage());
                 }
+            } catch (UnsupportedEncodingException e) {
+                Log.e("ListenToServer", "not able to read prefix:" + e.getMessage());
+            } catch (NumberFormatException e) {
+                Log.e("ListenToServer", "not able to read sizes from prefix:" + e.getMessage());
             }
         }).start();
     }
@@ -405,11 +505,18 @@ public class WifiCommunication {
                 Log.v(TAG, "number of bytes read:" + Integer.toString(bytesReadAlready));
             } catch (IOException e) {
                 able_to_read = false;
-                NetworkCommunication.connected = false;
+                NetworkCommunication.connected = 0;
                 if (e.toString().contains("Socket closed")) {
                     Log.d(TAG, "Reading data stream: input stream was closed");
                 } else {
                     e.printStackTrace();
+                    if (e.toString().contains("ETIMEDOUT")) {
+                        Log.d(TAG, "readDataIntoArray: SocketException: ETIMEDOUT, trying to reconnect");
+                        wifiReconnectionTrial();
+                        //prevent disconnection by signaling that we were trying to reconnect to the reading loop
+                        arrayToReadInto = "RECONNECTION".getBytes();
+                        bytesReadAlready = 0;
+                    }
                 }
             }
             if (bytesReadAlready >= 0) {
@@ -419,88 +526,46 @@ public class WifiCommunication {
                     able_to_read = true;
                 }
             }
-        } while (bytesReadAlready > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on server side
+        }
+        while (bytesReadAlready > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on server side
 
         return arrayToReadInto;
     }
 
-    public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display, String directCorrection) {
-        Intent mIntent = new Intent(mContextWifCom, MultChoiceQuestionActivity.class);
-        Bundle bun = new Bundle();
-        bun.putString("question", question_to_display.getQUESTION());
-        bun.putString("opt0", question_to_display.getOPT0());
-        bun.putString("opt1", question_to_display.getOPT1());
-        bun.putString("opt2", question_to_display.getOPT2());
-        bun.putString("opt3", question_to_display.getOPT3());
-        bun.putString("opt4", question_to_display.getOPT4());
-        bun.putString("opt5", question_to_display.getOPT5());
-        bun.putString("opt6", question_to_display.getOPT6());
-        bun.putString("opt7", question_to_display.getOPT7());
-        bun.putString("opt8", question_to_display.getOPT8());
-        bun.putString("opt9", question_to_display.getOPT9());
-        bun.putString("id", question_to_display.getID());
-        bun.putString("image_name", question_to_display.getIMAGE());
-        bun.putString("directCorrection", directCorrection);
-        bun.putInt("nbCorrectAnswers", question_to_display.getNB_CORRECT_ANS());
-        mIntent.putExtras(bun);
-        mContextWifCom.startActivity(mIntent);
-    }
-
-    public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display, String directCorrection) {
-        Intent mIntent = new Intent(mContextWifCom, ShortAnswerQuestionActivity.class);
-        Bundle bun = new Bundle();
-        bun.putString("question", question_to_display.getQUESTION());
-        bun.putString("id", question_to_display.getID());
-        bun.putString("image_name", question_to_display.getIMAGE());
-        bun.putString("directCorrection", directCorrection);
-        mIntent.putExtras(bun);
-        mContextWifCom.startActivity(mIntent);
-    }
-
-    public void launchTestActivity(Long testID, String directCorrection) {
-        Intent mIntent = new Intent(mContextWifCom, TestActivity.class);
-        Bundle bun = new Bundle();
-        bun.putLong("testID", testID);
-        bun.putString("directCorrection", directCorrection);
-        mIntent.putExtras(bun);
-        mContextWifCom.startActivity(mIntent);
-    }
 
     //Get the IP address of the server through UDP listening
     private void listenForIPThroughUDP() {
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    System.out.println("Open socket");
-                    if (socket == null) {
-                        try {
-                            socket = new DatagramSocket(9346);
-                            DatagramPacket packet = new DatagramPacket(new byte[100], 100);
-                            socket.receive(packet);
-                            socket.close();
-                            System.out.println("Close socket");
-
-
-                            byte[] data = packet.getData();
-                            String message = new String(data);
-                            System.out.println(message);
-
-                            if (message.split("///")[0].contentEquals("IPADDRESS")) {
-                                ip_address = message.split("///")[1];
-                                DbTableSettings.addMaster(message.split("///")[1]);
-                            }
-                        } catch (BindException ex) {
-                            System.err.println("Encountered BindException. Address is probably already in use");
-                        }
-                    } else {
+        new Thread(() -> {
+            try {
+                System.out.println("Open socket");
+                if (socket == null) {
+                    try {
+                        socket = new DatagramSocket(9346);
+                        DatagramPacket packet = new DatagramPacket(new byte[100], 100);
+                        socket.receive(packet);
                         socket.close();
-                        socket = null;
+                        System.out.println("Close socket");
+
+
+                        byte[] data = packet.getData();
+                        String message = new String(data);
+                        System.out.println(message);
+
+                        if (message.split("///")[0].contentEquals("IPADDRESS")) {
+                            ip_address = message.split("///")[1];
+                            DbTableSettings.addMaster(message.split("///")[1]);
+                        }
+                    } catch (BindException ex) {
+                        System.err.println("Encountered BindException. Address is probably already in use");
                     }
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } else {
+                    socket.close();
+                    socket = null;
                 }
+            } catch (SocketException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }).start();
     }
@@ -522,6 +587,172 @@ public class WifiCommunication {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void wifiReconnectionTrial() {
+        Log.v(TAG, "Showing toast trying to reconnect");
+        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showShortToast("SocketException: trying to reconnect");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+        Log.v(TAG, "NetworkCommunication.connected:" + NetworkCommunication.connected);
+        for (int i = 0; i < 30 && NetworkCommunication.connected == 0; i++) {
+            long waitingTime = 2000;
+            if (NetworkCommunication.network_solution == 0 || (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null && !Koeko.networkCommunicationSingleton.getHotspotServerHotspot().isHotspotOn())) {
+                Log.d(TAG, "readDataIntoArray: reconnection, trial: " + i);
+                Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showShortToast("Reconnection trial: " + (i + 1));
+                closeConnection();
+
+
+                if (i < 15) {
+                    Koeko.networkCommunicationSingleton.connectToMaster(1);
+                } else {
+                    Koeko.networkCommunicationSingleton.connectToMaster(2);
+                    waitingTime = 5000;
+                }
+            }
+            try {
+                Thread.sleep(waitingTime);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
+        if (NetworkCommunication.connected == 0) {
+            Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showMessage("We lost the connection :-( \n" +
+                    "Try to reconnect when you are on the Wifi.");
+        } else {
+            sendStringToServer("RECONNECTED///" + DbTableSettings.getName() + "///");
+        }
+    }
+
+    private void tryToJoinWifi(String networkSSID, String password) {
+        closeConnection();
+        connectToWifiWPA(networkSSID, password);
+        new Thread(() -> {
+            try {
+                String joinedWifi = checkIfJoinedWifi(10);
+                System.out.println("Did we manage to connect to wifi: " + joinedWifi);
+                if (joinedWifi.contentEquals(networkSSID)) {
+                    //Connect to hotspot server
+                    Thread.sleep(4000);
+                    Koeko.networkCommunicationSingleton.connectToMaster(3);
+                    return;
+                } else if (joinedWifi.contentEquals(ServerWifiSSID.replace("\"", ""))) {
+                    Thread.sleep(4000);
+                    Koeko.networkCommunicationSingleton.connectToMaster(4);
+                    return;
+                }
+
+                reconnectToWifiWPA(ServerWifiSSID);
+                new Thread(() -> {
+                    try {
+                        String joinedWifi1 = checkIfJoinedWifi(15);
+                        System.out.println("Did we manage to reconnect to original wifi: " + joinedWifi1);
+                        if (joinedWifi1.contentEquals(ServerWifiSSID)) {
+                            //TODO: loop and try to connect faster
+                            Thread.sleep(4000);
+                            Koeko.networkCommunicationSingleton.connectToMaster(4);
+                        } else {
+                            System.err.println("Unable to reconnect to Master");
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private String checkIfJoinedWifi(int nbSeconds) {
+        String joinedWifi = "";
+        nbSeconds = nbSeconds / 2;
+        for (int i = 0; i < nbSeconds; i++) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            WifiManager wifiManager = (WifiManager) mContextWifCom.getSystemService(WIFI_SERVICE);
+            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            Log.d(TAG, "checkIfJoinedWifi: " + wifiInfo.getSSID());
+            if (wifiInfo.getNetworkId() >= 0) {
+                joinedWifi = wifiInfo.getSSID();
+                return joinedWifi.replace("\"", "");
+            }
+        }
+        return joinedWifi;
+    }
+
+    private Boolean connectToWifiWPA(String networkSSID, String password) {
+        try {
+            WifiConfiguration conf = new WifiConfiguration();
+            conf.SSID = "\"" + networkSSID + "\"";   // Please note the quotes. String should contain SSID in quotes
+
+            conf.preSharedKey = "\"" + password + "\"";
+
+            conf.status = WifiConfiguration.Status.ENABLED;
+            conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+            conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+            conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+            conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+            conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+
+            Log.d("connecting", conf.SSID + " " + conf.preSharedKey);
+
+            WifiManager wifiManager = (WifiManager) mContextWifCom.getSystemService(Context.WIFI_SERVICE);
+            wifiManager.addNetwork(conf);
+
+            List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+            for (WifiConfiguration i : list) {
+                wifiManager.disableNetwork(i.networkId);
+            }
+            for (WifiConfiguration i : list) {
+                if (i.SSID != null && i.SSID.equals("\"" + networkSSID + "\"")) {
+                    //wifiManager.disconnect();
+                    wifiManager.enableNetwork(i.networkId, true);
+                    wifiManager.reconnect();
+                    break;
+                }
+            }
+
+
+            //WiFi Connection success, return true
+            return true;
+        } catch (Exception ex) {
+            System.out.println(Arrays.toString(ex.getStackTrace()));
+            return false;
+        }
+    }
+
+    private Boolean reconnectToWifiWPA(String networkSSID) {
+        try {
+            WifiManager wifiManager = (WifiManager) mContextWifCom.getSystemService(Context.WIFI_SERVICE);
+
+            List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+            for (WifiConfiguration i : list) {
+                wifiManager.disableNetwork(i.networkId);
+            }
+            for (WifiConfiguration i : list) {
+                if (i.SSID != null && i.SSID.equals(networkSSID)) {
+                    //wifiManager.disconnect();
+                    wifiManager.enableNetwork(i.networkId, true);
+                    wifiManager.reconnect();
+                    Log.d("re connecting", i.SSID);
+
+                    break;
+                }
+            }
+
+            //WiFi Connection success, return true
+            return true;
+        } catch (Exception ex) {
+            System.out.println(Arrays.toString(ex.getStackTrace()));
+            return false;
         }
     }
 }

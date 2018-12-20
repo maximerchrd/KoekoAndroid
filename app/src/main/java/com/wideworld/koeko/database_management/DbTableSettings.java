@@ -3,30 +3,46 @@ package com.wideworld.koeko.database_management;
 import android.content.ContentValues;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
+import android.util.Log;
 
 import com.wideworld.koeko.R;
+
+import java.util.UUID;
 
 public class DbTableSettings {
     private static final String TABLE_SETTINGS = "settings";
     // tasks Table Columns names for the settings table
     private static final String KEY_IDsettings = "idsettings";
     private static final String KEY_NAME = "name";
+    private static final String KEY_UUID = "uuid";
     private static final String KEY_MASTER = "master";
     private static final String KEY_AUTOMATIC_CONNECTION = "automatic_connection";
+    private static final String KEY_HOTSPOT_AVAILABLE = "hotspot_available";
+    private static String uuid = "";
+
+    private static String TAG = "DbTableSettings";
 
     static public void createTable(String noName) {
+        String uuid = DbTableSettings.getUUID();
         String sql = "CREATE TABLE IF NOT EXISTS " + TABLE_SETTINGS + " ( "
                 + KEY_IDsettings + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + KEY_NAME +" TEXT,"
-                + KEY_MASTER + " TEXT," +
-                KEY_AUTOMATIC_CONNECTION +" INTEGER)";
+                + KEY_MASTER + " TEXT,"
+                + KEY_UUID + " TEXT,"
+                + KEY_AUTOMATIC_CONNECTION +" INTEGER,"
+                + KEY_HOTSPOT_AVAILABLE +" INTEGER)";
         DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, noName);
-        values.put(KEY_MASTER, "192.168.1.100");
-        values.put(KEY_AUTOMATIC_CONNECTION, 1);
-        // Inserting of Replacing Row
-        DbHelper.dbHelperSingleton.getDatabase().insert(TABLE_SETTINGS, null, values);
+        if (uuid != null && uuid.contentEquals("")) {
+            ContentValues values = new ContentValues();
+            values.put(KEY_NAME, noName);
+            values.put(KEY_MASTER, "192.168.1.100");
+            values.put(KEY_UUID, UUID.randomUUID().toString());
+            values.put(KEY_AUTOMATIC_CONNECTION, 1);
+            values.put(KEY_HOTSPOT_AVAILABLE, 0);
+            // Inserting of Replacing Row
+            DbHelper.dbHelperSingleton.getDatabase().insert(TABLE_SETTINGS, null, values);
+        }
     }
 
     static public void addName(String newname)
@@ -70,6 +86,29 @@ public class DbTableSettings {
         return master;
     }
 
+    static public String getUUID() {
+        if (DbTableSettings.uuid.length() == 0) {
+            String name = "";
+            String selectQuery = "SELECT " + KEY_UUID + " FROM " + TABLE_SETTINGS;
+            try {
+                Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
+                if (cursor.moveToPosition(0)) {
+                    name = cursor.getString(0);
+                }
+            } catch (SQLiteException sqe) {
+                if (sqe.toString().contains("no such table")) {
+                    Log.v(TAG, "no table settings yet");
+                } else {
+                    sqe.printStackTrace();
+                }
+            }
+            // return string name
+            return name;
+        } else {
+            return DbTableSettings.uuid;
+        }
+    }
+
     static public void setAutomaticConnection(Integer automaticConnection) {
         //SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -81,12 +120,32 @@ public class DbTableSettings {
     static public Integer getAutomaticConnection() {
         // Select All Query
         Integer automaticCorrection = 1;
-        String selectQuery = "SELECT  * FROM " + TABLE_SETTINGS;
+        String selectQuery = "SELECT " + KEY_AUTOMATIC_CONNECTION + " FROM " + TABLE_SETTINGS;
         Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
         if (cursor.moveToPosition(0)) {
-            automaticCorrection = cursor.getInt(3);
+            automaticCorrection = cursor.getInt(0);
         }
         // return string name
         return automaticCorrection;
+    }
+
+    static public void setHotspotAvailable(Integer hotspotAvailable) {
+        //SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_HOTSPOT_AVAILABLE, hotspotAvailable);
+        // Replacing Row
+        DbHelper.dbHelperSingleton.getDatabase().update(TABLE_SETTINGS, values, null, null);
+    }
+
+    static public Integer getHotspotAvailable() {
+        // Select All Query
+        Integer hotspotAvailable = 0;
+        String selectQuery = "SELECT " + KEY_HOTSPOT_AVAILABLE + " FROM " + TABLE_SETTINGS;
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
+        if (cursor.moveToPosition(0)) {
+            hotspotAvailable = cursor.getInt(0);
+        }
+        // return string name
+        return hotspotAvailable;
     }
 }

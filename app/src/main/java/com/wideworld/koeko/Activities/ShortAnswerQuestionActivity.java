@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -21,6 +22,7 @@ import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.R;
+import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 
 import java.io.File;
@@ -35,7 +37,8 @@ public class ShortAnswerQuestionActivity extends Activity {
 	ImageView picture;
 	boolean isImageFitToScreen = true;
 	LinearLayout linearLayout;
-	private Context mContext;
+	private Activity mContext;
+	private Long startingTime = 0L;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		picture = new ImageView(getApplicationContext());
 		submitButton = new Button(getApplicationContext());
 		textAnswer = new EditText(getApplicationContext());
+		TextView timerView = findViewById(R.id.timerViewShrtaq);
 
 
 		//get bluetooth client object
@@ -59,9 +63,11 @@ public class ShortAnswerQuestionActivity extends Activity {
 		final String question = bun.getString("question");
 		String id = bun.getString("id");
 		String image_path = bun.getString("image_name");
+		Integer timerSeconds = bun.getInt("timerSeconds");
 		currentQ = new QuestionShortAnswer("1",question,image_path);
-		currentQ.setID(id);
-		if (currentQ.getIMAGE().length() > 0) {
+		currentQ.setId(id);
+		currentQ.setTimerSeconds(timerSeconds);
+		if (currentQ.getImage().length() > 0) {
 			picture.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -93,7 +99,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		}
 
 		//send receipt to server
-		String receipt = "ACTID///" + currentQ.getID() + "///";
+		String receipt = "ACTID///" + currentQ.getId() + "///";
 		Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
 
 		submitButton.setOnClickListener(new View.OnClickListener() {
@@ -103,9 +109,9 @@ public class ShortAnswerQuestionActivity extends Activity {
 				String answer = textAnswer.getText().toString();
 
 				NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
-				networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getID(), "ANSW1");
+				networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getId(), "ANSW1");
 
-				if (Koeko.wifiCommunicationSingleton.directCorrection.contentEquals("1")) {
+				if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
 					popupCorrection();
 				} else {
 					finish();
@@ -113,15 +119,40 @@ public class ShortAnswerQuestionActivity extends Activity {
 				}
 			}
 		});
+
+		if (timerSeconds > 0 && submitButton.isEnabled()) {
+			timerView.setVisibility(View.VISIBLE);
+			if (startingTime == 0L) {
+				startingTime = SystemClock.elapsedRealtime();
+			}
+			String remainingTime = String.valueOf(timerSeconds - (SystemClock.elapsedRealtime() - startingTime) / 1000);
+			timerView.setText(remainingTime);
+			new Thread(() -> {
+				while ((timerSeconds - (SystemClock.elapsedRealtime() - startingTime) / 1000) > 0) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					mContext.runOnUiThread(() -> timerView.setText(String.valueOf((timerSeconds -
+							(SystemClock.elapsedRealtime() - startingTime) / 1000))));
+				}
+				mContext.runOnUiThread(() -> {
+					disactivateQuestion();
+				});
+			}).start();
+		}
+
+		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
 	}
 	private void setQuestionView()
 	{
-		txtQuestion.setText(currentQ.getQUESTION());
+		txtQuestion.setText(currentQ.getQuestion());
 
-		if (currentQ.getIMAGE().contains(":") && currentQ.getIMAGE().length() > currentQ.getIMAGE().indexOf(":") + 1) {
-			currentQ.setIMAGE(currentQ.getIMAGE().substring(currentQ.getIMAGE().indexOf(":") + 1));
+		if (currentQ.getImage().contains(":") && currentQ.getImage().length() > currentQ.getImage().indexOf(":") + 1) {
+			currentQ.setImage(currentQ.getImage().substring(currentQ.getImage().indexOf(":") + 1));
 		}
-		File imgFile = new  File(getFilesDir()+"/images/" + currentQ.getIMAGE());
+		File imgFile = new  File(getFilesDir() + "/"+ FileHandler.mediaDirectory + currentQ.getImage());
 		if(imgFile.exists()){
 			String path = imgFile.getAbsolutePath();
 			Bitmap myBitmap = BitmapFactory.decodeFile(path);
@@ -152,7 +183,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		//restore activity state
 		String activityState = null;
 		if (Koeko.currentTestActivitySingleton != null) {
-			activityState = Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.get(String.valueOf(currentQ.getID()));
+			activityState = Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.get(String.valueOf(currentQ.getId()));
 		} else {
 			if (Koeko.shrtaqActivityState != null) {
 				activityState = Koeko.shrtaqActivityState;
@@ -160,15 +191,27 @@ public class ShortAnswerQuestionActivity extends Activity {
 		}
 		if ((activityState != null && Koeko.currentTestActivitySingleton != null) || (activityState != null &&
 				Koeko.currentQuestionShortAnswerSingleton != null &&
-				Koeko.currentQuestionShortAnswerSingleton.getID().contentEquals(currentQ.getID()))) {
+				Koeko.currentQuestionShortAnswerSingleton.getId().contentEquals(currentQ.getId()))) {
 			String[] parsedState = activityState.split("///");
-			if (parsedState[parsedState.length - 1].contentEquals("true")) {
+			if (parsedState[parsedState.length - 2].contentEquals("true")) {
 				submitButton.setEnabled(false);
 				submitButton.setAlpha(0.3f);
 				wasAnswered = true;
 			}
 
 			textAnswer.setText(parsedState[0]);
+
+			//restore timer
+			try {
+				startingTime = Long.valueOf(parsedState[parsedState.length - 1]);
+				Long elapsedTime = SystemClock.elapsedRealtime();
+				Long effectiveElapsedTime = elapsedTime - startingTime;
+				if ((currentQ.getTimerSeconds()	- effectiveElapsedTime / 1000) < 0) {
+					disactivateQuestion();
+				}
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
 		}
 		//finished restoring activity
 	}
@@ -177,14 +220,16 @@ public class ShortAnswerQuestionActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 
+		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
 		saveActivityState();
 	}
 
 	private void saveActivityState() {
 		String activityState = textAnswer.getText().toString() + "///";
-		activityState += wasAnswered;
+		activityState += wasAnswered + "///";
+		activityState += String.valueOf(startingTime);
 		if (Koeko.currentTestActivitySingleton != null) {
-			Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.put(String.valueOf(currentQ.getID()), activityState);
+			Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
 		} else {
 			Koeko.shrtaqActivityState = activityState;
 			Koeko.currentQuestionShortAnswerSingleton = currentQ;
@@ -193,7 +238,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 
 	private void popupCorrection() {
 		//get the answerof the student
-		QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(currentQ.getID());
+		QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(currentQ.getId());
 		String studentAnswers = textAnswer.getText().toString();
 		//get the right answers
 		ArrayList<String> rightAnswers = questionShortAnswer.getAnswers();
@@ -219,6 +264,12 @@ public class ShortAnswerQuestionActivity extends Activity {
 		customAlertDialog.setProperties(message, this);
 	}
 
+	private void disactivateQuestion() {
+		submitButton.setEnabled(false);
+		submitButton.setAlpha(0.3f);
+		wasAnswered = true;
+	}
+
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		if (!hasFocus) {
@@ -227,6 +278,7 @@ public class ShortAnswerQuestionActivity extends Activity {
 		} else {
 			((Koeko)this.getApplication()).stopActivityTransitionTimer();
 			Log.v("Question activity: ", "has focus");
+            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
 		}
 	}
 

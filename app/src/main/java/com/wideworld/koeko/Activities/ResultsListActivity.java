@@ -61,14 +61,14 @@ public class ResultsListActivity extends Activity {
             if (results.get(i).get(4) == null ||  (!results.get(i).get(4).contentEquals("2") &&
                     !results.get(i).get(4).contentEquals("3"))) {
                 QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(results.get(i).get(0));
-                if (questionMultipleChoice.getQUESTION().length() == 0) {
+                if (questionMultipleChoice.getQuestion().length() == 0) {
                     QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(results.get(i).get(0));
-                    questions[i] = questionShortAnswer.getQUESTION();
+                    questions[i] = questionShortAnswer.getQuestion();
                     evaluations[i] = results.get(i).get(3);
                     medalImages[i] = results.get(i).get(5);
                     types[i] = "1";
                 } else {
-                    questions[i] = questionMultipleChoice.getQUESTION();
+                    questions[i] = questionMultipleChoice.getQuestion();
                     evaluations[i] = results.get(i).get(3);
                     medalImages[i] = results.get(i).get(5);
                     types[i] = "0";
@@ -96,7 +96,7 @@ public class ResultsListActivity extends Activity {
 
                     QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(results.get(position).get(0));
                     QuestionShortAnswer questionShortAnswer = null;
-                    if (questionMultipleChoice.getQUESTION().length() == 0) {
+                    if (questionMultipleChoice.getQuestion().length() == 0) {
                         questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(results.get(position).get(0));
 
                         String allAnswers = "";
@@ -104,8 +104,8 @@ public class ResultsListActivity extends Activity {
                             allAnswers += answer + "; ";
                         }
 
-                        bun.putString("questionText", questionShortAnswer.getQUESTION());
-                        bun.putString("questionImage", questionShortAnswer.getIMAGE());
+                        bun.putString("questionText", questionShortAnswer.getQuestion());
+                        bun.putString("questionImage", questionShortAnswer.getImage());
                         bun.putString("studentAnswer", results.get(position).get(1));
                         bun.putString("allAnswers", allAnswers);
                         bun.putString("date", results.get(position).get(2));
@@ -125,8 +125,8 @@ public class ResultsListActivity extends Activity {
                         String allAnswersString = "Right Answers: \n" + rightAnswers +
                                 "\nWrong Answers: \n" + wrongAnswers;
 
-                        bun.putString("questionText", questionMultipleChoice.getQUESTION());
-                        bun.putString("questionImage", questionMultipleChoice.getIMAGE());
+                        bun.putString("questionText", questionMultipleChoice.getQuestion());
+                        bun.putString("questionImage", questionMultipleChoice.getImage());
                         bun.putString("studentAnswer", results.get(position).get(1));
                         bun.putString("allAnswers", allAnswersString);
                         bun.putString("date", results.get(position).get(2));

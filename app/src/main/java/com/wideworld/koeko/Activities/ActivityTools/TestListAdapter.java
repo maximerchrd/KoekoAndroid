@@ -38,9 +38,9 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
             QuestionMultipleChoice questionMultipleChoice = test.getIdMapQmc().get(test.getQuestionsIDs().get(i));
             if (questionMultipleChoice == null) {
                 QuestionShortAnswer questionShortAnswer = test.getIdMapShrtaq().get(test.getQuestionsIDs().get(i));
-                mQuestionTexts[i] = questionShortAnswer.getQUESTION();
+                mQuestionTexts[i] = questionShortAnswer.getQuestion();
             } else {
-                mQuestionTexts[i] = questionMultipleChoice.getQUESTION();
+                mQuestionTexts[i] = questionMultipleChoice.getQuestion();
             }
         }
     }

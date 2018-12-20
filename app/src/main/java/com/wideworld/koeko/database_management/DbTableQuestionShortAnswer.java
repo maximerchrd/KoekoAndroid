@@ -20,6 +20,10 @@ public class DbTableQuestionShortAnswer {
                     " QUESTION           TEXT    NOT NULL, " +
                     " IMAGE_PATH           TEXT    NOT NULL, " +
                     " ID_GLOBAL           INT    NOT NULL, " +
+                    " MODIF_DATE       TEXT, " +
+                    " HASH_CODE       TEXT, " +
+                    " IDENTIFIER        VARCHAR(15)," +
+                    " TIMER_SECONDS       INTEGER, " +
                     " UNIQUE(ID_GLOBAL)) ";
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
         } catch ( Exception e ) {
@@ -35,19 +39,24 @@ public class DbTableQuestionShortAnswer {
      */
     static public void addShortAnswerQuestion(QuestionShortAnswer quest) {
         try {
-            String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH,ID_GLOBAL) " +
-                    "VALUES (?,?,?,?)";
+            String sql = 	"INSERT OR REPLACE INTO short_answer_questions (LEVEL,QUESTION,IMAGE_PATH," +
+                    "ID_GLOBAL, MODIF_DATE, IDENTIFIER, HASH_CODE, TIMER_SECONDS) " +
+                    "VALUES (?,?,?,?,?,?,?,?)";
             String[] sqlArgs = new String[]{
-                    quest.getLEVEL(),
-                    quest.getQUESTION(),
-                    quest.getIMAGE(),
-                    quest.getID()
+                    quest.getLevel(),
+                    quest.getQuestion(),
+                    quest.getImage(),
+                    quest.getId(),
+                    quest.getModifDate(),
+                    quest.getIdentifier(),
+                    quest.getHashCode(),
+                    String.valueOf(quest.getTimerSeconds())
             };
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql,sqlArgs);
-            Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getID()));
+            Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getId()));
 
             for (int i = 0; i < quest.getAnswers().size(); i++) {
-                DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getID()),quest.getAnswers().get(i));
+                DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getId()),quest.getAnswers().get(i));
             }
         } catch ( SQLException e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -56,16 +65,18 @@ public class DbTableQuestionShortAnswer {
     static public QuestionShortAnswer getShortAnswerQuestionWithId(String globalID) {
         QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
         try {
-            String selectQuery = "SELECT  LEVEL,QUESTION,IMAGE_PATH FROM short_answer_questions WHERE ID_GLOBAL=" + globalID + ";";
+            String selectQuery = "SELECT  LEVEL,QUESTION,IMAGE_PATH,TIMER_SECONDS" +
+                    " FROM short_answer_questions WHERE ID_GLOBAL=" + globalID + ";";
             //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             if (cursor.moveToPosition(0)) {
-                questionShortAnswer.setLEVEL(cursor.getString(0));
-                questionShortAnswer.setQUESTION(cursor.getString(1));
-                questionShortAnswer.setIMAGE(cursor.getString(2));
+                questionShortAnswer.setLevel(cursor.getString(0));
+                questionShortAnswer.setQuestion(cursor.getString(1));
+                questionShortAnswer.setImage(cursor.getString(2));
+                questionShortAnswer.setTimerSeconds(cursor.getInt(3));
             }
-            questionShortAnswer.setID(globalID);
+            questionShortAnswer.setId(globalID);
             cursor.close();
 
             //get answers
@@ -87,15 +98,15 @@ public class DbTableQuestionShortAnswer {
         return questionShortAnswer;
     }
 
-    static public String getAllShortAnswerIds() {
+    static public String getAllShortAnswerIdsAndHashCode() {
         String IDs = "";
         try {
-            String selectQuery = "SELECT ID_GLOBAL FROM short_answer_questions;";
+            String selectQuery = "SELECT ID_GLOBAL, HASH_CODE FROM short_answer_questions;";
             //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             while (cursor.moveToNext()) {
-                IDs += cursor.getString(0) + "|";
+                IDs += cursor.getString(0) + ";" + cursor.getString(1) + "|";
             }
             cursor.close();
         } catch ( Exception e ) {

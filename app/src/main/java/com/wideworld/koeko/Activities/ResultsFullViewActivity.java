@@ -41,7 +41,7 @@ public class ResultsFullViewActivity extends Activity {
         dateTextView.setText(bun.getString("date"));
         evaluationTextView.setText(bun.getString("evaluation"));
 
-        File imgFile = new  File(getFilesDir()+"/images/" + bun.getString("questionImage"));
+        File imgFile = new  File(getFilesDir()+"/media/" + bun.getString("questionImage"));
         if(imgFile.exists()){
             String path = imgFile.getAbsolutePath();
             Bitmap myBitmap = BitmapFactory.decodeFile(path);

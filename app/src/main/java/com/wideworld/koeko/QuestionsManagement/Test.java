@@ -5,6 +5,7 @@ import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 import com.wideworld.koeko.database_management.DbTableRelationQuestionQuestion;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -26,6 +27,7 @@ public class Test {
     private Vector<Double> questionsScores;
     private String medalsInstructionsString = "";
     private Vector<Vector<String>> medalsInstructions;
+    private Timestamp testUpdate;
 
     public Test() {
         questionsIDs = new Vector<>();
@@ -75,6 +77,9 @@ public class Test {
     public String getMediaFileName() {
         return mediaFileName;
     }
+    public Timestamp getTestUpdate() {
+        return testUpdate;
+    }
 
     //setters
     public void setIdGlobal(Long idGlobal) {
@@ -115,6 +120,10 @@ public class Test {
     }
     public void setMediaFileName(String mediaFileName) {
         this.mediaFileName = mediaFileName;
+    }
+
+    public void setTestUpdate(Timestamp testUpdate) {
+        this.testUpdate = testUpdate;
     }
 
     public String serializeQuestionIDs() {
@@ -162,7 +171,7 @@ public class Test {
 
     /**
      * loads the map of the test from the db into the "Map" objects. After this method,
-     * you should be able to have find the objects with the ids in idMapQmc and idMapShrtaq,
+     * you should be able to find the objects with the ids in idMapQmc and idMapShrtaq,
      * and the relation for each question in idMapRelation
      */
     public void loadMap() {
@@ -177,7 +186,7 @@ public class Test {
         //loading into idMapQmc and idMapShrtaq
         for (String id : questionsIDs) {
             QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id);
-            if (questionMultipleChoice.getQUESTION().length() <= 0) {
+            if (questionMultipleChoice.getQuestion().length() <= 0) {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id);
                 idMapShrtaq.put(id, questionShortAnswer);
             } else {

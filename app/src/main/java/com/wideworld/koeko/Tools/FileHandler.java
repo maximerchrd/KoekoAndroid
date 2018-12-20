@@ -1,20 +1,18 @@
 package com.wideworld.koeko.Tools;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.util.Log;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class FileHandler {
-    static public String mediaDirectory = "media";
+    static public String mediaDirectoryNoSlash = "media";
+    static public String mediaDirectory = "media/";
 
     static public void saveMediaFile(byte[] fileData, String fileName, Context context) {
-        File directory = new File(context.getFilesDir(), mediaDirectory);
+        File directory = new File(context.getFilesDir(), mediaDirectoryNoSlash);
         if (!directory.exists()) {
             directory.mkdirs();
         }
@@ -39,11 +37,13 @@ public class FileHandler {
 
     static public String getMediaFilesList(Context context) {
         String list = "";
-        File directory = new File(context.getFilesDir(), mediaDirectory);
+        File directory = new File(context.getFilesDir(), mediaDirectoryNoSlash);
         File[] files = directory.listFiles();
-        for (File inFile : files) {
-            if (!inFile.isDirectory()) {
-                list += inFile.getName() + "|";
+        if (files != null) {
+            for (File inFile : files) {
+                if (!inFile.isDirectory()) {
+                    list += inFile.getName() + "|";
+                }
             }
         }
 

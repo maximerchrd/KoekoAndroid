@@ -40,6 +40,23 @@ public class DbTableSubject {
             }
         }
     }
+    static public void addSubject(String subject, String questionId) {
+        if (!subject.contentEquals("")) {
+            try {
+                String sql = "INSERT OR IGNORE INTO subjects (ID_SUBJECT_GLOBAL,SUBJECT) " +
+                        "VALUES ('" +
+                        2000000 + "','" +
+                        subject + "');";
+                DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
+                sql = "UPDATE subjects SET ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
+                DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
+                DbTableRelationQuestionSubject.addRelationQuestionSubject(questionId, subject);
+            } catch (Exception e) {
+                System.err.println(e.getClass().getName() + ": " + e.getMessage());
+                System.exit(0);
+            }
+        }
+    }
     static public Vector<String> getSubjectsForQuestionID(Long questionID) {
         Vector<String> subjects = new Vector<>();
         try {

@@ -119,11 +119,11 @@ public class TestActivity extends AppCompatActivity {
                     QuestionMultipleChoice questionMultipleChoice = mTest.getIdMapQmc().get(mTest.getQuestionsIDs().get(position));
                     if (questionMultipleChoice == null) {
                         QuestionShortAnswer questionShortAnswer = mTest.getIdMapShrtaq().get(mTest.getQuestionsIDs().get(position));
-                        Koeko.wifiCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer,
-                                Koeko.wifiCommunicationSingleton.directCorrection);
+                        Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer,
+                                Koeko.networkCommunicationSingleton.directCorrection);
                     } else {
-                        Koeko.wifiCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice,
-                                Koeko.wifiCommunicationSingleton.directCorrection);
+                        Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice,
+                                Koeko.networkCommunicationSingleton.directCorrection);
                     }
                 }
             }
@@ -173,6 +173,7 @@ public class TestActivity extends AppCompatActivity {
         Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
 
         Koeko.currentTestActivitySingleton = this;
+        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
     }
     @Override
     public void onResume() {
@@ -189,27 +190,30 @@ public class TestActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (mTest.getMedalsInstructionsString().length() > 0) {
-            getMenuInflater().inflate(R.menu.menu_test, menu);
+        if (mTest.getMedalsInstructions() != null ) {
+            if (mTest.getMedalsInstructionsString().length() > 0) {
+                getMenuInflater().inflate(R.menu.menu_test, menu);
 
-            testChronometer = (TestChronometer) menu
-                    .findItem(R.id.chronometer)
-                    .getActionView();
+                testChronometer = (TestChronometer) menu
+                        .findItem(R.id.chronometer)
+                        .getActionView();
 
-            testChronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-            testChronometer.setTextColor(Color.WHITE);
-            if (reloadActivity) {
-                testChronometer.setStartTime(Koeko.activeTestStartTime);
-                testChronometer.run();
+                testChronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+                testChronometer.setTextColor(Color.WHITE);
+                if (reloadActivity) {
+                    testChronometer.setStartTime(Koeko.activeTestStartTime);
+                    testChronometer.run();
+                }
             }
+        } else {
+            Log.w(TAG, "Medals Instructions are null!!");
         }
-
         return (super.onCreateOptionsMenu(menu));
     }
 
     public void checkIfTestFinished() {
         if (mTest.getAnsweredQuestionIds().containsAll(mTest.getActiveQuestionIds()) &&
-                mTest.getActiveQuestionIds().containsAll(mTest.getAnsweredQuestionIds())) {
+                mTest.getActiveQuestionIds().containsAll(mTest.getAnsweredQuestionIds()) && testChronometer != null) {
             testChronometer.stop();
             Long testDuration = testChronometer.getOverallDuration();
 
@@ -276,7 +280,7 @@ public class TestActivity extends AppCompatActivity {
                 play_pauseButton.setImageResource(R.drawable.pause_icon);
             }
         } else if (mTest.getMediaFileType() == 3) {
-            ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 1400;
+            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.LONG_TRANSITION_TIME;
             Intent intent = new Intent(TestActivity.this, WebViewActivity.class);
             startActivity(intent);
         }
@@ -306,12 +310,15 @@ public class TestActivity extends AppCompatActivity {
         } else {
             ((Koeko) this.getApplication()).stopActivityTransitionTimer();
             Log.v("test activity: ", "has focus");
+            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
         }
     }
 
     @Override
     public void onPause() {
         Log.d(TAG, "onPause");
+
+        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer = null;
