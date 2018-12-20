@@ -1,0 +1,97 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+	android:layout_height="match_parent" android:background="@color/white"
+	tools:context=".Activities.InteractiveModeActivity">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_alignParentTop="true"
+		android:keepScreenOn="true"
+		android:orientation="vertical"
+		android:weightSum="10">
+
+		<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/background_landscape_layout"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="8">
+			<ImageView
+				android:id="@+id/background_landscape"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:contentDescription="@string/keepcalmimage"
+				android:src="@drawable/landscape" />
+			<pl.droidsonroids.gif.GifImageView
+				android:id="@+id/red_celebration"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:visibility="gone"
+				android:src="@drawable/red_celeb"/>
+			<pl.droidsonroids.gif.GifImageView
+				android:id="@+id/blue_celebration"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:visibility="gone"
+				android:src="@drawable/blue_celebration"/>
+		</RelativeLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="20dp"
+			android:layout_marginLeft="30dp"
+			android:layout_marginRight="30dp"
+			android:layout_marginTop="30dp"
+			android:layout_weight="2"
+			android:orientation="horizontal">
+
+			<Button
+				android:id="@+id/ready_button"
+				android:layout_width="wrap_content"
+				android:layout_height="90dp"
+				android:layout_gravity="center"
+				android:background="@color/koekored"
+				android:text="Ready" />
+
+			<View
+				android:layout_width="0dp"
+				android:layout_height="0dp"
+				android:layout_weight="1" />
+
+			<Button
+				android:id="@+id/scan_qr_button_game"
+				android:layout_width="wrap_content"
+				android:layout_height="90dp"
+				android:layout_gravity="center"
+				android:backgroundTint="@color/white"
+				android:drawableTop="@drawable/qrimage" />
+		</LinearLayout>
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/blue_score"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentTop="true"
+		android:text="blue Score"
+		android:textColor="@android:color/holo_blue_dark"
+		android:layout_marginLeft="35dp"
+		android:layout_marginTop="15dp"
+		android:textSize="22sp" />
+
+	<TextView
+		android:id="@+id/red_score"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:layout_alignParentEnd="true"
+		android:layout_alignParentRight="true"
+		android:text="red Score"
+		android:textColor="@color/red"
+		android:layout_marginRight="35dp"
+		android:layout_marginTop="15dp"
+		android:textSize="22sp" />
+</RelativeLayout>

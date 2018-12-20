@@ -202,9 +202,10 @@ public class QRCodeReaderActivity extends AppCompatActivity {
         if (!hasFocus) {
             Log.v("QRCodeReader: ", "focus lost");
             ((Koeko) this.getApplication()).startActivityTransitionTimer();
+            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.LONG_TRANSITION_TIME;
         } else {
             ((Koeko) this.getApplication()).stopActivityTransitionTimer();
-            ((Koeko) this.getApplication()).MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
+            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
             Log.v("QRCodeReader: ", "has focus");
         }
     }

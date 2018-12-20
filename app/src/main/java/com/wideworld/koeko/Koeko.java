@@ -1,8 +1,9 @@
 package com.wideworld.koeko;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
+import com.wideworld.koeko.Activities.GameActivity;
 import com.wideworld.koeko.Activities.TestActivity;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.NetworkCommunication.WifiCommunication;
@@ -12,8 +13,9 @@ import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 /**
  * Created by maximerichard on 17/02/17.
  */
-public class Koeko extends Application {
+public class Koeko extends MultiDexApplication {
     public static int testConnectivity = 0;
+    public static GameActivity currentGameActivity = null;
     public static TestActivity currentTestActivitySingleton = null;
     public static String qmcActivityState = null;
     public static QuestionMultipleChoice currentQuestionMultipleChoiceSingleton = null;
@@ -24,9 +26,13 @@ public class Koeko extends Application {
 
 
     public static WifiCommunication wifiCommunicationSingleton;
-    private NetworkCommunication appNetwork;
+    public static NetworkCommunication networkCommunicationSingleton;
+    private NetworkCommunication appNetwork = null;
     private Integer quitApp = 0;
-    public long MAX_ACTIVITY_TRANSITION_TIME_MS = 700;
+    static public long MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
+    static public long SHORT_TRANSITION_TIME = 200;
+    static public long MEDIUM_TRANSITION_TIME = 800;
+    static public long LONG_TRANSITION_TIME = 1400;
 
     public WifiCommunication getAppWifi() {return wifiCommunicationSingleton;}
     public NetworkCommunication getAppNetwork() {
@@ -47,7 +53,7 @@ public class Koeko extends Application {
             @Override
             public void run() {
                 try {
-                    sleep(MAX_ACTIVITY_TRANSITION_TIME_MS);
+                    sleep(Koeko.MEDIUM_TRANSITION_TIME);
                     quitApp = 0;
                 } catch (InterruptedException e) {
                     e.printStackTrace();

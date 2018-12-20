@@ -16,11 +16,25 @@
         android:orientation="vertical" >
 
         <TextView
+            android:id="@+id/timerViewMcq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="13dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/timerbackground"
+            android:gravity="center"
+            android:text="Timer"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/textViewMultChoiceQuest1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="10"
-            android:layout_marginTop="10dp"
             android:text="Large Text"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/black" />

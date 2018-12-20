@@ -249,16 +249,16 @@ public class EvaluationCityRepresentationActivity extends AppCompatActivity {
                 }
                 if (Double.valueOf(result) < 50) {
                     imageView.setImageResource(R.drawable.building_worst);
-                    qualitativeResult = getResources().getString(R.string.candobetter);
+                    qualitativeResult = "😢";
                 } else if (Double.valueOf(result) < 70) {
-                    imageView.setImageResource(R.drawable.building_best);
-                    qualitativeResult = getResources().getString(R.string.ok);
+                    imageView.setImageResource(R.drawable.building_medium);
+                    qualitativeResult = "😐";
                 } else if (Double.valueOf(result) < 90) {
-                    imageView.setImageResource(R.drawable.building_best);
-                    qualitativeResult = getResources().getString(R.string.good) + "!";
+                    imageView.setImageResource(R.drawable.building_good);
+                    qualitativeResult = "😃";
                 } else {
                     imageView.setImageResource(R.drawable.building_best);
-                    qualitativeResult = getResources().getString(R.string.excellent) + "!!!";
+                    qualitativeResult = "😍";
                 }
 
                 //setting image position
