@@ -27,6 +27,7 @@
     <color name="red">#F7230C</color>
     <color name="koekored">#ff3333</color>
     <color name="green">#57D53B</color>
+    <color name="gamegreen">#add82a</color>
     <string name="title_activity_evaluation_results">Results</string>
     <string name="waiting_for_question">Waiting for the next question</string>
     <string name="hello">Hello</string>

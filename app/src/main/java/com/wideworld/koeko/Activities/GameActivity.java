@@ -1,9 +1,11 @@
 package com.wideworld.koeko.Activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
@@ -145,9 +147,14 @@ public class GameActivity extends AppCompatActivity {
         }
 
         readyButton = findViewById(R.id.ready_button);
+        final Activity currentActivity = this;
         if (gameType == GameType.orderedAutomaticSending || gameType == GameType.randomAutomaticSending) {
             readyButton.setOnClickListener(e -> {
                 Koeko.networkCommunicationSingleton.sendStringToServer("READY///" + DbTableSettings.getUUID() + "///");
+                currentActivity.runOnUiThread(() -> {
+                    readyButton.setBackgroundColor(getResources().getColor(R.color.gamegreen));
+                });
+                Log.d(TAG, "change readybutton UI");
             });
         } else {
             readyButton.setVisibility(View.GONE);
@@ -239,6 +246,8 @@ public class GameActivity extends AppCompatActivity {
         }
 
         Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
+
+        readyButton.setBackgroundColor(getResources().getColor(R.color.koekored));
     }
 
     private void launchResourceFromCode() {
