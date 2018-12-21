@@ -5,10 +5,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,11 +22,7 @@ import android.widget.Toast;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.QuestionsManagement.GameType;
-import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
-import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.R;
-import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
-import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 import com.wideworld.koeko.database_management.DbTableSettings;
 
 import pl.droidsonroids.gif.GifImageView;
@@ -254,7 +248,7 @@ public class GameActivity extends AppCompatActivity {
         }
 
         if (!Koeko.qrCode.contentEquals("")) {
-            launchResourceFromCode();
+            sendQuestionRequest();
             Koeko.qrCode = "";
         }
 
@@ -263,29 +257,12 @@ public class GameActivity extends AppCompatActivity {
         readyButton.setBackgroundColor(getResources().getColor(R.color.koekored));
     }
 
-    private void launchResourceFromCode() {
+    private void sendQuestionRequest() {
         String[] codeArray = Koeko.qrCode.split(":");
         if (codeArray.length >= 3) {
-            String directCorrection = codeArray[2];
             String resCodeString = codeArray[0];
-            if (DbTableQuestionMultipleChoice.checkIfIdMatchResource(resCodeString)) {
-                Long resCode = Long.valueOf(resCodeString);
-                if (resCode < 0) {
-                    resCode = -resCode;
-                    Koeko.networkCommunicationSingleton.launchTestActivity(resCode, directCorrection);
-                } else {
-                    QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(resCodeString);
-                    if (questionShortAnswer.getQuestion().length() == 0 || questionShortAnswer.getQuestion().contentEquals("none")) {
-                        QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(resCodeString);
-                        Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, directCorrection);
-                    } else {
-                        Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, directCorrection);
-                    }
-                }
-            } else {
-                Koeko.networkCommunicationSingleton.sendStringToServer("REQUEST///"
-                        + NetworkCommunication.deviceIdentifier + "///" + resCodeString + "///");
-            }
+            Koeko.networkCommunicationSingleton.sendStringToServer("GAMESET///"
+                    + NetworkCommunication.deviceIdentifier + "///" + resCodeString + "///");
         } else {
             Log.w(TAG, "Array from QR code string is too short");
         }
