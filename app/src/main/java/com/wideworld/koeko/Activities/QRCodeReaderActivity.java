@@ -140,26 +140,20 @@ public class QRCodeReaderActivity extends AppCompatActivity {
                                 .getVisionBarcodeDetector(options);
 
                         Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(FirebaseVisionImage.fromBitmap(bitmap))
-                                .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
-                                    @Override
-                                    public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
-                                        String code = getQuestionCode(barcodes);
-                                        if (code.length() == 0) {
-                                            Toast.makeText(QRCodeReaderActivity.this,
-                                                    "No question detected. Please try again.", Toast.LENGTH_LONG).show();
-                                        } else {
-                                            Log.d(TAG, "onSuccess: " + code);
-                                            Koeko.qrCode = code;
-                                            finish();
-                                            invalidateOptionsMenu();
-                                        }
+                                .addOnSuccessListener(barcodes -> {
+                                    String code = getQuestionCode(barcodes);
+                                    if (code.length() == 0) {
+                                        Toast.makeText(QRCodeReaderActivity.this,
+                                                "No question detected. Please try again.", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Log.d(TAG, "onSuccess: " + code);
+                                        Koeko.qrCode = code;
+                                        finish();
+                                        invalidateOptionsMenu();
                                     }
                                 })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-
-                                    }
+                                .addOnFailureListener(e -> {
+                                    e.printStackTrace();
                                 });
 
                     }

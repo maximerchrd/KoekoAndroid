@@ -283,7 +283,9 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
     private void launchResourceFromCode() {
         String[] codeArray = Koeko.qrCode.split(":");
-        if (codeArray.length >= 3) {
+        if (codeArray.length >= 3 && codeArray[0].contentEquals("GAME")) {
+            Koeko.networkCommunicationSingleton.sendStringToServer("GAMETEAM///" + codeArray[1] + "///" + codeArray[2]);
+        } else if (codeArray.length >= 3) {
             String directCorrection = codeArray[2];
             String resCodeString = codeArray[0];
             if (DbTableQuestionMultipleChoice.checkIfIdMatchResource(resCodeString)) {
