@@ -435,6 +435,7 @@ public class WifiCommunication {
                         if (sizesPrefix.split("///").length >= 3) {
                             try {
                                 int dataSize = Integer.valueOf(sizesPrefix.split("///")[1]);
+                                int team = Integer.valueOf(sizesPrefix.split("///")[2]);
                                 byte[] dataBuffer = readDataIntoArray(dataSize, able_to_read);
 
                                 //check if we got all the data
@@ -442,7 +443,7 @@ public class WifiCommunication {
                                     ObjectMapper mapper = new ObjectMapper();
                                     String stringJson = new String(dataBuffer, "UTF-8");
                                     GameView gameView = mapper.readValue(stringJson, GameView.class);
-                                    Koeko.networkCommunicationSingleton.launchGameActivity(gameView);
+                                    Koeko.networkCommunicationSingleton.launchGameActivity(gameView, team);
                                     Koeko.shrtaqActivityState = null;
                                     Koeko.qmcActivityState = null;
                                     Koeko.currentTestActivitySingleton = null;

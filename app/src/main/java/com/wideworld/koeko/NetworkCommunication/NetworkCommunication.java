@@ -213,12 +213,13 @@ public class NetworkCommunication {
 		mContextNetCom.startActivity(mIntent);
 	}
 
-	public void launchGameActivity(GameView gameView) {
+	public void launchGameActivity(GameView gameView, int team) {
 		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
 		Intent mIntent = new Intent(mContextNetCom, GameActivity.class);
 		Bundle bun = new Bundle();
 		bun.putInt("endScore", gameView.getEndScore());
 		bun.putInt("gameType", gameView.getGameType());
+		bun.putInt("team", team);
 		mIntent.putExtras(bun);
 		mContextNetCom.startActivity(mIntent);
 	}

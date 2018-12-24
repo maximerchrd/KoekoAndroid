@@ -66,4 +66,5 @@
     <string name="start_connection">Démarrer la connection</string>
     <string name="stop_connection">Arrêter la connection</string>
     <string name="hotspot_available">Hotspot disponible</string>
+    <string name="me">Me</string>
 </resources>

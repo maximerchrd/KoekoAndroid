@@ -31,6 +31,7 @@ public class GameActivity extends AppCompatActivity {
     private MenuItem forwardButton;
     private String TAG = "GameActivity";
 
+    private Integer team = 0;
     private TextView redScore;
     private TextView blueScore;
 
@@ -92,8 +93,20 @@ public class GameActivity extends AppCompatActivity {
             }
 
             //change score text
-            blueScore.setText(String.valueOf(teamOneScore.intValue()));
-            redScore.setText(String.valueOf(teamTwoScore.intValue()));
+            if (team == 1) {
+                String score = String.valueOf(teamOneScore.intValue());
+                String prefix = blueScore.getText().toString().split(":")[0];
+                blueScore.setText(prefix + ": " + score);
+            } else {
+                blueScore.setText(String.valueOf(teamOneScore.intValue()));
+            }
+            if (team == 2) {
+                String score = String.valueOf(teamTwoScore.intValue());
+                String prefix = redScore.getText().toString().split(":")[0];
+                redScore.setText(prefix + ": " + score);
+            } else {
+                redScore.setText(String.valueOf(teamTwoScore.intValue()));
+            }
         });
     }
 
@@ -193,10 +206,20 @@ public class GameActivity extends AppCompatActivity {
             redClimber.requestLayout();
 
             //initialize scores
+            team = bun.getInt("team");
+            Log.d(TAG, "onCreate: team=" + team);
             blueScore = findViewById(R.id.blue_score);
-            blueScore.setText("0");
+            if (team == 1) {
+                blueScore.setText(getString(R.string.me) + ": 0");
+            } else {
+                blueScore.setText("0");
+            }
             redScore = findViewById(R.id.red_score);
-            redScore.setText("0");
+            if (team == 2) {
+                redScore.setText(getString(R.string.me) + "Me: 0");
+            } else {
+                redScore.setText("0");
+            }
         });
 
         Koeko.currentGameActivity = this;
