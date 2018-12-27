@@ -152,7 +152,7 @@ public class GameActivity extends AppCompatActivity {
                     );
                 } else {
                     Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.LONG_TRANSITION_TIME;
-                    Intent capturecodeIntent = new Intent(GameActivity.this, QRCodeReaderActivity.class);
+                    Intent capturecodeIntent = new Intent(GameActivity.this, ContinuousQrScanning.class);
                     startActivity(capturecodeIntent);
                 }
             });

@@ -32,7 +32,7 @@ public class Koeko extends MultiDexApplication {
     static public long MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
     static public long SHORT_TRANSITION_TIME = 200;
     static public long MEDIUM_TRANSITION_TIME = 800;
-    static public long LONG_TRANSITION_TIME = 1400;
+    static public long LONG_TRANSITION_TIME = 2000;
 
     public WifiCommunication getAppWifi() {return wifiCommunicationSingleton;}
     public NetworkCommunication getAppNetwork() {

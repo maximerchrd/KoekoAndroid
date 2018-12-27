@@ -41,7 +41,8 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.+'
-
+    implementation('com.journeyapps:zxing-android-embedded:3.6.0') { transitive = false }
+    implementation 'com.google.zxing:core:3.3.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Kotlin support

@@ -44,6 +44,8 @@ public class MultChoiceQuestionActivity extends Activity {
     private Activity mContext;
     private Long startingTime = 0L;
 
+    private String TAG = "MultChoiceQuestionActivity";
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,32 +118,31 @@ public class MultChoiceQuestionActivity extends Activity {
 
         //send receipt to server
         String receipt = "ACTID///" + currentQ.getId() + "///";
-        Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
+        if (Koeko.wifiCommunicationSingleton != null) {
+            Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
+        } else {
+            Log.d(TAG, "onCreate: sending receipt to null wifiCommunicationSingleton");
+        }
 
-
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("SimpleDateFormat")
-            @Override
-            public void onClick(View v) {
-                String answer = "";
-                for (int i = 0; i < number_of_possible_answers; i++) {
-                    if (checkBoxesArray.get(i).isChecked()) {
-                        answer += checkBoxesArray.get(i).getText() + "|||";
-                    }
+        submitButton.setOnClickListener(v -> {
+            String answer = "";
+            for (int i = 0; i < number_of_possible_answers; i++) {
+                if (checkBoxesArray.get(i).isChecked()) {
+                    answer += checkBoxesArray.get(i).getText() + "|||";
                 }
+            }
 
-                wasAnswered = true;
-                saveActivityState();
+            wasAnswered = true;
+            saveActivityState();
 
-                NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
-                networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getId(), "ANSW0");
+            NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
+            networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getId(), "ANSW0");
 
-                if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
-                    MltChoiceQuestionButtonClick();
-                } else {
-                    finish();
-                    invalidateOptionsMenu();
-                }
+            if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
+                MltChoiceQuestionButtonClick();
+            } else {
+                finish();
+                invalidateOptionsMenu();
             }
         });
 
