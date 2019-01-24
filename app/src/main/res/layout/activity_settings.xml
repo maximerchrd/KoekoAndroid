@@ -4,11 +4,11 @@
     android:layout_height="match_parent"
     android:layout_marginLeft="15dp"
     android:layout_marginRight="15dp"
-    tools:context=".Activities.MenuActivity">
+    tools:context=".Activities.SettingsActivity">
 
     <LinearLayout
+        android:id="@+id/settings_linear_layout"
         android:layout_marginTop="60dp"
-        android:layout_marginBottom="200dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -16,7 +16,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:orientation="vertical"
-        android:weightSum="12">
+        android:weightSum="32">
 
         <LinearLayout
             android:id="@+id/linearLayoutSettingsName"
@@ -50,6 +50,12 @@
                 <requestFocus />
             </EditText>
         </LinearLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_weight="0.1"
+            android:background="#c0c0c0"/>
 
         <Switch
             android:id="@+id/automaticConnectionSwitch"
@@ -97,6 +103,55 @@
             </EditText>
         </LinearLayout>
 
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_weight="0.1"
+            android:background="#c0c0c0"/>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutSettingsInternetServer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_below="@+id/automaticConnectionSwitch"
+            android:orientation="horizontal"
+            android:layout_weight="3"
+            android:weightSum="10"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/textViewInternetServer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/internet_server"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:layout_weight="5"/>
+
+            <EditText
+                android:id="@+id/editTextInternetServer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/textViewMaster"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:textColor="@color/black"
+                android:layout_weight="5">
+
+                <requestFocus />
+            </EditText>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/internetAddressSeparator"
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_weight="0.1"
+            android:background="#c0c0c0"
+            android:visibility="gone"/>
+
         <Switch
             android:id="@+id/hotspotAvailableSwitch"
             android:layout_width="match_parent"
@@ -106,17 +161,18 @@
             android:layout_weight="3"
             android:text="@string/hotspot_available"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:visibility="gone"/>
 
-        <Button
-            android:id="@+id/buttonsaveandback"
+        <ToggleButton
+            android:id="@+id/moreLessSettingsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/linearLayoutSettingsIPAddress"
-            android:backgroundTint="@color/blue"
-            android:text="@string/button_settings_back"
-            android:textColor="@color/white"
-            android:visibility="gone" />
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="3"
+            android:clickable="true"
+            android:onClick="toggleSettings"/>
     </LinearLayout>
 
 </RelativeLayout>

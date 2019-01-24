@@ -77,4 +77,7 @@
     <string name="stop_connection">Stop Connection</string>
     <string name="hotspot_available">Hotspot Available</string>
     <string name="me">Me</string>
+    <string name="internet_server">Internet Server</string>
+    <string name="more_settings">More Settings</string>
+    <string name="less_settings">Less Settings</string>
 </resources>

@@ -9,7 +9,10 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
@@ -23,6 +26,11 @@ import com.wideworld.koeko.database_management.DbTableSettings;
 public class SettingsActivity extends Activity {
 	EditText editName;
 	EditText editMaster;
+	ToggleButton moreLessSettings;
+	View internetServerSeparator;
+	EditText internetServerEditText;
+	TextView internetServerTextView;
+	LinearLayout linearLayoutSettingsInternetServer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +42,6 @@ public class SettingsActivity extends Activity {
 		final Switch hotspotAvailableSwitch;
 
 		editName = (EditText) findViewById(R.id.edittextnom);
-		buttonSaveAndBack = (Button) findViewById(R.id.buttonsaveandback);
 		editName.setText(DbTableSettings.getName(), null);
 
 		editMaster = (EditText) findViewById(R.id.edittextmaster);
@@ -72,6 +79,28 @@ public class SettingsActivity extends Activity {
 				DbTableSettings.setHotspotAvailable(0);
 			}
 		});
+
+		//setup more/less settings
+		linearLayoutSettingsInternetServer = findViewById(R.id.linearLayoutSettingsInternetServer);
+		internetServerTextView = findViewById(R.id.textViewInternetServer);
+		internetServerEditText = findViewById(R.id.editTextInternetServer);
+		internetServerEditText.setText(DbTableSettings.getInternetServer(), null);
+		internetServerSeparator = findViewById(R.id.internetAddressSeparator);
+		moreLessSettings = findViewById(R.id.moreLessSettingsButton);
+		moreLessSettings.setTextOff(getResources().getString(R.string.more_settings));
+		moreLessSettings.setTextOn(getResources().getString(R.string.less_settings));
+		moreLessSettings.setChecked(false);
+	}
+
+	public void toggleSettings(View view) {
+		if (moreLessSettings.isChecked()) {
+			internetServerSeparator.setVisibility(View.VISIBLE);
+			linearLayoutSettingsInternetServer.setVisibility(View.VISIBLE);
+
+		} else {
+			internetServerSeparator.setVisibility(View.GONE);
+			linearLayoutSettingsInternetServer.setVisibility(View.GONE);
+		}
 	}
 
 	protected void onPause() {
@@ -80,10 +109,9 @@ public class SettingsActivity extends Activity {
 	}
 
 	private void saveSettings() {
-		String name = editName.getText().toString();
-		String master = editMaster.getText().toString();
-		DbTableSettings.addName(name);
-		DbTableSettings.addMaster(master);
+		DbTableSettings.addName(editName.getText().toString());
+		DbTableSettings.addMaster(editMaster.getText().toString());
+		DbTableSettings.insertInternetServer(internetServerEditText.getText().toString());
 		Intent intent = new Intent(SettingsActivity.this, MenuActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.putExtra("flag", "modify");
