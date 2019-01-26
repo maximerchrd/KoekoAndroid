@@ -9,28 +9,24 @@
 		android:layout_height="match_parent"
 		android:layout_centerHorizontal="true"
 		android:layout_alignParentTop="true"
-		android:weightSum="1">
-
+		android:weightSum="30">
 
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginTop="15dp"
 			android:textAppearance="?android:attr/textAppearanceLarge"
 			android:text="@string/free_practice"
 			android:id="@+id/fp_textView"
-			android:layout_weight="0.03"
-			android:layout_marginLeft="20dp"
-			android:layout_marginRight="40dp"
+			android:layout_weight="0.5"
 			android:textAlignment="center"
-			android:textColor="@color/black"
-			android:layout_marginTop="40dp"
-			android:layout_marginBottom="20dp" />
+			android:textColor="@color/black" />
 
 		<Spinner
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/subjects_spinner"
-			android:layout_weight="0.03"
+			android:layout_weight="0.5"
 			android:spinnerMode="dropdown"
 			android:textColor="@color/black"/>
 
@@ -40,7 +36,7 @@
 			android:text="@string/start_free_practice"
 			android:id="@+id/freepractice_button"
 			android:layout_gravity="center_horizontal"
-			android:layout_weight="0.03"
+			android:layout_weight="0.5"
 			android:background="@color/blue"
 			android:textColor="@color/white"
 			android:layout_marginTop="10dp"
@@ -50,50 +46,128 @@
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginTop="25dp"
 			android:textAppearance="?android:attr/textAppearanceLarge"
-			android:text="@string/homeworks"
+			android:text="@string/homework"
 			android:id="@+id/hw_textView"
-			android:layout_weight="0.03"
-			android:textColor="@color/black"
-			android:layout_marginLeft="20dp"
-			android:layout_marginTop="40dp"
-			android:layout_marginBottom="20dp"
-			android:visibility="gone"/>
+			android:layout_weight="0.5"
+			android:textColor="@color/black" />
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:text="@string/chose_teacher"
-			android:id="@+id/teacher_textView"
-			android:layout_weight="0.03"
-			android:textColor="@color/black"
-			android:layout_marginLeft="10dp"
-			android:visibility="gone"/>
-
-		<Spinner
+		<LinearLayout
+			android:orientation="horizontal"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/teachers_spinner"
-			android:layout_gravity="center_horizontal"
-			android:layout_weight="0.03"
-			android:spinnerMode="dropdown"
-			android:textColor="@color/black"
-			android:visibility="gone"/>
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentTop="true"
+			android:layout_weight="0.25"
+			android:weightSum="3">
+
+			<Button
+				android:id="@+id/add_code_button"
+				android:clickable="true"
+				android:onClick="addCode"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/add_code"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:layout_weight="1"
+				android:background="@color/blue"
+				android:textColor="@color/white"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+				android:paddingStart="3dp"
+				android:paddingEnd="3dp" />
+			<Button
+				android:id="@+id/edit_code_button"
+				android:clickable="true"
+				android:onClick="editCode"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/edit_code"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:layout_weight="1"
+				android:background="@color/blue"
+				android:textColor="@color/white"
+				android:paddingStart="3dp"
+				android:paddingEnd="3dp" />
+			<Button
+				android:id="@+id/delete_code_button"
+				android:clickable="true"
+				android:onClick="deleteCode"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/delete_code"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:layout_weight="1"
+				android:background="@color/blue"
+				android:textColor="@color/white"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+				android:paddingStart="3dp"
+				android:paddingEnd="3dp" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentTop="true"
+			android:weightSum="1">
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:text="@string/homework_key"
+				android:layout_weight="0.5"
+				android:textColor="@color/black" />
+
+			<Spinner
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/homework_keys"
+				android:layout_gravity="center_horizontal"
+				android:layout_weight="0.5"
+				android:spinnerMode="dropdown"
+				android:textColor="@color/black" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentTop="true"
+			android:weightSum="1">
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:text="@string/homework"
+				android:layout_weight="0.5"
+				android:textColor="@color/black" />
+
+			<Spinner
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/homeworks_spinner"
+				android:layout_gravity="center_horizontal"
+				android:layout_weight="0.5"
+				android:spinnerMode="dropdown"
+				android:textColor="@color/black" />
+		</LinearLayout>
 
 		<Button
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginTop="15dp"
 			android:text="@string/start_homeworks"
 			android:id="@+id/homework_button"
 			android:layout_gravity="center_horizontal"
-			android:layout_weight="0.03"
+			android:layout_weight="0.5"
 			android:background="@color/blue"
 			android:textColor="@color/white"
-			android:layout_marginTop="10dp"
 			android:paddingEnd="10dp"
-			android:paddingStart="10dp"
-			android:visibility="gone"/>
-
+			android:paddingStart="10dp" />
 	</LinearLayout>
 </RelativeLayout>

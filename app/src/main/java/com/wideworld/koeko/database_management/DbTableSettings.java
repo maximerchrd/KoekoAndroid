@@ -3,6 +3,7 @@ package com.wideworld.koeko.database_management;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class DbTableSettings {
@@ -17,6 +18,7 @@ public class DbTableSettings {
     private static final String KEY_AUTOMATIC_CONNECTION = "automatic_connection";
     private static final String KEY_INTERNET_SERVER = "internet_server";
     private static final String KEY_HOTSPOT_AVAILABLE = "hotspot_available";
+    private static final String KEY_HOMEWORK_CODE = "homework_key";
     private static String uuid = "";
 
     private static String defaultMaster = "192.168.1.100";
@@ -110,6 +112,36 @@ public class DbTableSettings {
         return getSetting(KEY_INTERNET_SERVER);
     }
 
+    static public void insertHomeworkKey(String key, String friendlyName) {
+        String keyPurged = key.replace("/", "");
+        String friendlyNamePurged = friendlyName.replace("/", "");
+        insertSetting(KEY_HOMEWORK_CODE, keyPurged + "/" + friendlyNamePurged);
+    }
+
+    static public void updateHomeworkKey(String oldKey, String oldName, String key, String friendlyName) {
+        String keyPurged = key.replace("/", "");
+        String friendlyNamePurged = friendlyName.replace("/", "");
+
+        updateSettingWithOldValue(KEY_HOMEWORK_CODE, oldKey + "/" + oldName, keyPurged + "/" + friendlyNamePurged);
+    }
+
+    static public ArrayList<String> getHomeworkKeys() {
+        ArrayList<String> keys = new ArrayList<>();
+        String selectQuery = "SELECT " + SETTING_VALUE + " FROM " + TABLE_SETTING + " WHERE " + SETTING_KEY + " = ?";
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, new String[]{KEY_HOMEWORK_CODE});
+        while (cursor.moveToNext()) {
+            keys.add(cursor.getString(0));
+        }
+
+        return keys;
+    }
+
+    static public void deleteHomeworkKey(String key, String friendlyName) {
+        String[] args = new String[]{KEY_HOMEWORK_CODE, key + "/" + friendlyName};
+        DbHelper.dbHelperSingleton.getDatabase().delete(TABLE_SETTING, SETTING_KEY + "=? AND "
+        + SETTING_VALUE + "=?", args);
+    }
+
     static private void insertSetting(String settingKey, String settingValue) {
         ContentValues insertValues = new ContentValues();
         insertValues.put(SETTING_KEY, settingKey);
@@ -123,6 +155,15 @@ public class DbTableSettings {
         insertValues.put(SETTING_VALUE, settingValue);
         String[] args = new String[]{settingKey};
         DbHelper.dbHelperSingleton.getDatabase().update(TABLE_SETTING, insertValues, SETTING_KEY + " = ?", args);
+    }
+
+    static private void updateSettingWithOldValue(String settingKey, String oldValue, String settingValue) {
+        ContentValues insertValues = new ContentValues();
+        insertValues.put(SETTING_KEY, settingKey);
+        insertValues.put(SETTING_VALUE, settingValue);
+        String[] args = new String[]{settingKey, oldValue};
+        DbHelper.dbHelperSingleton.getDatabase().update(TABLE_SETTING, insertValues, SETTING_KEY + " = ? AND "
+                + SETTING_VALUE + " = ?", args);
     }
 
     static private String getSetting(String settingKey) {

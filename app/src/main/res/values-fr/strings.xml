@@ -70,4 +70,10 @@
     <string name="internet_server">Serveur Internet</string>
     <string name="more_settings">Plus de Paramètres</string>
     <string name="less_settings">Moins de Paramètres</string>
+    <string name="homework_key">Code</string>
+    <string name="homework">Devoir</string>
+    <string name="add_code">Ajouter un code</string>
+    <string name="edit_code">Editer le code</string>
+    <string name="delete_code">Supprimer le code</string>
+    <string name="friendly_name">Nom</string>
 </resources>

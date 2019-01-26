@@ -70,4 +70,10 @@
     <string name="internet_server">Ինտերնետային սերվեր</string>
     <string name="more_settings">ավելի շատ կարգավորումներ</string>
     <string name="less_settings">քիչ պարամետրեր</string>
+    <string name="homework_key">Code</string>
+    <string name="homework">Homework</string>
+    <string name="add_code">Add Code</string>
+    <string name="edit_code">Edit Code</string>
+    <string name="delete_code">Delete Code</string>
+    <string name="friendly_name">Friendly Name</string>
 </resources>
