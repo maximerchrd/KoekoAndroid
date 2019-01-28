@@ -2,6 +2,7 @@ package com.wideworld.koeko.database_management;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.wideworld.koeko.QuestionsManagement.Homework;
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ public class DbTableHomework {
                 KEY_UID + " TEXT, " +
                 KEY_NAME + " TEXT  NOT NULL, " +
                 KEY_IDCODE + " TEXT, " +
-                KEY_DUEDATE + " TEXT) ";
+                KEY_DUEDATE + " TEXT," +
+                " UNIQUE (" + KEY_UID + "))";
         DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
     }
 
@@ -29,7 +31,7 @@ public class DbTableHomework {
         insertValues.put(KEY_NAME, homework.getName());
         insertValues.put(KEY_IDCODE, homework.getIdCode());
         insertValues.put(KEY_DUEDATE, homework.getDueDate());
-        DbHelper.dbHelperSingleton.getDatabase().insert(KEY_TABLE_HOMEWORK, null, insertValues);
+        DbHelper.dbHelperSingleton.getDatabase().insertWithOnConflict(KEY_TABLE_HOMEWORK, null, insertValues, SQLiteDatabase.CONFLICT_REPLACE);
 
         for (String questionId : homework.getQuestions()) {
             DbTableRelationHomeworkQuestion.insertHomeworkQuestionRelation(homework.getName(), questionId);

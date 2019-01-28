@@ -2,6 +2,7 @@ package com.wideworld.koeko.database_management;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.wideworld.koeko.QuestionsManagement.Homework;
 
@@ -20,7 +21,8 @@ public class DbTableRelationHomeworkQuestion {
         String sql = "CREATE TABLE IF NOT EXISTS " + KEY_TABLE_HOMEWORK_QUESTION +
                 " (ID       INTEGER PRIMARY KEY AUTOINCREMENT," +
                 KEY_HOMEWORK_NAME + " TEXT  NOT NULL, " +
-                KEY_QUESTION_ID + " TEXT) ";
+                KEY_QUESTION_ID + " TEXT, " +
+                "CONSTRAINT unq UNIQUE (" + KEY_HOMEWORK_NAME + ", " + KEY_QUESTION_ID + "))";
         DbHelper.dbHelperSingleton.getDatabase().execSQL(sql);
     }
 
@@ -38,7 +40,7 @@ public class DbTableRelationHomeworkQuestion {
         ContentValues insertValues = new ContentValues();
         insertValues.put(KEY_HOMEWORK_NAME, homeworkName);
         insertValues.put(KEY_QUESTION_ID, questionId);
-        DbHelper.dbHelperSingleton.getDatabase().insert(KEY_TABLE_HOMEWORK_QUESTION, null, insertValues);
+        DbHelper.dbHelperSingleton.getDatabase().insertWithOnConflict(KEY_TABLE_HOMEWORK_QUESTION, null, insertValues, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     static public void deleteAllRelationsForHomework(String homeworkName) {

@@ -37,9 +37,11 @@ public class ExerciseActivity extends Activity {
 
     private Spinner homeworksSpinner;
     private ArrayList<String> homeworkSpinnerList;
+    private ArrayList<Homework> homeworkSpinnerObjectList;
     private ArrayAdapter<String> homeworkSpinnerAdapter;
 
     private Context mContext;
+    private Activity currentActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,7 @@ public class ExerciseActivity extends Activity {
         setContentView(R.layout.activity_exercice);
 
         mContext = getApplicationContext();
+        currentActivity = this;
 
         //couple code with UI
         homeWorkButton = (Button) findViewById(R.id.homework_button);
@@ -78,6 +81,25 @@ public class ExerciseActivity extends Activity {
         });
 
         homeworksSpinner = findViewById(R.id.homeworks_spinner);
+        homeworkSpinnerObjectList = DbTableHomework.getHomeworksWithCode(codeSpinnerOriginalList.get(codeSpinner.getSelectedItemPosition()).split("/")[0]);
+        homeworkSpinnerList = new ArrayList<>();
+        for (Homework homework : homeworkSpinnerObjectList) {
+            homeworkSpinnerList.add(homework.getName());
+        }
+
+        homeworkSpinnerAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, homeworkSpinnerList);
+        homeworkSpinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        homeworksSpinner.setAdapter(homeworkSpinnerAdapter);
+        homeworksSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+        });
 
         //puts the subjects for which there are poorly evaluated questions into the spinner
         Vector<Vector<String>> questionIdAndSubjectsVector = DbTableSubject.getSubjectsAndQuestionsNeedingPractice();
@@ -129,11 +151,22 @@ public class ExerciseActivity extends Activity {
         new Thread(() -> {
             for (String code : codeSpinnerOriginalList) {
                 try {
-                    ArrayList<Homework> homeworks = RemoteServerCommunication.singleton().getUpdatedHomeworksForCode(code.split("/")[0]);
+                    ArrayList<Homework> homeworks = RemoteServerCommunication.singleton().
+                            getUpdatedHomeworksForCode(code.split("/")[0]);
                     for (Homework homework : homeworks) {
                         DbTableHomework.insertHomework(homework);
                     }
-                    System.out.println(homeworks.get(0).getDueDate());
+                    currentActivity.runOnUiThread(() -> {
+                        if (code.contentEquals(codeSpinnerOriginalList.get(codeSpinner.
+                                getSelectedItemPosition()))) {
+                            homeworkSpinnerObjectList = homeworks;
+                            homeworkSpinnerList.clear();
+                            for (Homework homework : homeworkSpinnerObjectList) {
+                                homeworkSpinnerList.add(homework.getName());
+                            }
+                            homeworkSpinnerAdapter.notifyDataSetChanged();
+                        }
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
