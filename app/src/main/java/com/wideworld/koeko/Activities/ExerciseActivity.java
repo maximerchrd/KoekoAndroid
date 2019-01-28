@@ -5,14 +5,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
-import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
 import com.wideworld.koeko.Activities.ActivityTools.HomeworkCodeAlertDialog;
+import com.wideworld.koeko.NetworkCommunication.RemoteServerCommunication;
+import com.wideworld.koeko.QuestionsManagement.Homework;
 import com.wideworld.koeko.R;
+import com.wideworld.koeko.database_management.DbTableHomework;
 import com.wideworld.koeko.database_management.DbTableSettings;
 import com.wideworld.koeko.database_management.DbTableSubject;
 
@@ -32,6 +36,9 @@ public class ExerciseActivity extends Activity {
     private ArrayAdapter<String> codeSpinnerAdapter;
 
     private Spinner homeworksSpinner;
+    private ArrayList<String> homeworkSpinnerList;
+    private ArrayAdapter<String> homeworkSpinnerAdapter;
+
     private Context mContext;
 
     @Override
@@ -59,6 +66,16 @@ public class ExerciseActivity extends Activity {
         codeSpinnerAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, codeSpinnerList);
         codeSpinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         codeSpinner.setAdapter(codeSpinnerAdapter);
+        codeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+        });
 
         homeworksSpinner = findViewById(R.id.homeworks_spinner);
 
@@ -106,6 +123,23 @@ public class ExerciseActivity extends Activity {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        new Thread(() -> {
+            for (String code : codeSpinnerOriginalList) {
+                try {
+                    ArrayList<Homework> homeworks = RemoteServerCommunication.singleton().getUpdatedHomeworksForCode(code.split("/")[0]);
+                    for (Homework homework : homeworks) {
+                        DbTableHomework.insertHomework(homework);
+                    }
+                    System.out.println(homeworks.get(0).getDueDate());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     public void addCode(View view) {
         HomeworkCodeAlertDialog homeworkCodeAlertDialog = new HomeworkCodeAlertDialog(this,

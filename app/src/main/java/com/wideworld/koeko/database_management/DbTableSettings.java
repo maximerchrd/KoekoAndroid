@@ -22,7 +22,7 @@ public class DbTableSettings {
     private static String uuid = "";
 
     private static String defaultMaster = "192.168.1.100";
-    private static String defaultInternetServer = "192.168.1.100";
+    private static String defaultInternetServer = "127.0.0.1";
 
     private static String TAG = "DbTableSettings";
 
@@ -131,6 +131,17 @@ public class DbTableSettings {
         Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, new String[]{KEY_HOMEWORK_CODE});
         while (cursor.moveToNext()) {
             keys.add(cursor.getString(0));
+        }
+
+        return keys;
+    }
+
+    static public ArrayList<String> getHomeworkOnlyKeys() {
+        ArrayList<String> keys = new ArrayList<>();
+        String selectQuery = "SELECT " + SETTING_VALUE + " FROM " + TABLE_SETTING + " WHERE " + SETTING_KEY + " = ?";
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, new String[]{KEY_HOMEWORK_CODE});
+        while (cursor.moveToNext()) {
+            keys.add(cursor.getString(0).split("/")[0]);
         }
 
         return keys;

@@ -56,6 +56,8 @@ public class DbHelper extends SQLiteOpenHelper {
         DbTableTest.createTableTest();
         DbTableRelationTestObjective.createTable();
         DbTableRelationQuestionQuestion.createTable();
+        DbTableHomework.createTableHomeworks();
+        DbTableRelationHomeworkQuestion.createTableHomeworkQuestionRelation();
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
