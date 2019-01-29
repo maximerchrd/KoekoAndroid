@@ -76,4 +76,5 @@
     <string name="edit_code">Editer le code</string>
     <string name="delete_code">Supprimer le code</string>
     <string name="friendly_name">Nom</string>
+    <string name="download_new_homework_version">Télécharger le devoir</string>
 </resources>

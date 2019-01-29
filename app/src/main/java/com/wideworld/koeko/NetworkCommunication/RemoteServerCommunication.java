@@ -2,10 +2,16 @@ package com.wideworld.koeko.NetworkCommunication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wideworld.koeko.QuestionsManagement.Homework;
+import com.wideworld.koeko.QuestionsManagement.QuestionView;
+import com.wideworld.koeko.Tools.FileHandler;
+import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableSettings;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -26,6 +32,7 @@ public class RemoteServerCommunication {
     private final String cstrByeByeDude = "BYEB";
     private final String cstrUplJSONObj = "JSOB";
     private final String cstrUplSimpStr = "STRI";
+    private final String cstrQuestioIds = "QIDS";
 
     private Socket _socket;
     private InputStream _inStream;
@@ -37,11 +44,32 @@ public class RemoteServerCommunication {
 
     public ArrayList<Homework> getUpdatedHomeworksForCode(String code) throws Exception {
         InitializeTransfer(getInetAddress());
-        SendSimpleString(code);
+        SendSimpleString(cstrUplSimpStr, code);
         ArrayList<Homework> homeworks = ReadArrayOfHomeworks();
         EndSynchronisation();
 
         return homeworks;
+    }
+
+    public void getQuestionsFromServer(ArrayList<String> questionIds) throws Exception {
+        for (int i = 0; i < questionIds.size(); i++) {
+            questionIds.set(i, questionIds.get(i) + "/" + DbTableQuestionMultipleChoice.getUpdDateFromId(questionIds.get(i)));
+        }
+        InitializeTransfer(getInetAddress());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = objectMapper.writeValueAsString(questionIds);
+        SendSimpleString(cstrQuestioIds, jsonString);
+        String jsonQuestion;
+        do {
+            jsonQuestion = ReadString();
+            if (jsonQuestion.length() > 0) {
+                QuestionView questionView = objectMapper.readValue(jsonQuestion, QuestionView.class);
+                if (!questionView.getIMAGE().contentEquals("none")) {
+                    ReceiveBinaryFile(questionView.getIMAGE());
+                }
+            }
+        } while (!jsonQuestion.contentEquals(""));
+        EndSynchronisation();
     }
 
     private ArrayList<Homework> ReadArrayOfHomeworks() throws IOException {
@@ -73,6 +101,24 @@ public class RemoteServerCommunication {
         return homeworkArrayList;
     }
 
+    private String ReadString() throws IOException {
+        int fileSize;
+        byte[] lenBuf = new byte[4];
+        _inStream.read(lenBuf);
+        fileSize = BytesToInt(lenBuf);
+        byte[] contents = new byte[fileSize];
+
+        //No of bytes read in one read() call
+        int bytesRead;
+        int readTillNow = 0;
+
+        while (readTillNow != fileSize) {
+            bytesRead = _inStream.read(contents, readTillNow, fileSize - readTillNow);
+            readTillNow += bytesRead;
+        }
+        return new String(contents);
+    }
+
     private InetAddress getInetAddress() throws UnknownHostException {
         return InetAddress.getByName(DbTableSettings.getInternetServer());
     }
@@ -99,8 +145,8 @@ public class RemoteServerCommunication {
         return muid;
     }
 
-    public void SendSimpleString(String text) throws IOException {
-        SendCommande(cstrUplSimpStr);
+    public void SendSimpleString(String command, String text) throws IOException {
+        SendCommande(command);
 
         //Get socket's output stream and send object
         byte[] allBytes = new byte[text.getBytes().length + 4];
@@ -185,15 +231,52 @@ public class RemoteServerCommunication {
         }
     }
 
-    public void getHomeworksWithHWCode() {
+    long ReceiveBinaryFile(String fileName)  throws IOException {
 
+        //Initialize socket
+        byte[] contents = new byte[10000];
+
+        String filePath = FileHandler.mediaDirectory + fileName;
+        //Initialize the FileOutputStream to the output file's full path.
+        File file = new File(filePath);
+        FileOutputStream fos = new FileOutputStream(file);
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+        byte[] lenBuf = new byte[8];
+        _inStream.read(lenBuf);
+        long fileSize = BytesToLong(lenBuf);
+
+        //No of bytes read in one read() call
+        int bytesRead = 0;
+        long readTillNow = 0;
+
+        while(readTillNow != fileSize) {
+            bytesRead = _inStream.read(contents);
+            bos.write(contents, 0, bytesRead);
+            readTillNow += bytesRead;
+        }
+
+        bos.flush();
+        bos.close();
+        System.out.println("File saved successfully (size "+fileSize+") to " + file.getAbsolutePath());
+
+        return fileSize;
     }
 
-    public static byte[] IntToBytes(int i) {
+    private static byte[] IntToBytes(int i) {
          return ByteBuffer.allocate(4).putInt(i).array();
     }
 
-    public static int BytesToInt(byte[] b) {
+    private static int BytesToInt(byte[] b) {
         return ByteBuffer.wrap(b).getInt();
+    }
+
+    private static long BytesToLong(byte[] b) {
+        long result = 0;
+        for (int i = 0; i < 8; i++) {
+            result <<= 8;
+            result |= (b[i] & 0xFF);
+        }
+        return result;
     }
 }

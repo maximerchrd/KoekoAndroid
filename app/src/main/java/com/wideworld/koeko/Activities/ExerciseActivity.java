@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,6 +16,8 @@ import com.wideworld.koeko.NetworkCommunication.RemoteServerCommunication;
 import com.wideworld.koeko.QuestionsManagement.Homework;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableHomework;
+import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
+import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 import com.wideworld.koeko.database_management.DbTableSettings;
 import com.wideworld.koeko.database_management.DbTableSubject;
 
@@ -27,7 +28,7 @@ import java.util.Vector;
  * Created by maximerichard on 20.02.18.
  */
 public class ExerciseActivity extends Activity {
-    private Button homeWorkButton, freePracticeButton;
+    private Button homeWorkButton, freePracticeButton, downloadHomeworkButton;
     private Spinner subjectsSpinner;
 
     private Spinner codeSpinner;
@@ -80,6 +81,11 @@ public class ExerciseActivity extends Activity {
             }
         });
 
+        downloadHomeworkButton = findViewById(R.id.download_homework_button);
+        downloadHomeworkButton.setOnClickListener(v -> {
+            downloadHomeworkQuestions(homeworkSpinnerObjectList.get(homeworksSpinner.getSelectedItemPosition()).getQuestions());
+        });
+
         homeworksSpinner = findViewById(R.id.homeworks_spinner);
         homeworkSpinnerObjectList = DbTableHomework.getHomeworksWithCode(codeSpinnerOriginalList.get(codeSpinner.getSelectedItemPosition()).split("/")[0]);
         homeworkSpinnerList = new ArrayList<>();
@@ -93,11 +99,12 @@ public class ExerciseActivity extends Activity {
         homeworksSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-
+                checkIfHomeworkComplete(position);
+                downloadHomeworkButton.setEnabled(true);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-                // your code here
+                downloadHomeworkButton.setEnabled(false);
             }
         });
 
@@ -143,6 +150,39 @@ public class ExerciseActivity extends Activity {
                 mContext.startActivity(myIntent);
             }
         });
+    }
+
+    private void downloadHomeworkQuestions(ArrayList<String> questions) {
+        new Thread(() -> {
+            try {
+                if (questions.size() > 0) {
+                    RemoteServerCommunication.singleton().getQuestionsFromServer(questions);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }).start();
+    }
+
+    private void checkIfHomeworkComplete(int position) {
+        Homework homework = homeworkSpinnerObjectList.get(position);
+        int counter = 0;
+        for (String questionid : homework.getQuestions()) {
+            if (DbTableQuestionMultipleChoice.getQuestionWithId(questionid).getQuestion().length()> 0) {
+                counter++;
+            } else if (DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionid).getQuestion().length() > 0) {
+                counter++;
+            } else {
+                break;
+            }
+        }
+
+        if (counter == homework.getQuestions().size()) {
+            homeWorkButton.setEnabled(true);
+        } else {
+            homeWorkButton.setEnabled(false);
+        }
     }
 
     @Override

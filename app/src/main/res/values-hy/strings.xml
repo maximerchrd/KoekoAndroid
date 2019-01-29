@@ -76,4 +76,5 @@
     <string name="edit_code">Edit Code</string>
     <string name="delete_code">Delete Code</string>
     <string name="friendly_name">Friendly Name</string>
+    <string name="download_new_homework_version">Download Homework</string>
 </resources>

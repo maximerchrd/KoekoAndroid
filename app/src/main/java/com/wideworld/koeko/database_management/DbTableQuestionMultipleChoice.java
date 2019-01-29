@@ -2,6 +2,7 @@ package com.wideworld.koeko.database_management;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
@@ -199,5 +200,21 @@ public class DbTableQuestionMultipleChoice {
         }
 
         return IDsAndUpdTime;
+    }
+
+    public static String getUpdDateFromId(String id) {
+        String updDate = "";
+        String sql = "SELECT MODIF_DATE FROM multiple_choice_questions WHERE ID_GLOBAL=?";
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, new String[]{id});
+        if (cursor.moveToFirst()) {
+            updDate = cursor.getString(1);
+        } else {
+            sql = "SELECT MODIF_DATE FROM short_answer_questions WHERE ID_GLOBAL=?";
+            cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, new String[]{id});
+            if (cursor.moveToFirst()) {
+                updDate = cursor.getString(1);
+            }
+        }
+        return updDate;
     }
 }
