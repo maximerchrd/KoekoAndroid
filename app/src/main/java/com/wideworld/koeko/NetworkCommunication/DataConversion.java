@@ -15,6 +15,7 @@ import com.wideworld.koeko.QuestionsManagement.SubjectsAndObjectivesForQuestion;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.QuestionsManagement.TestView;
 import com.wideworld.koeko.Tools.StringTools;
+import com.wideworld.koeko.database_management.DbHelper;
 import com.wideworld.koeko.database_management.DbTableLearningObjective;
 import com.wideworld.koeko.database_management.DbTableRelationQuestionObjective;
 import com.wideworld.koeko.database_management.DbTableRelationQuestionQuestion;
@@ -326,6 +327,14 @@ public class DataConversion {
             e.printStackTrace();
         }
         return idsList;
+    }
+
+    static public byte[] getPrefixFromString(String prefix) {
+        byte[] prefixBytes = new byte[DataConversion.prefixSize];
+        for (int i = 0; i < prefix.getBytes().length && i < 80; i++) {
+            prefixBytes[i] = prefix.getBytes()[i];
+        }
+        return prefixBytes;
     }
 
     private void SaveImageFile(Bitmap imageToSave, String fileName) {

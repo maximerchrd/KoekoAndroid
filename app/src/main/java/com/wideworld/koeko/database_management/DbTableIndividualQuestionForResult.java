@@ -7,8 +7,10 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.wideworld.koeko.Koeko;
+import com.wideworld.koeko.QuestionsManagement.Result;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Vector;
 
@@ -190,5 +192,40 @@ public class DbTableIndividualQuestionForResult {
         }
 
         return results;
+    }
+
+    static public ArrayList<Result> getUnsyncedHomeworks() {
+        ArrayList<Result> results = new ArrayList<>();
+
+        String sql = "SELECT ID_GLOBAL,ANSWERS,DATE,QUANTITATIVE_EVAL,TYPE1," +
+                "QUALITATIVE_EVAL,TEST_BELONGING,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
+                "WEIGHTS_OF_ANSWERS FROM " + tableName + " WHERE TYPE2 = ?";
+        String[] args = new String[]{String.valueOf(type2HomeworkNotSynced)};
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, args);
+        while (cursor.moveToNext()) {
+            Result result = new Result();
+            result.setResourceUid(cursor.getString(0));
+            result.setAnswers(cursor.getString(1));
+            result.setDate(cursor.getString(2));
+            result.setQuantitativeEval(cursor.getString(3));
+            result.setType1(cursor.getInt(4));
+            result.setQualitativeEval(cursor.getString(5));
+            result.setTestBelonging(cursor.getString(6));
+            result.setTimeForSolving(cursor.getInt(7));
+            result.setResourceWeight(cursor.getDouble(8));
+            result.setEvalType(cursor.getString(9));
+            result.setAnswersWeights(cursor.getString(10));
+            result.setType2(DbTableIndividualQuestionForResult.type2HomeworkSynced);
+            results.add(result);
+        }
+
+        return results;
+    }
+
+    public static void setAllHomeworkSynced() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("TYPE2", type2HomeworkSynced);
+        DbHelper.dbHelperSingleton.getDatabase().update(tableName, contentValues, "TYPE2 = ?",
+                new String[]{String.valueOf(type2HomeworkNotSynced)});
     }
 }

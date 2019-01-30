@@ -16,13 +16,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
-import com.wideworld.koeko.QuestionsManagement.QuestionView;
+import com.wideworld.koeko.QuestionsManagement.Result;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.Koeko;
@@ -37,7 +38,6 @@ import com.wideworld.koeko.database_management.DbTableTest;
 import com.google.android.gms.common.util.ArrayUtils;
 
 import android.app.Application;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
@@ -47,7 +47,6 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import static android.content.Context.WIFI_SERVICE;
 
@@ -179,6 +178,8 @@ public class WifiCommunication {
                 }
                 sendStringToServer(stringToSend + "///ENDTRSM///");
 
+                sendHomeworkResults();
+
                 listenForQuestions();
             } else {
                 Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
@@ -217,21 +218,59 @@ public class WifiCommunication {
         }
     }
 
+    private void sendHomeworkResults() {
+        ArrayList<Result> results = DbTableIndividualQuestionForResult.getUnsyncedHomeworks();
+        ArrayList<byte[]> resultsBytesArray = new ArrayList<>();
+        int totalSize = 0;
+        for (Result result : results) {
+            try {
+                byte[] resultBytes = resultToBytes(result);
+                resultsBytesArray.add(resultBytes);
+                totalSize += resultBytes.length;
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        byte[] allbytes = DataConversion.getPrefixFromString("RESULT///" + String.valueOf(totalSize) + "///");
+        for (byte[] resultByte : resultsBytesArray) {
+            allbytes = ArrayUtils.concatByteArrays(allbytes, resultByte);
+        }
+        if (sendBytes(allbytes)) {
+            DbTableIndividualQuestionForResult.setAllHomeworkSynced();
+        }
+    }
+
+    private byte[] resultToBytes(Result result) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResult = objectMapper.writeValueAsString(result);
+        int size = jsonResult.getBytes().length;
+        String prefix = "RESULT///" + String.valueOf(size) + "///";
+        byte[] prefixBytes = DataConversion.getPrefixFromString(prefix);
+        byte[] bytesToSend = ArrayUtils.concatByteArrays(prefixBytes, jsonResult.getBytes());
+        return bytesToSend;
+    }
+
     public void sendAnswerToServer(String answer) {
         byte[] ansBuffer = answer.getBytes();
+        sendBytes(ansBuffer);
+    }
+
+    private Boolean sendBytes(byte[] bytesToSend) {
+        Boolean success = true;
         try {
             if (mOutputStream != null) {
-                mOutputStream.write(ansBuffer, 0, ansBuffer.length);
-                Log.d("answer buffer length: ", String.valueOf(ansBuffer.length));
+                mOutputStream.write(bytesToSend, 0, bytesToSend.length);
+                Log.d("answer buffer length: ", String.valueOf(bytesToSend.length));
                 mOutputStream.flush();
             } else {
                 Log.d(TAG, "sendAnswerToServer: ERROR, outputStream is null");
             }
         } catch (IOException e) {
+            success = false;
             String msg = "In sendAnswerToServer() and an exception occurred during write: " + e.getMessage();
             Log.e("IOException", msg);
         }
-        answer = "";
+        return success;
     }
 
     public void sendStringToServer(String message) {
