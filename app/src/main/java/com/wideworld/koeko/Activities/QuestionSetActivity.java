@@ -6,6 +6,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 
 import com.wideworld.koeko.Activities.ActivityTools.ExerciseCollectionPagerAdapter;
+import com.wideworld.koeko.QuestionsManagement.Homework;
 import com.wideworld.koeko.R;
 
 import java.util.ArrayList;
@@ -34,7 +35,8 @@ public class QuestionSetActivity extends FragmentActivity {
         // fragments, so use getSupportFragmentManager.
         mDemoCollectionPagerAdapter =
                 new ExerciseCollectionPagerAdapter(getSupportFragmentManager());
-        mDemoCollectionPagerAdapter.setmQuestionIDsAndType(questionIDs, bundle.getInt("Type"));
+        mDemoCollectionPagerAdapter.setmQuestionIDsAndType(questionIDs, bundle.getInt("Type"),
+                bundle.getString("HomeworkName"));
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mDemoCollectionPagerAdapter);
     }

@@ -17,14 +17,14 @@ import java.util.Vector;
  */
 public class DbTableIndividualQuestionForResult {
     static private String tableName = "individual_question_for_result";
-    static private final int type1QuestionMultipleChoice = 0;
-    static private final int type1QuestionShortAnswer = 1;
-    static private final int type1Objective = 2;
-    static private final int type1Test = 3;
-    static private final int type2ClassroomActivity = 0;
-    static private final int type2HomeworkNotSynced = 1;
-    static private final int type2HomeworkSynced = 2;
-    static private final int type2FreePractice = 3;
+    static public final int type1QuestionMultipleChoice = 0;
+    static public final int type1QuestionShortAnswer = 1;
+    static public final int type1Objective = 2;
+    static public final int type1Test = 3;
+    static public final int type2ClassroomActivity = 0;
+    static public final int type2HomeworkNotSynced = 1;
+    static public final int type2HomeworkSynced = 2;
+    static public final int type2FreePractice = 3;
     static public void createTableIndividualQuestionForResult() {
         try {
             String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " " +
@@ -68,6 +68,40 @@ public class DbTableIndividualQuestionForResult {
         } else {
             return true;
         }
+    }
+
+    static public Boolean addIndivResForStud(String id, String name, int type1, int type2, String answers,
+                                             String timeForSolving, String evalType, Double quantitativeEval,
+                                             String medal, double questionWeight, String answersWeight) {
+        String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("ID_GLOBAL", id);
+        contentValues.put("TYPE1", type1);
+        contentValues.put("TYPE2", type2);
+        contentValues.put("DATE", timeStamp);
+        contentValues.put("ANSWERS", answers);
+        contentValues.put("TIME_FOR_SOLVING", timeForSolving);
+        contentValues.put("QUESTION_WEIGHT", questionWeight);
+        contentValues.put("EVAL_TYPE", evalType);
+        contentValues.put("QUANTITATIVE_EVAL", quantitativeEval);
+        contentValues.put("QUALITATIVE_EVAL", medal);
+        contentValues.put("TEST_BELONGING", name);
+        contentValues.put("WEIGHTS_OF_ANSWERS", answersWeight);
+
+        if (DbHelper.dbHelperSingleton.getDatabase().insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE) == -1 ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    static public void addIndivResForStud(String id, String testName, int type1, int type2, String answers,
+                                              Double quantitativeEval) {
+        if (testName == null) {
+            testName = "";
+        }
+        addIndivResForStud(id, testName, type1, type2, answers, "none", "none",
+                quantitativeEval, "none" , -1, "none");
     }
 
     static public double addIndividualQuestionForStudentResult(String id_global, String quantitative_eval, String answer) {

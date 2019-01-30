@@ -37,8 +37,6 @@ import java.util.Random;
 // Instances of this class are fragments representing a single
 // object in our collection.
 public class ExerciseObjectFragment extends Fragment {
-    static public final int freePractice = 0;
-    static public final int homework = 1;
     public static final String ARG_OBJECT = "object";
     private ArrayList<String> mQuestionIds = new ArrayList<>();
     private Integer mQuestionPositionInArray = 0;
@@ -54,6 +52,7 @@ public class ExerciseObjectFragment extends Fragment {
     private Context mContext;
     boolean isImageFitToScreen = true;
     private int activityType = -1;
+    private String homeworkName = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -62,14 +61,15 @@ public class ExerciseObjectFragment extends Fragment {
         // properly.
         View rootView = inflater.inflate(R.layout.fragment_collection_object, container, false);
         Bundle args = getArguments();
+        homeworkName = args.getString("HomeworkName");
         activityType = args.getInt("Type");
+
         mQuestionIds = args.getStringArrayList("IDsArray");
         mQuestionPositionInArray = args.getInt(ARG_OBJECT);
-        //((TextView) rootView.findViewById(android.R.id.text1)).setText(Integer.toString(args.getIntegerArrayList("IDsArray").get(args.getInt(ARG_OBJECT))));
 
         mContext = rootView.getContext();
-        linearLayout = (LinearLayout) rootView.findViewById(R.id.practice_linearLayout);
-        txtQuestion = ((TextView) rootView.findViewById(R.id.questionTextFragmentCollection));
+        linearLayout = rootView.findViewById(R.id.practice_linearLayout);
+        txtQuestion = rootView.findViewById(R.id.questionTextFragmentCollection);
         picture = new ImageView(mContext);
         submitButton = new Button(mContext);
         checkBoxesArray = new ArrayList<>();
@@ -205,6 +205,7 @@ public class ExerciseObjectFragment extends Fragment {
             rightAnswers.add(mMulChoiceQuestion.getPossibleAnswers().get(i));
         }
         //compare the student answers with the right answers
+        double quantitativeEval = -1;
         if (rightAnswers.containsAll(studentAnswers) && studentAnswers.containsAll(rightAnswers)) {
             AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
             alertDialog.setMessage(getString(R.string.correction_correct));
@@ -214,7 +215,7 @@ public class ExerciseObjectFragment extends Fragment {
             picture.setAlpha(0.45f);
             txtQuestion.setAlpha(0.45f);
             textAnswer.setAlpha(0.45f);
-            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getId()),"100", answerForStoring);
+            quantitativeEval = 100;
         } else {
             String correct_answers = "";
             for (int i = 0; i < rightAnswers.size(); i++) {
@@ -245,8 +246,10 @@ public class ExerciseObjectFragment extends Fragment {
                     }
                 }
             }
-            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getId()),"0", answerForStoring);
+            quantitativeEval = 0;
         }
+        DbTableIndividualQuestionForResult.addIndivResForStud(mMulChoiceQuestion.getId(), homeworkName, DbTableIndividualQuestionForResult.type1QuestionMultipleChoice,
+                activityType, answerForStoring, quantitativeEval);
     }
 
     private void setShortAnswerQuestionView()
@@ -314,6 +317,7 @@ public class ExerciseObjectFragment extends Fragment {
         ArrayList<String> rightAnswers = mShortAnsQuestion.getAnswers();
 
         //compare the student answer with the right answers
+        double quantitativeEval = -1;
         if (rightAnswers.contains(studentAnswers)) {
             AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
             alertDialog.setMessage(getString(R.string.correction_correct));
@@ -323,7 +327,7 @@ public class ExerciseObjectFragment extends Fragment {
             picture.setAlpha(0.45f);
             txtQuestion.setAlpha(0.45f);
             textAnswer.setAlpha(0.45f);
-            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getId()),"100", studentAnswers);
+            quantitativeEval = 100;
         } else {
             String rightAnswer = "";
             for (int i = 0; i < rightAnswers.size(); i++) {
@@ -338,7 +342,9 @@ public class ExerciseObjectFragment extends Fragment {
             picture.setAlpha(0.45f);
             txtQuestion.setAlpha(0.45f);
             textAnswer.setAlpha(0.45f);
-            DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(String.valueOf(mShortAnsQuestion.getId()),"0", studentAnswers);
+            quantitativeEval = 0;
         }
+        DbTableIndividualQuestionForResult.addIndivResForStud(mShortAnsQuestion.getId(), homeworkName, DbTableIndividualQuestionForResult.type1QuestionShortAnswer,
+                activityType, studentAnswers, quantitativeEval);
     }
 }

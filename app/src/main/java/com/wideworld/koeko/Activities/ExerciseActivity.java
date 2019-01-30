@@ -18,6 +18,7 @@ import com.wideworld.koeko.NetworkCommunication.RemoteServerCommunication;
 import com.wideworld.koeko.QuestionsManagement.Homework;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableHomework;
+import com.wideworld.koeko.database_management.DbTableIndividualQuestionForResult;
 import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 import com.wideworld.koeko.database_management.DbTableSettings;
@@ -120,7 +121,8 @@ public class ExerciseActivity extends Activity {
             Bundle bundle = new Bundle();
             bundle.putStringArrayList("IDsArray", homeworkSpinnerObjectList.
                     get(homeworksSpinner.getSelectedItemPosition()).getQuestions());
-            bundle.putInt("Type", ExerciseObjectFragment.homework);
+            bundle.putInt("Type", DbTableIndividualQuestionForResult.type2HomeworkNotSynced);
+            bundle.putString("HomeworkName", homeworkSpinnerList.get(homeworksSpinner.getSelectedItemPosition()));
             Intent myIntent = new Intent(mContext, QuestionSetActivity.class);
             myIntent.putExtras(bundle);
             currentActivity.startActivity(myIntent);
@@ -163,9 +165,11 @@ public class ExerciseActivity extends Activity {
             } else {
                 Bundle bundle = new Bundle();
                 bundle.putStringArrayList("IDsArray", questionIDsArray);
+                bundle.putInt("Type", DbTableIndividualQuestionForResult.type2FreePractice);
+                bundle.putString("HomeworkName", "freePractice");
                 Intent myIntent = new Intent(mContext, QuestionSetActivity.class);
                 myIntent.putExtras(bundle);
-                mContext.startActivity(myIntent);
+                currentActivity.startActivity(myIntent);
             }
         });
     }
