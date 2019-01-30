@@ -15,6 +15,7 @@ public class ExerciseCollectionPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     private ArrayList<Integer> mQuestionIDs = new ArrayList<>();
+    private int activityType = -1;
 
     @Override
     public Fragment getItem(int i) {
@@ -23,6 +24,7 @@ public class ExerciseCollectionPagerAdapter extends FragmentStatePagerAdapter {
         // Our object is just an integer :-P
         args.putInt(ExerciseObjectFragment.ARG_OBJECT, i);
         args.putIntegerArrayList("IDsArray",mQuestionIDs);
+        args.putInt("Type", activityType);
         fragment.setArguments(args);
         return fragment;
     }
@@ -38,8 +40,9 @@ public class ExerciseCollectionPagerAdapter extends FragmentStatePagerAdapter {
     }
 
 
-    public void setmQuestionIDs(ArrayList<Integer> mQuestionIDs) {
+    public void setmQuestionIDsAndType(ArrayList<Integer> mQuestionIDs, int type) {
         this.mQuestionIDs = mQuestionIDs;
+        this.activityType = type;
     }
 
 }

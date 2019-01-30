@@ -34,7 +34,7 @@ public class QuestionSetActivity extends FragmentActivity {
         // fragments, so use getSupportFragmentManager.
         mDemoCollectionPagerAdapter =
                 new ExerciseCollectionPagerAdapter(getSupportFragmentManager());
-        mDemoCollectionPagerAdapter.setmQuestionIDs(questionIDs);
+        mDemoCollectionPagerAdapter.setmQuestionIDsAndType(questionIDs, bundle.getInt("Type"));
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mDemoCollectionPagerAdapter);
     }

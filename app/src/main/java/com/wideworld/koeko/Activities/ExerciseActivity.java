@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import com.wideworld.koeko.Activities.ActivityTools.ExerciseObjectFragment;
 import com.wideworld.koeko.Activities.ActivityTools.HomeworkCodeAlertDialog;
 import com.wideworld.koeko.NetworkCommunication.RemoteServerCommunication;
 import com.wideworld.koeko.QuestionsManagement.Homework;
@@ -53,9 +55,9 @@ public class ExerciseActivity extends Activity {
         currentActivity = this;
 
         //couple code with UI
-        homeWorkButton = (Button) findViewById(R.id.homework_button);
-        freePracticeButton = (Button) findViewById(R.id.freepractice_button);
-        subjectsSpinner = (Spinner) findViewById(R.id.subjects_spinner);
+        homeWorkButton = findViewById(R.id.homework_button);
+        freePracticeButton = findViewById(R.id.freepractice_button);
+        subjectsSpinner = findViewById(R.id.subjects_spinner);
 
         codeSpinner = findViewById(R.id.homework_keys);
         codeSpinnerOriginalList = DbTableSettings.getHomeworkKeys();
@@ -87,7 +89,11 @@ public class ExerciseActivity extends Activity {
         });
 
         homeworksSpinner = findViewById(R.id.homeworks_spinner);
-        homeworkSpinnerObjectList = DbTableHomework.getHomeworksWithCode(codeSpinnerOriginalList.get(codeSpinner.getSelectedItemPosition()).split("/")[0]);
+        if (codeSpinner.getSelectedItemPosition() >= 0) {
+            homeworkSpinnerObjectList = DbTableHomework.getHomeworksWithCode(codeSpinnerOriginalList.get(codeSpinner.getSelectedItemPosition()).split("/")[0]);
+        } else {
+            homeworkSpinnerObjectList = new ArrayList<>();
+        }
         homeworkSpinnerList = new ArrayList<>();
         for (Homework homework : homeworkSpinnerObjectList) {
             homeworkSpinnerList.add(homework.getName());
@@ -101,11 +107,23 @@ public class ExerciseActivity extends Activity {
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 checkIfHomeworkComplete(position);
                 downloadHomeworkButton.setEnabled(true);
+                downloadHomeworkButton.setBackgroundColor(getResources().getColor(R.color.blue));
             }
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
                 downloadHomeworkButton.setEnabled(false);
+                downloadHomeworkButton.setBackgroundColor(getResources().getColor(R.color.blue_faded));
             }
+        });
+
+        homeWorkButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putStringArrayList("IDsArray", homeworkSpinnerObjectList.
+                    get(homeworksSpinner.getSelectedItemPosition()).getQuestions());
+            bundle.putInt("Type", ExerciseObjectFragment.homework);
+            Intent myIntent = new Intent(mContext, QuestionSetActivity.class);
+            myIntent.putExtras(bundle);
+            currentActivity.startActivity(myIntent);
         });
 
         //puts the subjects for which there are poorly evaluated questions into the spinner
@@ -125,7 +143,7 @@ public class ExerciseActivity extends Activity {
             for (int i = 0; i < questionIDsVector.size(); i++) {
                 questionIDsArray.add(questionIDsVector.get(i));
             }
-            //ArrayList<Integer> questionIDsArrayCopy = (ArrayList<Integer>) questionIDsArray.clone();
+
             String selectedSubject = subjectsSpinner.getSelectedItem().toString();
             if (!selectedSubject.contentEquals(getString(R.string.all_subjects))) {
                 int arraySize = questionIDsArray.size();
@@ -157,6 +175,9 @@ public class ExerciseActivity extends Activity {
             try {
                 if (questions.size() > 0) {
                     RemoteServerCommunication.singleton().getQuestionsFromServer(questions);
+                    currentActivity.runOnUiThread(() -> {
+                        checkIfHomeworkComplete(homeworksSpinner.getSelectedItemPosition());
+                    });
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -178,10 +199,13 @@ public class ExerciseActivity extends Activity {
             }
         }
 
-        if (counter == homework.getQuestions().size()) {
+        if (counter != 0 && counter == homework.getQuestions().size()) {
             homeWorkButton.setEnabled(true);
+            homeWorkButton.setBackgroundColor(getResources().getColor(R.color.blue));
+
         } else {
             homeWorkButton.setEnabled(false);
+            homeWorkButton.setBackgroundColor(getResources().getColor(R.color.blue_faded));
         }
     }
 

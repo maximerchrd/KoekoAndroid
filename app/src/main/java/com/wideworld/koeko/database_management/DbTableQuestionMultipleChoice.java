@@ -207,12 +207,12 @@ public class DbTableQuestionMultipleChoice {
         String sql = "SELECT MODIF_DATE FROM multiple_choice_questions WHERE ID_GLOBAL=?";
         Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, new String[]{id});
         if (cursor.moveToFirst()) {
-            updDate = cursor.getString(1);
+            updDate = cursor.getString(0);
         } else {
             sql = "SELECT MODIF_DATE FROM short_answer_questions WHERE ID_GLOBAL=?";
             cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(sql, new String[]{id});
             if (cursor.moveToFirst()) {
-                updDate = cursor.getString(1);
+                updDate = cursor.getString(0);
             }
         }
         return updDate;

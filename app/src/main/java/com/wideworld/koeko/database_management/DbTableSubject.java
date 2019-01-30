@@ -106,7 +106,7 @@ public class DbTableSubject {
         Vector<String> subjects = new Vector<>();
         try {
             //get all question IDs and corresponding evaluations
-            String query = "SELECT ID_GLOBAL,QUANTITATIVE_EVAL FROM individual_question_for_result WHERE TYPE IS NOT 2;";
+            String query = "SELECT ID_GLOBAL,QUANTITATIVE_EVAL FROM individual_question_for_result WHERE TYPE1 IS NOT 2;";
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(query, null);
             while (cursor.moveToNext()) {
                 questionIDs.add(cursor.getString(0));

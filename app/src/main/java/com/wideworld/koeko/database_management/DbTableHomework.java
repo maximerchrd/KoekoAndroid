@@ -58,6 +58,7 @@ public class DbTableHomework {
             homework.setDueDate(cursor.getString(2));
             homework.setIdCode(code);
             homeworks.add(homework);
+            homework.setQuestions(DbTableRelationHomeworkQuestion.getQuestionIdsFromHomeworkName(homework.getName()));
         }
 
         return homeworks;

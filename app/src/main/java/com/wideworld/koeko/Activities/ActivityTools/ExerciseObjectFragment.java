@@ -37,6 +37,8 @@ import java.util.Random;
 // Instances of this class are fragments representing a single
 // object in our collection.
 public class ExerciseObjectFragment extends Fragment {
+    static public final int freePractice = 0;
+    static public final int homework = 1;
     public static final String ARG_OBJECT = "object";
     private ArrayList<String> mQuestionIds = new ArrayList<>();
     private Integer mQuestionPositionInArray = 0;
@@ -51,6 +53,7 @@ public class ExerciseObjectFragment extends Fragment {
     private LinearLayout linearLayout;
     private Context mContext;
     boolean isImageFitToScreen = true;
+    private int activityType = -1;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -59,6 +62,7 @@ public class ExerciseObjectFragment extends Fragment {
         // properly.
         View rootView = inflater.inflate(R.layout.fragment_collection_object, container, false);
         Bundle args = getArguments();
+        activityType = args.getInt("Type");
         mQuestionIds = args.getStringArrayList("IDsArray");
         mQuestionPositionInArray = args.getInt(ARG_OBJECT);
         //((TextView) rootView.findViewById(android.R.id.text1)).setText(Integer.toString(args.getIntegerArrayList("IDsArray").get(args.getInt(ARG_OBJECT))));

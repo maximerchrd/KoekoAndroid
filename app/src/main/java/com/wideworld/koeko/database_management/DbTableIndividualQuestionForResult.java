@@ -17,12 +17,21 @@ import java.util.Vector;
  */
 public class DbTableIndividualQuestionForResult {
     static private String tableName = "individual_question_for_result";
+    static private final int type1QuestionMultipleChoice = 0;
+    static private final int type1QuestionShortAnswer = 1;
+    static private final int type1Objective = 2;
+    static private final int type1Test = 3;
+    static private final int type2ClassroomActivity = 0;
+    static private final int type2HomeworkNotSynced = 1;
+    static private final int type2HomeworkSynced = 2;
+    static private final int type2FreePractice = 3;
     static public void createTableIndividualQuestionForResult() {
         try {
             String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " " +
                     "(ID_DIRECT_EVAL        INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_GLOBAL             INT    NOT NULL, " +
-                    " TYPE                  INT, " +       //0: Question Multiple Choice; 1: Question Short Answer; 2: Objective, 3: test
+                    " TYPE1                  INT, " +       //0: Question Multiple Choice; 1: Question Short Answer; 2: Objective, 3: test
+                    " TYPE2                  INT, " +       //0: Classroom activity; 1: homework not synced; 2: homework synced; 3: free practice
                     " DATE                  TEXT    NOT NULL, " +
                     " ANSWERS               TEXT    NOT NULL, " +
                     " TIME_FOR_SOLVING      INT    NOT NULL, " +
@@ -43,7 +52,7 @@ public class DbTableIndividualQuestionForResult {
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
         ContentValues contentValues = new ContentValues();
         contentValues.put("ID_GLOBAL", testId);
-        contentValues.put("TYPE", 3);
+        contentValues.put("TYPE1", 3);
         contentValues.put("DATE", timeStamp);
         contentValues.put("ANSWERS", "none");
         contentValues.put("TIME_FOR_SOLVING", timeForSolving);
@@ -100,7 +109,7 @@ public class DbTableIndividualQuestionForResult {
     static public double addIndividualQuestionForStudentResult(String id_global, String quantitative_eval, Integer type, String test) {
         double quantitative_evaluation = -1;
         try {
-            String sql = 	"INSERT INTO individual_question_for_result (ID_GLOBAL,TYPE,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
+            String sql = 	"INSERT INTO individual_question_for_result (ID_GLOBAL,TYPE1,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
                     "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
                     "VALUES ('" + id_global  + "', '" + type + "',date('now'),'none','none','none','none','" + quantitative_eval + "','none','" +
                      test + "','none');";
@@ -133,7 +142,7 @@ public class DbTableIndividualQuestionForResult {
     static public Vector<Vector<String>> getAllResults() {
         Vector<Vector<String>> results = new Vector<>();
 
-        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT ID_GLOBAL,ANSWERS,DATE,QUANTITATIVE_EVAL,TYPE," +
+        Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery("SELECT ID_GLOBAL,ANSWERS,DATE,QUANTITATIVE_EVAL,TYPE1," +
                 "QUALITATIVE_EVAL,TEST_BELONGING FROM " + tableName, null);
         while (cursor.moveToNext()) {
             results.add( new Vector<String>());

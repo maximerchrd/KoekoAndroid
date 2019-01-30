@@ -52,18 +52,21 @@ public class RemoteServerCommunication {
     }
 
     public void getQuestionsFromServer(ArrayList<String> questionIds) throws Exception {
+        ArrayList<String> questionIdsWithUpdDate = new ArrayList<>();
         for (int i = 0; i < questionIds.size(); i++) {
-            questionIds.set(i, questionIds.get(i) + "/" + DbTableQuestionMultipleChoice.getUpdDateFromId(questionIds.get(i)));
+                questionIdsWithUpdDate.add(questionIds.get(i) + "/" + DbTableQuestionMultipleChoice.getUpdDateFromId(questionIds.get(i)));
         }
         InitializeTransfer(getInetAddress());
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = objectMapper.writeValueAsString(questionIds);
+        String jsonString = objectMapper.writeValueAsString(questionIdsWithUpdDate);
         SendSimpleString(cstrQuestioIds, jsonString);
         String jsonQuestion;
         do {
             jsonQuestion = ReadString();
             if (jsonQuestion.length() > 0) {
                 QuestionView questionView = objectMapper.readValue(jsonQuestion, QuestionView.class);
+                questionView.setID(questionView.getQCM_MUID());
+                DbTableQuestionMultipleChoice.addQuestionFromView(questionView);
                 if (!questionView.getIMAGE().contentEquals("none")) {
                     ReceiveBinaryFile(questionView.getIMAGE());
                 }
