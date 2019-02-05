@@ -13,7 +13,7 @@ import java.util.Vector;
 /**
  * Created by maximerichard on 15.05.18.
  */
-public class Test {
+public class Test extends TransferableObject {
     private Long idGlobal = 0L;
     private String testName = "";
     private String testType = "";
@@ -30,6 +30,7 @@ public class Test {
     private Timestamp testUpdate;
 
     public Test() {
+        super(TransferPrefix.resource);
         questionsIDs = new Vector<>();
         idMapRelation = new LinkedHashMap<>();
         idMapQmc = new LinkedHashMap<>();

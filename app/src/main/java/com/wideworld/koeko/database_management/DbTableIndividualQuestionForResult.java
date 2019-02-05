@@ -32,7 +32,7 @@ public class DbTableIndividualQuestionForResult {
             String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " " +
                     "(ID_DIRECT_EVAL        INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_GLOBAL             INT    NOT NULL, " +
-                    " TYPE1                  INT, " +       //0: Question Multiple Choice; 1: Question Short Answer; 2: Objective, 3: test
+                    " TYPE1                  INT, " +       //0: Question Multiple Choice; 1: Question Short Answer; 2: ObjectiveTransferable, 3: test
                     " TYPE2                  INT, " +       //0: Classroom activity; 1: homework not synced; 2: homework synced; 3: free practice
                     " DATE                  TEXT    NOT NULL, " +
                     " ANSWERS               TEXT    NOT NULL, " +
@@ -120,7 +120,6 @@ public class DbTableIndividualQuestionForResult {
             DbHelper.dbHelperSingleton.getDatabase().execSQL(sql, sqlArgs);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
         }
 
         //for test: update the active questions list and the answered questions list

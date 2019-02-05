@@ -25,6 +25,7 @@ import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.QuestionsManagement.Result;
 import com.wideworld.koeko.QuestionsManagement.Test;
+import com.wideworld.koeko.QuestionsManagement.TransferPrefix;
 import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
@@ -61,10 +62,10 @@ public class WifiCommunication {
     private String ip_address = "no IP";
     private TextView logView = null;
     private DatagramSocket socket;
-    private DataConversion dataConversion;
+    public DataConversion dataConversion;
 
-    private String ServerWifiSSID = "";
-    private String secondLayerMasterIp = "";
+    public String ServerWifiSSID = "";
+    public String secondLayerMasterIp = "";
 
     private String TAG = "WifiCommunication";
 
@@ -291,230 +292,31 @@ public class WifiCommunication {
     public void listenForQuestions() {
         new Thread(() -> {
             try {
-                Boolean able_to_read = true;
-                while (able_to_read && mInputStream != null) {
-                    byte[] prefix_buffer = readDataIntoArray(80, able_to_read);
+                Boolean ableToRead = true;
+                while (ableToRead && mInputStream != null) {
+                    byte[] prefix_buffer = readDataIntoArray(80, ableToRead);
                     String sizesPrefix = null;
                     sizesPrefix = new String(prefix_buffer, "UTF-8");
                     DataPrefix prefix = new DataPrefix();
                     prefix.stringToPrefix(sizesPrefix);
                     Log.v("WifiCommunication", "received string: " + sizesPrefix);
-                    if (prefix.getDataType().contentEquals(DataPref.multq)) {
-                        //read question data
-                        byte[] question_buffer = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
+                    if (TransferPrefix.INSTANCE.isResource(sizesPrefix)) {
+                        byte[] question_buffer = readDataIntoArray(TransferPrefix.INSTANCE.getSize(sizesPrefix), ableToRead);
                         byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
-                        ReceptionProtocol.receivedQuestionData(dataConversion, allBytesReceived);
-                    } else if (prefix.getDataType().contentEquals(DataPref.shrta)) {
-                        //read question data
-                        byte[] question_buffer = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
+                        ReceptionProtocol.receivedResource(sizesPrefix, question_buffer, allBytesReceived);
+                    } else if (TransferPrefix.INSTANCE.isStateUpdate(sizesPrefix)) {
+                        byte[] question_buffer = readDataIntoArray(TransferPrefix.INSTANCE.getSize(sizesPrefix), ableToRead);
                         byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
-                        ReceptionProtocol.receivedQuestionData(dataConversion, allBytesReceived);
-                    } else if (prefix.getDataType().contentEquals(DataPref.subObj)) {
-                        byte[] data = readDataIntoArray(Integer.valueOf(prefix.getDataLength()), able_to_read);
-                        byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, data);
-                        ReceptionProtocol.receivedSubObj(dataConversion, allBytesReceived);
-                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("QID")) {
-                        if (sizesPrefix.split(":")[1].contains("MLT")) {
-                            String id_global = sizesPrefix.split("///")[1];
-
-                            //reinitializing all types of displays
-                            Koeko.currentTestActivitySingleton = null;
-                            Koeko.shrtaqActivityState = null;
-                            Koeko.qmcActivityState = null;
-
-                            if (Long.valueOf(id_global) < 0) {
-                                //setup test and show it
-                                Long testId = -(Long.valueOf(sizesPrefix.split("///")[1]));
-                                Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
-                                Koeko.networkCommunicationSingleton.launchTestActivity(testId, Koeko.networkCommunicationSingleton.directCorrection);
-                                Koeko.shrtaqActivityState = null;
-                                Koeko.qmcActivityState = null;
-                            } else {
-                                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionWithId(id_global);
-                                if (questionMultipleChoice.getQuestion().length() > 0) {
-                                    questionMultipleChoice.setId(id_global);
-                                    Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
-                                    Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, Koeko.networkCommunicationSingleton.directCorrection);
-                                    Koeko.shrtaqActivityState = null;
-                                    Koeko.currentTestActivitySingleton = null;
-                                } else {
-                                    QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
-                                    questionShortAnswer.setId(id_global);
-                                    Koeko.networkCommunicationSingleton.directCorrection = sizesPrefix.split("///")[2];
-                                    Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, Koeko.networkCommunicationSingleton.directCorrection);
-                                    Koeko.qmcActivityState = null;
-                                    Koeko.currentTestActivitySingleton = null;
-                                }
-                            }
-                        }
-
-                        if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
-                            Koeko.networkCommunicationSingleton.sendDataToClient(prefix_buffer);
-                        }
-                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("SYNCIDS")) {
-                        if (sizesPrefix.split("///").length >= 2) {
-                            Integer sizeToread = Integer.valueOf(sizesPrefix.split("///")[1]);
-                            byte[] idsBytes = readDataIntoArray(sizeToread, able_to_read);
-                            Koeko.networkCommunicationSingleton.idsToSync.addAll(dataConversion.bytesToIdsList(idsBytes));
-                            for (String id : Koeko.networkCommunicationSingleton.idsToSync) {
-                                System.out.println(id);
-                            }
-                            System.out.println("________________");
-                        }
-                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("EVAL")) {
-                        DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(sizesPrefix.split("///")[2],
-                                sizesPrefix.split("///")[1], Koeko.networkCommunicationSingleton.getLastAnswer());
-                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("UPDEV")) {
-                        DbTableIndividualQuestionForResult.setEvalForQuestion(Double.valueOf(sizesPrefix.split("///")[1]),
-                                sizesPrefix.split("///")[2]);
-                    } else if (sizesPrefix.split("///")[0].split(":")[0].contentEquals("CORR")) {
-                        Intent mIntent = new Intent(mContextWifCom, CorrectedQuestionActivity.class);
-                        Bundle bun = new Bundle();
-                        bun.putString("questionID", sizesPrefix.split("///")[1]);
-                        mIntent.putExtras(bun);
-                        mContextWifCom.startActivity(mIntent);
-                    } else if (sizesPrefix.split("///")[0].contentEquals("TEST")) {
-                        //2000001///test1///2000005;;;2000006:::EVALUATION<60|||2000006;;;2000007:::EVALUATION<60|||2000007|||///objectives///TESTMODE///
-                        //first, fetch the size we'll have to read
-                        Integer textBytesSize = 0;
-                        textBytesSize = Integer.valueOf(sizesPrefix.split("///")[1]);
-
-                        byte[] testDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
-
-                        Test newTest = dataConversion.byteToTest(testDataBuffer);
-
-                        DbTableTest.insertTest(newTest);
-
-                        if (NetworkCommunication.network_solution == 1) {
-                            Koeko.networkCommunicationSingleton.idsToSync.add(String.valueOf(newTest.getIdGlobal()));
-                            if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
-                                byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, testDataBuffer);
-                                Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(allBytesReceived);
-                            }
-                        }
-                    } else if (sizesPrefix.split(":")[0].contentEquals("OEVAL")) {
-                        if (sizesPrefix.split(":").length > 1) {
-                            //Read text data into array
-                            Integer textBytesSize = 0;
-                            textBytesSize = Integer.valueOf(sizesPrefix.split("///")[0].split(":")[1]);
-
-                            byte[] wholeDataBuffer = readDataIntoArray(textBytesSize, able_to_read);
-
-                            //Convert data to string
-                            String testString = "";
-                            try {
-                                testString = new String(wholeDataBuffer, "UTF-8");
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            }
-
-                            if (testString.split("///").length > 4) {
-                                String testID = testString.split("///")[0];
-                                String testName = testString.split("///")[1];
-                                String objectiveID = testString.split("///")[2];
-                                String objective = testString.split("///")[3];
-                                String evaluation = testString.split("///")[4];
-
-                                DbTableLearningObjective.addLearningObjective(objectiveID, objective, 0);
-                                DbTableRelationTestObjective.insertRelationTestObjective(testID, objectiveID);
-                                Test certificativeTest = new Test();
-                                certificativeTest.setTestName(testName);
-                                certificativeTest.setTestType("CERTIF");
-                                certificativeTest.setIdGlobal(Long.getLong(testID));
-                                DbTableTest.insertTest(certificativeTest);
-                                DbTableIndividualQuestionForResult.addIndividualQuestionForStudentResult(objectiveID, evaluation, 2, testName);
-                                Log.d("INFO", "received OEVAL");
-                            }
-                        }
-                    } else if (sizesPrefix.split("///")[0].contentEquals("FILE")) {
-                        if (sizesPrefix.split("///").length >= 3) {
-                            try {
-                                int dataSize = Integer.valueOf(sizesPrefix.split("///")[2]);
-                                byte[] dataBuffer = readDataIntoArray(dataSize, able_to_read);
-
-                                //check if we got all the data
-                                if (dataSize == dataBuffer.length) {
-                                    FileHandler.saveMediaFile(dataBuffer, sizesPrefix.split("///")[1], mContextWifCom);
-                                    sendStringToServer("OK:" + NetworkCommunication.deviceIdentifier + "///" + sizesPrefix.split("///")[1] + "///");
-
-
-                                    if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
-                                        byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, dataBuffer);
-                                        Koeko.networkCommunicationSingleton.sendDataToClient(allBytesReceived);
-                                    }
-                                } else {
-                                    System.err.println("the expected file size and the size actually read don't match");
-                                }
-                            } catch (NumberFormatException e) {
-                                System.err.println("Error in FILE prefix: unable to read file size");
-                            }
-                        } else {
-                            System.err.println("Error in FILE prefix: array too short");
-                        }
-                    } else if (sizesPrefix.split("///")[0].contentEquals("ADVER")) {
-                        Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
-                    } else if (sizesPrefix.split("///")[0].contentEquals("DISCOV")) {
-                        HotspotServer hotspotServerHotspot = new HotspotServer(sizesPrefix.split("///")[1], sizesPrefix.split("///")[2], mContextWifCom);
-                        Koeko.networkCommunicationSingleton.setHotspotServerHotspot(hotspotServerHotspot);
-                        Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
-                        System.out.println("Tried to start discovery");
-                    } else if (sizesPrefix.split("///")[0].contentEquals("THIRDLAY")) {
-                        secondLayerMasterIp = sizesPrefix.split("///")[3];
-                        tryToJoinWifi(sizesPrefix.split("///")[1], sizesPrefix.split("///")[2]);
-                        System.out.println("Try to join third layer");
-                    } else if (sizesPrefix.split("///")[0].contentEquals("CONNECTED")) {
-                        connectionSuccess = 1;
-                        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showConnected();
-                        if (ServerWifiSSID.length() == 0) {
-                            WifiManager wifiManager = (WifiManager) mContextWifCom.getSystemService(WIFI_SERVICE);
-                            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                            ServerWifiSSID = wifiInfo.getSSID();
-                        }
-                    } else if (sizesPrefix.split("///")[0].contentEquals("GAME")) {
-                        if (sizesPrefix.split("///").length >= 3) {
-                            try {
-                                int dataSize = Integer.valueOf(sizesPrefix.split("///")[1]);
-                                int team = Integer.valueOf(sizesPrefix.split("///")[2]);
-                                byte[] dataBuffer = readDataIntoArray(dataSize, able_to_read);
-
-                                //check if we got all the data
-                                if (dataSize == dataBuffer.length) {
-                                    ObjectMapper mapper = new ObjectMapper();
-                                    String stringJson = new String(dataBuffer, "UTF-8");
-                                    GameView gameView = mapper.readValue(stringJson, GameView.class);
-                                    Koeko.networkCommunicationSingleton.launchGameActivity(gameView, team);
-                                    Koeko.shrtaqActivityState = null;
-                                    Koeko.qmcActivityState = null;
-                                    Koeko.currentTestActivitySingleton = null;
-                                } else {
-                                    System.err.println("the expected file size and the size actually read don't match");
-                                }
-                            } catch (NumberFormatException e) {
-                                System.err.println("Error in GAME prefix: unable to read file size");
-                            } catch (JsonParseException e) {
-                                e.printStackTrace();
-                            } catch (JsonMappingException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            System.err.println("Error in GAME prefix: array too short");
-                        }
-                    } else if (sizesPrefix.split("///")[0].contentEquals("GAMESCORE")) {
-                        if (sizesPrefix.split("///").length >= 3) {
-                            Double scoreTeamOne = Double.valueOf(sizesPrefix.split("///")[1]);
-                            Double scoreTeamTwo = Double.valueOf(sizesPrefix.split("///")[2]);
-                            if (Koeko.currentGameActivity != null) {
-                                Koeko.currentGameActivity.changeScore(scoreTeamOne, scoreTeamTwo);
-                            }
-                        } else {
-                            System.err.println("Error in GAMESCORE prefix: array too short");
-                        }
+                        ReceptionProtocol.receivedStateUpdate(sizesPrefix, question_buffer, allBytesReceived,
+                                mContextWifCom);
+                    } else if (TransferPrefix.INSTANCE.isFile(sizesPrefix)) {
+                        byte[] question_buffer = readDataIntoArray(TransferPrefix.INSTANCE.getSize(sizesPrefix), ableToRead);
+                        byte[] allBytesReceived = ArrayUtils.concatByteArrays(prefix_buffer, question_buffer);
+                        ReceptionProtocol.receivedFile(sizesPrefix, question_buffer, allBytesReceived, mContextWifCom);
                     } else if (sizesPrefix.contentEquals("RECONNECTION")) {
                         System.out.println("We were reconnected. Quit this reading loop, because" +
                                 " an other one should be active");
-                        able_to_read = false;
+                        ableToRead = false;
                     } else {
                         if (NearbyCommunication.deviceRole != NearbyCommunication.DISCOVERER_ROLE) {
                             Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
@@ -522,7 +324,7 @@ public class WifiCommunication {
                             Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showDisconnected();
                             Log.d(TAG, "no byte read or prefix not supported");
                         } else {
-                            able_to_read = false;
+                            ableToRead = false;
                             Log.d(TAG, "listenForQuestions: closing wifi reading loop");
                         }
                     }
@@ -531,11 +333,13 @@ public class WifiCommunication {
                 Log.e("ListenToServer", "not able to read prefix:" + e.getMessage());
             } catch (NumberFormatException e) {
                 Log.e("ListenToServer", "not able to read sizes from prefix:" + e.getMessage());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }).start();
     }
 
-    private byte[] readDataIntoArray(int expectedSize, Boolean able_to_read) {
+    private byte[] readDataIntoArray(int expectedSize, Boolean ableToRead) {
         byte[] arrayToReadInto = new byte[expectedSize];
         int bytesReadAlready = 0;
         int totalBytesRead = 0;
@@ -544,7 +348,7 @@ public class WifiCommunication {
                 bytesReadAlready = mInputStream.read(arrayToReadInto, totalBytesRead, expectedSize - totalBytesRead);
                 Log.v(TAG, "number of bytes read:" + Integer.toString(bytesReadAlready));
             } catch (IOException e) {
-                able_to_read = false;
+                ableToRead = false;
                 NetworkCommunication.connected = 0;
                 if (e.toString().contains("Socket closed")) {
                     Log.d(TAG, "Reading data stream: input stream was closed");
@@ -561,9 +365,9 @@ public class WifiCommunication {
             }
             if (bytesReadAlready >= 0) {
                 totalBytesRead += bytesReadAlready;
-                if (able_to_read == false) {
+                if (ableToRead == false) {
                     bytesReadAlready = -1;
-                    able_to_read = true;
+                    ableToRead = true;
                 }
             }
         }
@@ -668,7 +472,7 @@ public class WifiCommunication {
         }
     }
 
-    private void tryToJoinWifi(String networkSSID, String password) {
+    public void tryToJoinWifi(String networkSSID, String password) {
         closeConnection();
         connectToWifiWPA(networkSSID, password);
         new Thread(() -> {

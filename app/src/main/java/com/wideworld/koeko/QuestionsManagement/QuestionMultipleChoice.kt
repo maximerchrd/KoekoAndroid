@@ -6,7 +6,7 @@ import java.util.Vector
 /**
  * Created by maximerichard on 26.10.17.
  */
-class QuestionMultipleChoice {
+class QuestionMultipleChoice : TransferableObject {
     var id: String? = null
     var subject: String? = null
     var level: String? = null
@@ -65,7 +65,7 @@ class QuestionMultipleChoice {
             return answers
         }
 
-    constructor() {
+    constructor() : super(groupPrefix = TransferPrefix.resource) {
         id = "0"
         subject = ""
         level = ""
@@ -86,7 +86,7 @@ class QuestionMultipleChoice {
     }
 
     constructor(lEVEL: String, qUESTION: String, oPT0: String, oPT1: String, oPT2: String, oPT3: String, oPT4: String,
-                oPT5: String, oPT6: String, oPT7: String, oPT8: String, oPT9: String, iMAGE: String) {
+                oPT5: String, oPT6: String, oPT7: String, oPT8: String, oPT9: String, iMAGE: String) : super(groupPrefix = TransferPrefix.resource) {
 
         level = lEVEL
         question = qUESTION
