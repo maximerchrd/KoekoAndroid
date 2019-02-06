@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
@@ -259,6 +260,7 @@ public class DataConversion {
     public Test byteToTest(byte[] byteArray) {
         TestView testView = null;
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         String stringJson;
         try {
             stringJson = new String(byteArray, "UTF-8");

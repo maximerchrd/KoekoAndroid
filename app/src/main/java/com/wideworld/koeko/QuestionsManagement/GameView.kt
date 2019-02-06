@@ -6,6 +6,12 @@ class GameView : TransferableObject {
     var theme = 0
     var team = 0
 
+    constructor() : super(groupPrefix = TransferPrefix.resource) {
+        this.gameType = -1
+        this.endScore = 30
+        this.theme = 0
+        this.team = 0
+    }
     constructor(gameType: Int = -1, endScore: Int = 30, theme: Int = 0, team: Int = 0) : super(groupPrefix = TransferPrefix.resource) {
         this.gameType = gameType
         this.endScore = endScore
