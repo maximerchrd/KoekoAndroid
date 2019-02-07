@@ -93,6 +93,8 @@ public class MenuActivity extends Activity {
             }
         });
 
+        /**
+         * Code used to check google play service version in order to use Nearby Communication
         Boolean showDownloadService = true;
         try {
             if (getApplication().getPackageManager().getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0).versionCode >= 12451000) {
@@ -106,8 +108,11 @@ public class MenuActivity extends Activity {
             for (int i = 0; i < 2; i++) {
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }
-        }
+        }*/
 
+
+        /**
+         * Requesting permission necessary for Nearby Connection Communication
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.System.canWrite(getApplicationContext())) {
                 Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
@@ -115,7 +120,7 @@ public class MenuActivity extends Activity {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-        }
+        }*/
     }
 
     public void onStart() {

@@ -15,7 +15,7 @@
     <string name="menu_score">score:</string>
     <string name="menu_level">level:</string>
     <string name="settings_name">Name</string>
-    <string name="settings_master">Server address</string>
+    <string name="settings_master">Connect to</string>
     <string name="button_settings_back">Save and go back</string>
     <string name="button_menu_settings">Settings</string>
     <string name="button_result_back">Go back to menu</string>
