@@ -17,10 +17,13 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.QuestionsManagement.Result;
@@ -80,12 +83,12 @@ public class WifiCommunication {
     }
 
     /**
-     * @param connectionString
+     * @param connectionBytes
      * @param deviceIdentifier
      * @param reconnection/    0: no reconnection; 1: reconnection; 3: connect to 2nd layer server; 4: reconnect after fail: must send FAIL before CONN
      *                    reconnection (continuing)
      */
-    public void connectToServer(String connectionString, String deviceIdentifier, int reconnection) {
+    public void connectToServer(byte[] connectionBytes, String deviceIdentifier, int reconnection) {
         try {
             NetworkCommunication.connected = 2;
             ip_address = "no IP";
@@ -145,7 +148,7 @@ public class WifiCommunication {
 
                 NetworkCommunication.connected = 1;
 
-                byte[] conBuffer = connectionString.getBytes();
+                byte[] conBuffer = connectionBytes;
                 try {
                     if (reconnection == 4) {
                         System.out.println("Reconnection code 4 failed ");
@@ -162,22 +165,13 @@ public class WifiCommunication {
                 }
 
                 //send resource ids present on the device
-                String idsOnDevice = DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIdsAndHashCode() + "|" +
-                        DbTableQuestionShortAnswer.getAllShortAnswerIdsAndHashCode() + "|"
-                        + FileHandler.getMediaFilesList(mContextWifCom);
-                String[] arrayIds = idsOnDevice.split("\\|");
-                String stringToSend = "RESIDS///" + deviceIdentifier + "///";
-                for (int i = 0; i < arrayIds.length; i++) {
-                    if (arrayIds[i].length() > 0) {
-                        stringToSend += arrayIds[i] + "|";
-                        if (stringToSend.getBytes().length >= 900) {
-                            stringToSend += "///";
-                            sendStringToServer(stringToSend);
-                            stringToSend = "RESIDS///" + deviceIdentifier + "///";
-                        }
-                    }
-                }
-                sendStringToServer(stringToSend + "///ENDTRSM///");
+                ArrayList<String> idsOnDevice = DbTableQuestionMultipleChoice.getAllQuestionMultipleChoiceIdsAndHashCode();
+                idsOnDevice.addAll(DbTableQuestionShortAnswer.getAllShortAnswerIdsAndHashCode());
+                idsOnDevice.addAll(FileHandler.getMediaFilesList(mContextWifCom));
+                ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.resourceIdsPrefix);
+                transferable.setOptionalArgument1(deviceIdentifier);
+                transferable.setFileBytes(ReceptionProtocol.getObjectMapper().writeValueAsString(idsOnDevice).getBytes());
+                sendBytes(transferable.getTransferableBytes());
 
                 sendHomeworkResults();
 
@@ -256,7 +250,7 @@ public class WifiCommunication {
         sendBytes(ansBuffer);
     }
 
-    private Boolean sendBytes(byte[] bytesToSend) {
+    protected Boolean sendBytes(byte[] bytesToSend) {
         Boolean success = true;
         try {
             if (mOutputStream != null) {

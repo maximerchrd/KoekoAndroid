@@ -2,6 +2,7 @@ package com.wideworld.koeko.NetworkCommunication;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 import android.app.Application;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.wideworld.koeko.Activities.GameActivity;
 import com.wideworld.koeko.Activities.InteractiveModeActivity;
@@ -20,6 +22,8 @@ import com.wideworld.koeko.Activities.MultChoiceQuestionActivity;
 import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
 import com.wideworld.koeko.Activities.TestActivity;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
@@ -63,23 +67,22 @@ public class NetworkCommunication {
 	 */
 	public void connectToMaster(int reconnection) {
 		String uniqueId = NetworkCommunication.deviceIdentifier;
-		final String connection = getConnectionString();
 		new Thread(() -> {
             //TODO: put a WifiLock
-            mWifiCom.connectToServer(connection, uniqueId, reconnection);
+            mWifiCom.connectToServer(getConnectionBytes(), uniqueId, reconnection);
         }).start();
 	}
 
-	public String getConnectionString() {
+	public byte[] getConnectionBytes() {
 		String uniqueId = NetworkCommunication.deviceIdentifier;
 		String name = DbTableSettings.getName();
 
 		String deviceInfos = "";
-		deviceInfos += "android:" + android.os.Build.VERSION.SDK_INT + ":";
+		deviceInfos += "A:" + android.os.Build.VERSION.SDK_INT + ":";
 		if (mApplication.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
 			deviceInfos += "BLE:";
 		} else {
-			deviceInfos += "NO-BLE:";
+			deviceInfos += "NOB:";
 		}
 		try {
 			deviceInfos += mApplication.getPackageManager().getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0 ).versionCode;
@@ -90,9 +93,21 @@ public class NetworkCommunication {
 		}
 		deviceInfos += DbTableSettings.getHotspotAvailable() + ":";
 		deviceInfos += Build.MODEL + ":";
-		deviceInfos += "///";
 
-		return "CONN" + "///" + uniqueId + "///" + name + "///" + deviceInfos;
+		ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.connectionPrefix);
+		LinkedHashMap<String, String> dictionary = new LinkedHashMap<>();
+		dictionary.put("uuid", uniqueId);
+		dictionary.put("name", name);
+		dictionary.put("deviceInfos", deviceInfos);
+		String dictionaryJson = "";
+		try {
+			dictionaryJson = ReceptionProtocol.getObjectMapper().writeValueAsString(dictionary);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		transferable.setFileBytes(dictionaryJson.getBytes());
+
+		return transferable.getTransferableBytes();
 	}
 
 	public void sendAnswerToServer(String answer, String question, String id, String answerType) {
@@ -123,6 +138,18 @@ public class NetworkCommunication {
             }
         }
     }
+
+	public void sendBytesToServer(byte[] data) {
+		if (network_solution == 0) {
+			mWifiCom.sendBytes(data);
+		} else if (network_solution == 1) {
+			if (NearbyCommunication.deviceRole == NearbyCommunication.DISCOVERER_ROLE) {
+				mNearbyCom.sendBytes(data);
+			} else {
+				mWifiCom.sendBytes(data);
+			}
+		}
+	}
 
 	public void sendDisconnectionSignal() {
 		PowerManager pm = (PowerManager) mContextNetCom.getSystemService(Context.POWER_SERVICE);

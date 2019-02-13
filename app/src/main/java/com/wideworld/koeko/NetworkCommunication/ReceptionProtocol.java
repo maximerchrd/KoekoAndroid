@@ -15,6 +15,8 @@ import com.google.android.gms.common.util.ArrayUtils;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.Evaluation;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.EvaluationTypes;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.QuestionIdentifier;
@@ -53,7 +55,7 @@ public class ReceptionProtocol {
             QuestionView questionView = dataConversion.bytearrayToQuestionView(questionBytes);
             DbTableQuestionMultipleChoice.addQuestionFromView(questionView);
 
-            Koeko.networkCommunicationSingleton.sendStringToServer("OK:" + NetworkCommunication.deviceIdentifier + "///" + questionView.getID() + "///");
+            sendOK(questionView.getID());
 
             if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
                 Koeko.networkCommunicationSingleton.sendDataToClient(bytesReceived);
@@ -288,7 +290,7 @@ public class ReceptionProtocol {
         QuestionView questionView = getObjectMapper().readValue(new String(questionBytes), QuestionView.class);
         DbTableQuestionMultipleChoice.addQuestionFromView(questionView);
 
-        Koeko.networkCommunicationSingleton.sendStringToServer("OK:" + NetworkCommunication.deviceIdentifier + "///" + questionView.getID() + "///");
+        sendOK(questionView.getID());
 
         if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
             Koeko.networkCommunicationSingleton.sendDataToClient(allBytesReceived);
@@ -312,7 +314,7 @@ public class ReceptionProtocol {
         return nameArray[lastIndex];
     }
 
-    private static ObjectMapper getObjectMapper() {
+    protected static ObjectMapper getObjectMapper() {
         if (objectMapper == null) {
             objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -327,7 +329,7 @@ public class ReceptionProtocol {
         //check if we got all the data
         if (Integer.valueOf(sizesPrefix.split(TransferPrefix.delimiter)[2]) == fileBytes.length) {
             FileHandler.saveMediaFile(fileBytes, fileName, context);
-            Koeko.wifiCommunicationSingleton.sendStringToServer("OK:" + NetworkCommunication.deviceIdentifier + "///" + fileName + "///");
+            sendOK(fileName);
 
             if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
                 Koeko.networkCommunicationSingleton.sendDataToClient(allBytesReceived);
@@ -335,5 +337,12 @@ public class ReceptionProtocol {
         } else {
             System.err.println("the expected file size and the size actually read don't match");
         }
+    }
+
+    private static void sendOK(String globalId) {
+        ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.okPrefix);
+        transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
+        transferable.setOptionalArgument2(globalId);
+        Koeko.networkCommunicationSingleton.sendBytesToServer(transferable.getTransferableBytes());
     }
 }

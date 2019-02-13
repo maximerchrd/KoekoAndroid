@@ -98,21 +98,20 @@ public class DbTableQuestionShortAnswer {
         return questionShortAnswer;
     }
 
-    static public String getAllShortAnswerIdsAndHashCode() {
-        String IDs = "";
+    static public ArrayList<String> getAllShortAnswerIdsAndHashCode() {
+        ArrayList<String> idsAndHash = new ArrayList<>();
         try {
             String selectQuery = "SELECT ID_GLOBAL, HASH_CODE FROM short_answer_questions;";
             //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
             // looping through all rows and adding to list
             while (cursor.moveToNext()) {
-                IDs += cursor.getString(0) + ";" + cursor.getString(1) + "|";
+                idsAndHash.add(cursor.getString(0) + ";" + cursor.getString(1));
             }
             cursor.close();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
         }
-        return IDs;
+        return idsAndHash;
     }
 }

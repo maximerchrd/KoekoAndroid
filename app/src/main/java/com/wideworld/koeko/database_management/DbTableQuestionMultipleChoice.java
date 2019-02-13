@@ -182,24 +182,21 @@ public class DbTableQuestionMultipleChoice {
         return false;
     }
 
-    static public String getAllQuestionMultipleChoiceIdsAndHashCode() {
-        String IDsAndUpdTime = "";
+    static public ArrayList<String> getAllQuestionMultipleChoiceIdsAndHashCode() {
+        ArrayList<String> idsAndHash = new ArrayList<>();
 
         try {
             String selectQuery = "SELECT ID_GLOBAL, HASH_CODE FROM multiple_choice_questions;";
-            //DbHelper.dbHelperSingleton.getDatabase() = DbHelper.getReadableDatabase();
             Cursor cursor = DbHelper.dbHelperSingleton.getDatabase().rawQuery(selectQuery, null);
-            // looping through all rows and adding to list
             while (cursor.moveToNext()) {
-                IDsAndUpdTime += cursor.getString(0) + ";" + cursor.getString(1) + "|";
+                idsAndHash.add(cursor.getString(0) + ";" + cursor.getString(1));
             }
             cursor.close();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
         }
 
-        return IDsAndUpdTime;
+        return idsAndHash;
     }
 
     public static String getUpdDateFromId(String id) {

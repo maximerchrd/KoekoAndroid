@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class FileHandler {
     static public String mediaDirectoryNoSlash = "media";
@@ -35,14 +36,14 @@ public class FileHandler {
         }
     }
 
-    static public String getMediaFilesList(Context context) {
-        String list = "";
+    static public ArrayList<String> getMediaFilesList(Context context) {
+        ArrayList<String> list = new ArrayList<>();
         File directory = new File(context.getFilesDir(), mediaDirectoryNoSlash);
         File[] files = directory.listFiles();
         if (files != null) {
             for (File inFile : files) {
                 if (!inFile.isDirectory()) {
-                    list += inFile.getName() + "|";
+                    list.add(inFile.getName());
                 }
             }
         }

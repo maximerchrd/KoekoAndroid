@@ -1,7 +1,6 @@
 package com.wideworld.koeko.Activities;
 
 import com.wideworld.koeko.Koeko;
-import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
@@ -173,7 +172,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
             Log.d(TAG, "connectToTeacher: trying to connect but already connecting");
         } else {
             Log.d(TAG, "connectToTeacher: Sending Connection String from OnCreate");
-            Koeko.networkCommunicationSingleton.sendStringToServer(Koeko.networkCommunicationSingleton.getConnectionString());
+            Koeko.networkCommunicationSingleton.sendBytesToServer(Koeko.networkCommunicationSingleton.getConnectionBytes());
         }
     }
 
