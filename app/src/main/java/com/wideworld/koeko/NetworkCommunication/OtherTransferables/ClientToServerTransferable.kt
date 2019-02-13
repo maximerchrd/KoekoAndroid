@@ -54,7 +54,6 @@ object CtoSPrefix {
     const val okPrefix = 4
     const val accuserReceptionPrefix = 5
     const val activeIdPrefix = 6
-    const val endTransmissionPrefix = 7
     const val hotspotIpPrefix = 8
     const val successPrefix = 9
     const val failPrefix = 10

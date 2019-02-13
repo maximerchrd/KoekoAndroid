@@ -152,8 +152,9 @@ public class WifiCommunication {
                 try {
                     if (reconnection == 4) {
                         System.out.println("Reconnection code 4 failed ");
-                        String failString = "FAIL///" + NetworkCommunication.deviceIdentifier + "///";
-                        mOutputStream.write(failString.getBytes(), 0, conBuffer.length);
+                        ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.failPrefix);
+                        transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
+                        mOutputStream.write(transferable.getTransferableBytes(), 0, transferable.getTransferableBytes().length);
                         mOutputStream.flush();
                     }
                     mOutputStream.write(conBuffer, 0, conBuffer.length);
@@ -440,7 +441,9 @@ public class WifiCommunication {
             Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showMessage("We lost the connection :-( \n" +
                     "Try to reconnect when you are on the Wifi.");
         } else {
-            sendStringToServer("RECONNECTED///" + DbTableSettings.getName() + "///");
+            ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.reconnectedPrefix);
+            transferable.setOptionalArgument1(DbTableSettings.getName());
+            sendBytes(transferable.getTransferableBytes());
         }
     }
 

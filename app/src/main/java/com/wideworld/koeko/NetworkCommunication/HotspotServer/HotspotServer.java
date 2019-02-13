@@ -6,6 +6,8 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import com.wideworld.koeko.Koeko;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -110,8 +112,10 @@ public class HotspotServer {
             // we create a server socket and bind it to port 9090.
             ServerSocket myServerSocket = new ServerSocket(PORTNUMBER);
 
-            String ipAddressMessage = "HOTSPOTIP///" + serverIpAddress + "///" + hotspotPassword + "///";
-            Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(ipAddressMessage.getBytes());
+            ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.hotspotIpPrefix);
+            transferable.setOptionalArgument1(serverIpAddress);
+            transferable.setOptionalArgument2(hotspotPassword);
+            Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(transferable.getTransferableBytes());
 
             //Wait for client connection
             System.out.println("HotspotServer Started. Waiting for clients to connect...");

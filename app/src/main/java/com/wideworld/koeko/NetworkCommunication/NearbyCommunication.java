@@ -23,6 +23,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.Tools.FileHandler;
@@ -162,14 +164,17 @@ public class NearbyCommunication {
                                 Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showConnected();
                                 Nearby.getConnectionsClient(mNearbyContext).stopDiscovery();
                                 Koeko.networkCommunicationSingleton.closeOnlyWifiConnection();
-                                String successString = "SUCCESS///" + NetworkCommunication.deviceIdentifier + "///";
+                                ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.successPrefix);
+                                transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
                                 System.out.println("sending SUCCESS");
-                                sendBytes(successString.getBytes());
+                                sendBytes(transferable.getTransferableBytes());
                                 isDiscovering = false;
                                 if (Koeko.networkCommunicationSingleton.getHotspotServerHotspot() != null) {
                                     if (!Koeko.networkCommunicationSingleton.getHotspotServerHotspot().configHotspotState()) {
                                         Log.d(TAG, "onConnectionResult: unable to start Hotspot");
-                                        Koeko.networkCommunicationSingleton.sendStringToServer("FAIL///" + NetworkCommunication.deviceIdentifier + "///");
+                                        ClientToServerTransferable transferable2 = new ClientToServerTransferable(CtoSPrefix.failPrefix);
+                                        transferable2.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
+                                        Koeko.networkCommunicationSingleton.sendBytesToServer(transferable2.getTransferableBytes());
                                     } else if (!HotspotServer.serverON) {
                                         Koeko.networkCommunicationSingleton.getHotspotServerHotspot().startHotspotServer();
                                     }

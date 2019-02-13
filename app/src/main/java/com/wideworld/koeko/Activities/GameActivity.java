@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.GameType;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableSettings;
@@ -164,7 +166,9 @@ public class GameActivity extends AppCompatActivity {
         final Activity currentActivity = this;
         if (gameType == GameType.orderedAutomaticSending || gameType == GameType.randomAutomaticSending) {
             readyButton.setOnClickListener(e -> {
-                Koeko.networkCommunicationSingleton.sendStringToServer("READY///" + DbTableSettings.getUUID() + "///");
+                ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.readyPrefix);
+                transferable.setOptionalArgument1(DbTableSettings.getUUID());
+                Koeko.networkCommunicationSingleton.sendBytesToServer(transferable.getTransferableBytes());
                 currentActivity.runOnUiThread(() -> {
                     readyButton.setBackgroundColor(getResources().getColor(R.color.gamegreen));
                 });
@@ -284,8 +288,10 @@ public class GameActivity extends AppCompatActivity {
         String[] codeArray = Koeko.qrCode.split(":");
         if (codeArray.length >= 3) {
             String resCodeString = codeArray[0];
-            Koeko.networkCommunicationSingleton.sendStringToServer("GAMESET///"
-                    + NetworkCommunication.deviceIdentifier + "///" + resCodeString + "///");
+            ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.gamesetPrefix);
+            transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
+            transferable.setOptionalArgument2(resCodeString);
+            Koeko.networkCommunicationSingleton.sendDataToClient(transferable.getTransferableBytes());
         } else {
             Log.w(TAG, "Array from QR code string is too short");
         }
