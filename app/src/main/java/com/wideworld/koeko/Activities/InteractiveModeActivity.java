@@ -2,6 +2,8 @@ package com.wideworld.koeko.Activities;
 
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.R;
@@ -302,8 +304,10 @@ public class InteractiveModeActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                Koeko.networkCommunicationSingleton.sendStringToServer("REQUEST///"
-                        + NetworkCommunication.deviceIdentifier + "///" + resCodeString + "///");
+                ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.requestPrefix);
+                transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
+                transferable.setOptionalArgument2(resCodeString);
+                Koeko.networkCommunicationSingleton.sendBytesToServer(transferable.getTransferableBytes());
             }
         } else {
             Log.w(TAG, "Array from QR code string is too short");
