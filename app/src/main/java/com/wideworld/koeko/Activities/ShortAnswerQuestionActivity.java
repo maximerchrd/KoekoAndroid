@@ -109,7 +109,10 @@ public class ShortAnswerQuestionActivity extends Activity {
 				String answer = textAnswer.getText().toString();
 
 				NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
-				networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getId(), "ANSW1");
+				ArrayList<String> answerArray = new ArrayList<>();
+				answerArray.add(answer);
+				networkCommunication.sendAnswerToServer(answerArray, answer, question, currentQ.getId(), "ANSW1",
+						(SystemClock.elapsedRealtime() - startingTime) / 1000);
 
 				if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
 					popupCorrection();

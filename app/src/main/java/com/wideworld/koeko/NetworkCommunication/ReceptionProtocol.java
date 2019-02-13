@@ -62,7 +62,7 @@ public class ReceptionProtocol {
             }
 
             if (questionView.getQUESTION().contains("7492qJfzdDSB")) {
-                Koeko.networkCommunicationSingleton.sendStringToServer("ACCUSERECEPTION");
+                Koeko.networkCommunicationSingleton.sendBytesToServer(new ClientToServerTransferable(CtoSPrefix.accuserReceptionPrefix).getTransferableBytes());
             }
 
             if (NetworkCommunication.network_solution == 1) {
@@ -297,7 +297,7 @@ public class ReceptionProtocol {
         }
 
         if (questionView.getQUESTION().contains("7492qJfzdDSB")) {
-            Koeko.networkCommunicationSingleton.sendStringToServer("ACCUSERECEPTION");
+            Koeko.networkCommunicationSingleton.sendBytesToServer(new ClientToServerTransferable(CtoSPrefix.accuserReceptionPrefix).getTransferableBytes());
         }
 
         if (NetworkCommunication.network_solution == 1) {

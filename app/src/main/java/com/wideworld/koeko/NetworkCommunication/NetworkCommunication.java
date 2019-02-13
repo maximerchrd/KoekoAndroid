@@ -22,6 +22,7 @@ import com.wideworld.koeko.Activities.MultChoiceQuestionActivity;
 import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
 import com.wideworld.koeko.Activities.TestActivity;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.Answer;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.GameView;
@@ -110,19 +111,35 @@ public class NetworkCommunication {
 		return transferable.getTransferableBytes();
 	}
 
-	public void sendAnswerToServer(String answer, String question, String id, String answerType) {
+	public void sendAnswerToServer(ArrayList<String> answers, String lastAnswerArg, String question, String id, String answerType, Long elapsedTime) {
 		String uuid = NetworkCommunication.deviceIdentifier;
 		String name = DbTableSettings.getName();
 
-		lastAnswer = answer; //save the answer for when we receive the evaluation from the server
-		answer = answerType + "///" + uuid + "///" + name + "///" + answer + "///" + question + "///" + String.valueOf(id) + "///";
+		Answer answer = new Answer();
+		answer.setStudentDeviceId(uuid);
+		answer.setStudentName(name);
+		answer.setQuestionId(id);
+		answer.setQuestion(question);
+		answer.setQuestionType(answerType);
+		answer.setAnswers(answers);
+		answer.setTimeSpent(elapsedTime.intValue());
+		answer.setQuestionType(answerType);
+		String answerTransferable = "";
+		try {
+			answerTransferable = ReceptionProtocol.getObjectMapper().writeValueAsString(answer);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.answerPrefix);
+		transferable.setFileBytes(answerTransferable.getBytes());
+		lastAnswer = lastAnswerArg; //save the answer for when we receive the evaluation from the server
 		if (network_solution == 0) {
-			mWifiCom.sendAnswerToServer(answer);
+			mWifiCom.sendBytes(transferable.getTransferableBytes());
 		} else if (network_solution == 1) {
 			if (NearbyCommunication.deviceRole == NearbyCommunication.DISCOVERER_ROLE) {
-				mNearbyCom.sendBytes(answer.getBytes());
+				mNearbyCom.sendBytes(transferable.getTransferableBytes());
 			} else {
-				mWifiCom.sendAnswerToServer(answer);
+				mWifiCom.sendBytes(transferable.getTransferableBytes());
 			}
 		}
 	}

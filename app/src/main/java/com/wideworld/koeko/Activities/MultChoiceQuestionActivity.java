@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.Answer;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.Tools.FileHandler;
@@ -126,9 +127,11 @@ public class MultChoiceQuestionActivity extends Activity {
 
         submitButton.setOnClickListener(v -> {
             String answer = "";
+            ArrayList<String> answers = new ArrayList<>();
             for (int i = 0; i < number_of_possible_answers; i++) {
                 if (checkBoxesArray.get(i).isChecked()) {
                     answer += checkBoxesArray.get(i).getText() + "|||";
+                    answers.add(checkBoxesArray.get(i).getText().toString());
                 }
             }
 
@@ -136,7 +139,8 @@ public class MultChoiceQuestionActivity extends Activity {
             saveActivityState();
 
             NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
-            networkCommunication.sendAnswerToServer(String.valueOf(answer), question, currentQ.getId(), "ANSW0");
+            networkCommunication.sendAnswerToServer(answers, answer, question, currentQ.getId(), "ANSW0",
+                    (SystemClock.elapsedRealtime() - startingTime) / 1000);
 
             if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
                 MltChoiceQuestionButtonClick();
@@ -174,7 +178,9 @@ public class MultChoiceQuestionActivity extends Activity {
          */
         if (question.contains("*ç%&")) {
             NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
-            networkCommunication.sendAnswerToServer(String.valueOf(opt0), question, currentQ.getId(), "ANSW0");
+            ArrayList<String> answer = new ArrayList<>();
+            answer.add(String.valueOf(opt0));
+            networkCommunication.sendAnswerToServer(answer, String.valueOf(opt0), question, currentQ.getId(), "ANSW0", 4239L);
             Thread thread = new Thread() {
                 @Override
                 public void run() {
