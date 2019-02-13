@@ -213,36 +213,14 @@ public class WifiCommunication {
         }
     }
 
-    private void sendHomeworkResults() {
+    private void sendHomeworkResults() throws JsonProcessingException {
         ArrayList<Result> results = DbTableIndividualQuestionForResult.getUnsyncedHomeworks();
-        ArrayList<byte[]> resultsBytesArray = new ArrayList<>();
-        int totalSize = 0;
-        for (Result result : results) {
-            try {
-                byte[] resultBytes = resultToBytes(result);
-                resultsBytesArray.add(resultBytes);
-                totalSize += resultBytes.length;
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-        byte[] allbytes = DataConversion.getPrefixFromString("RESULT///" + String.valueOf(totalSize) + "///");
-        for (byte[] resultByte : resultsBytesArray) {
-            allbytes = ArrayUtils.concatByteArrays(allbytes, resultByte);
-        }
-        if (sendBytes(allbytes)) {
+        String resultsAsString = ReceptionProtocol.getObjectMapper().writeValueAsString(results);
+        ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.homeworkResultPrefix);
+        transferable.setFileBytes(resultsAsString.getBytes());
+        if (sendBytes(transferable.getTransferableBytes())) {
             DbTableIndividualQuestionForResult.setAllHomeworkSynced();
         }
-    }
-
-    private byte[] resultToBytes(Result result) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResult = objectMapper.writeValueAsString(result);
-        int size = jsonResult.getBytes().length;
-        String prefix = "RESULT///" + String.valueOf(size) + "///";
-        byte[] prefixBytes = DataConversion.getPrefixFromString(prefix);
-        byte[] bytesToSend = ArrayUtils.concatByteArrays(prefixBytes, jsonResult.getBytes());
-        return bytesToSend;
     }
 
     public void sendAnswerToServer(String answer) {
