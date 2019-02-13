@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import android.app.Application;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,6 +22,7 @@ import com.wideworld.koeko.Activities.InteractiveModeActivity;
 import com.wideworld.koeko.Activities.MultChoiceQuestionActivity;
 import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
 import com.wideworld.koeko.Activities.TestActivity;
+import com.wideworld.koeko.NetworkCommunication.HotspotServer.Client;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.Answer;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
@@ -168,22 +170,22 @@ public class NetworkCommunication {
 		}
 	}
 
-	public void sendDisconnectionSignal() {
-		PowerManager pm = (PowerManager) mContextNetCom.getSystemService(Context.POWER_SERVICE);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-			//check if device locked
-			if (pm.isInteractive()) {
-                String uuid = NetworkCommunication.deviceIdentifier;
-                String name = DbTableSettings.getName();
-                String signal = "DISC///" + uuid + "///" + name + "///";
-                sendStringToServer(signal);
-            }
+	public void sendDisconnectionSignal(String additionalInformation) {
+		KeyguardManager myKM = (KeyguardManager) mContextNetCom.getSystemService(Context.KEYGUARD_SERVICE);
+		if( myKM.inKeyguardRestrictedInputMode()) {
+			System.out.println("Device is locked: sending locked signal");
+			ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.disconnectionPrefix);
+			transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
+			transferable.setOptionalArgument2("locked");
+			transferable.setFileBytes(DbTableSettings.getName().getBytes());
+			sendBytesToServer(transferable.getTransferableBytes());
 		} else {
-			String uuid = NetworkCommunication.deviceIdentifier;
-			String name = DbTableSettings.getName();
-			String signal = "DISC///" + uuid + "///" + name + "///Android///";
-			sendStringToServer(signal);
-			Log.w("sending disc sign:","Too old API doesn't allow to check for disconnection because of screen turned off");
+			System.out.println("Send disconnection signal");
+			ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.disconnectionPrefix);
+			transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
+			transferable.setOptionalArgument2(additionalInformation);
+			transferable.setFileBytes(DbTableSettings.getName().getBytes());
+			sendBytesToServer(transferable.getTransferableBytes());
 		}
 	}
 

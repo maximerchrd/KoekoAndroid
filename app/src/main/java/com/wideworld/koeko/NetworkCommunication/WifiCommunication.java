@@ -313,7 +313,7 @@ public class WifiCommunication {
                         ableToRead = false;
                     } else {
                         if (NearbyCommunication.deviceRole != NearbyCommunication.DISCOVERER_ROLE) {
-                            Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
+                            Koeko.networkCommunicationSingleton.sendDisconnectionSignal("close-connection");
                             Koeko.networkCommunicationSingleton.closeConnection();
                             Koeko.networkCommunicationSingleton.mInteractiveModeActivity.showDisconnected();
                             Log.d(TAG, "no byte read or prefix not supported");

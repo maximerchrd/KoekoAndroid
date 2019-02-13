@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.Tools.FileHandler;
@@ -39,6 +41,8 @@ public class ShortAnswerQuestionActivity extends Activity {
 	LinearLayout linearLayout;
 	private Activity mContext;
 	private Long startingTime = 0L;
+
+	static private String TAG = "ShortAnswerQuestionActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +103,13 @@ public class ShortAnswerQuestionActivity extends Activity {
 		}
 
 		//send receipt to server
-		String receipt = "ACTID///" + currentQ.getId() + "///";
-		Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
+		ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.activeIdPrefix);
+		transferable.setOptionalArgument1(currentQ.getId());
+		if (Koeko.networkCommunicationSingleton != null) {
+			Koeko.networkCommunicationSingleton.sendBytesToServer(transferable.getTransferableBytes());
+		} else {
+			Log.d(TAG, "onCreate: sending receipt to null networkCommunicationSingleton");
+		}
 
 		submitButton.setOnClickListener(new View.OnClickListener() {
 			@SuppressLint("SimpleDateFormat") @Override

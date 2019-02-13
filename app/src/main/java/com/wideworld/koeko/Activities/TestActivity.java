@@ -24,6 +24,8 @@ import com.wideworld.koeko.Activities.ActivityTools.TestChronometer;
 import com.wideworld.koeko.Activities.ActivityTools.TestListAdapter;
 import com.wideworld.koeko.Activities.ActivityTools.RecyclerTouchListener;
 import com.wideworld.koeko.Koeko;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.QuestionsManagement.Test;
@@ -169,8 +171,9 @@ public class TestActivity extends AppCompatActivity {
         }
 
         //send receipt to server
-        String receipt = "ACTID///" + String.valueOf(testID) + "///";
-        Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
+        ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.activeIdPrefix);
+        transferable.setOptionalArgument1(String.valueOf(testID));
+        Koeko.networkCommunicationSingleton.sendBytesToServer(transferable.getTransferableBytes());
 
         Koeko.currentTestActivitySingleton = this;
         Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;

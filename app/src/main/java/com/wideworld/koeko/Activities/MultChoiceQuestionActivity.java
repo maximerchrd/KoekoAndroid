@@ -28,6 +28,8 @@ import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.Answer;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
+import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.Tools.FileHandler;
@@ -118,11 +120,12 @@ public class MultChoiceQuestionActivity extends Activity {
         }
 
         //send receipt to server
-        String receipt = "ACTID///" + currentQ.getId() + "///";
-        if (Koeko.wifiCommunicationSingleton != null) {
-            Koeko.wifiCommunicationSingleton.sendStringToServer(receipt);
+        ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.activeIdPrefix);
+        transferable.setOptionalArgument1(currentQ.getId());
+        if (Koeko.networkCommunicationSingleton != null) {
+            Koeko.networkCommunicationSingleton.sendBytesToServer(transferable.getTransferableBytes());
         } else {
-            Log.d(TAG, "onCreate: sending receipt to null wifiCommunicationSingleton");
+            Log.d(TAG, "onCreate: sending receipt to null networkCommunicationSingleton");
         }
 
         submitButton.setOnClickListener(v -> {

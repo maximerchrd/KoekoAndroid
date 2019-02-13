@@ -72,7 +72,7 @@ public class Koeko extends MultiDexApplication {
                     sleep(MAX_ACTIVITY_TRANSITION_TIME_MS);
                     if (quitApp > 0) {
                         Log.v("WARNING: ", "user left application");
-                        appNetwork.sendDisconnectionSignal();
+                        appNetwork.sendDisconnectionSignal("");
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();

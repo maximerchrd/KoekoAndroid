@@ -112,7 +112,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
         Log.d(TAG, "toggleConnection: NetworkCommunication.connected=" + NetworkCommunication.connected);
         //TODO: fix problem when stopping connection when wifi was lost (keeps displaying "stop connection" when we are disconnected)
         if (NetworkCommunication.connected == 1) {
-            Koeko.networkCommunicationSingleton.sendDisconnectionSignal();
+            Koeko.networkCommunicationSingleton.sendDisconnectionSignal("close-connection");
             Koeko.networkCommunicationSingleton.closeConnection();
             showDisconnected();
         } else if (NetworkCommunication.connected == 0) {
