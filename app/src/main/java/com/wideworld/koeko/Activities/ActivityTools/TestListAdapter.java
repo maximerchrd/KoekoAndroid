@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.QuestionsManagement.Test;
@@ -45,7 +46,6 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
         }
     }
 
-    // Create new views (invoked by the layout manager)
     @Override
     public TestListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                          int viewType) {
@@ -57,7 +57,6 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
         return vh;
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
@@ -65,14 +64,22 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
         holder.questionText.setText(mQuestionTexts[position]);
         if (!test.getActiveQuestionIds().contains(test.getQuestionsIDs().get(position))) {
             holder.questionText.setTextColor(Color.GRAY);
-        } else if (test.getAnsweredQuestionIds().contains(test.getQuestionsIDs().get(position))) {
+        } else if (test.getAnsweredQuestionIds().containsKey(test.getQuestionsIDs().get(position))) {
             holder.questionText.setPaintFlags(holder.questionText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             holder.questionText.setTextColor(Color.BLACK);
         }
+
+        System.out.println(Koeko.currentTestActivitySingleton.testIsFinished);
+        if (Koeko.currentTestActivitySingleton.testIsFinished) {
+            if (test.getAnsweredQuestionIds().get(test.getActiveQuestionIds().get(position)) >= 100) {
+                holder.questionText.setTextColor(Color.GREEN);
+            } else if (test.getAnsweredQuestionIds().get(test.getActiveQuestionIds().get(position)) >= 0) {
+                holder.questionText.setTextColor(Color.RED);
+            }
+        }
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return test.getQuestionsIDs().size();

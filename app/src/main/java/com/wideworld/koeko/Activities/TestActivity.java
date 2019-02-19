@@ -41,6 +41,7 @@ public class TestActivity extends AppCompatActivity {
     public Map<String, String> mcqActivitiesStates;
     public Map<String, String> shrtaqActivitiesStates;
     public TestChronometer testChronometer;
+    public Boolean testIsFinished = false;
     private Boolean reloadActivity = false;
 
     private RecyclerView mRecyclerView;
@@ -60,8 +61,6 @@ public class TestActivity extends AppCompatActivity {
     private Uri videoUri;
     private MediaPlayer mediaPlayer;
     private Test mTest;
-    private FrameLayout.LayoutParams defaultVideoViewParams;
-    private int defaultScreenOrientationMode;
 
     private String TAG = "TestActivity";
 
@@ -214,18 +213,23 @@ public class TestActivity extends AppCompatActivity {
         return (super.onCreateOptionsMenu(menu));
     }
 
-    public void checkIfTestFinished() {
-        if (mTest.getAnsweredQuestionIds().containsAll(mTest.getActiveQuestionIds()) &&
-                mTest.getActiveQuestionIds().containsAll(mTest.getAnsweredQuestionIds()) && testChronometer != null) {
+    public Boolean checkIfTestFinished() {
+        return mTest.getAnsweredQuestionIds().keySet().containsAll(mTest.getActiveQuestionIds()) &&
+                mTest.getActiveQuestionIds().containsAll(mTest.getAnsweredQuestionIds().keySet());
+    }
+
+    public void finalizeTest() {
+
+        if (testIsFinished && testChronometer != null) {
             testChronometer.stop();
             Long testDuration = testChronometer.getOverallDuration();
 
             //calculate quantitative evaluation
             Double quantEval = 0.0;
-            for (Double singleEval : mTest.getQuestionsScores()) {
+            for (Double singleEval : mTest.getAnsweredQuestionIds().values()) {
                 quantEval += singleEval;
             }
-            quantEval = quantEval / mTest.getQuestionsScores().size();
+            quantEval = quantEval / mTest.getAnsweredQuestionIds().size();
 
             //check if medal won
             String medal = "none";

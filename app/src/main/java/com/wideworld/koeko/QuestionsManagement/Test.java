@@ -23,8 +23,7 @@ public class Test extends TransferableObject {
     private Map<String,QuestionMultipleChoice> idMapQmc;
     private Map<String,QuestionShortAnswer> idMapShrtaq;
     private Vector<String> activeQuestionIds;
-    private Vector<String> answeredQuestionIds;
-    private Vector<Double> questionsScores;
+    private Map<String, Double> answeredQuestionIds;
     private String medalsInstructionsString = "";
     private Vector<Vector<String>> medalsInstructions;
     private Timestamp testUpdate;
@@ -36,9 +35,8 @@ public class Test extends TransferableObject {
         idMapQmc = new LinkedHashMap<>();
         idMapShrtaq = new LinkedHashMap<>();
         activeQuestionIds = new Vector<>();
-        answeredQuestionIds = new Vector<>();
+        answeredQuestionIds = new LinkedHashMap<>();
         medalsInstructions = new Vector<>();
-        questionsScores = new Vector<>();
     }
 
     //getters
@@ -66,14 +64,11 @@ public class Test extends TransferableObject {
     public Vector<String> getActiveQuestionIds() {
         return activeQuestionIds;
     }
-    public Vector<String> getAnsweredQuestionIds() {
+    public Map<String, Double> getAnsweredQuestionIds() {
         return answeredQuestionIds;
     }
     public String getMedalsInstructionsString() {
         return medalsInstructionsString;
-    }
-    public Vector<Double> getQuestionsScores() {
-        return questionsScores;
     }
     public String getMediaFileName() {
         return mediaFileName;
@@ -107,7 +102,7 @@ public class Test extends TransferableObject {
     public void setActiveQuestionIds(Vector<String> activeQuestionIds) {
         this.activeQuestionIds = activeQuestionIds;
     }
-    public void setAnsweredQuestionIds(Vector<String> answeredQuestionIds) {
+    public void setAnsweredQuestionIds(Map<String, Double> answeredQuestionIds) {
         this.answeredQuestionIds = answeredQuestionIds;
     }
     public void setMedalsInstructionsString(String medalsInstructionsString) {
@@ -115,9 +110,6 @@ public class Test extends TransferableObject {
     }
     public void setMedalsInstructions(Vector<Vector<String>> medalsInstructions) {
         this.medalsInstructions = medalsInstructions;
-    }
-    public void setQuestionsScores(Vector<Double> questionsScores) {
-        this.questionsScores = questionsScores;
     }
     public void setMediaFileName(String mediaFileName) {
         this.mediaFileName = mediaFileName;

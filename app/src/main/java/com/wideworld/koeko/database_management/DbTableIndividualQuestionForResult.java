@@ -107,7 +107,12 @@ public class DbTableIndividualQuestionForResult {
     }
 
     static public double addIndividualQuestionForStudentResult(String id_global, String quantitative_eval, String answer) {
-        double quantitative_evaluation = -1;
+        double quantitative_evaluation;
+        try {
+            quantitative_evaluation = Double.parseDouble(quantitative_eval);
+        } catch (NumberFormatException e) {
+            quantitative_evaluation = -1.0;
+        }
         try {
             String sql = 	"INSERT INTO individual_question_for_result (ID_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
                     "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
@@ -125,16 +130,11 @@ public class DbTableIndividualQuestionForResult {
         //for test: update the active questions list and the answered questions list
         if (Koeko.currentTestActivitySingleton != null) {
             Koeko.currentTestActivitySingleton.getmTest().addResultAndRefreshActiveIDs(id_global, quantitative_eval);
-            Koeko.currentTestActivitySingleton.getmTest().getAnsweredQuestionIds().add(id_global);
-            Koeko.currentTestActivitySingleton.getmTest().getQuestionsScores().add(Double.valueOf(quantitative_eval));
-            Handler mainHandler = new Handler(Looper.getMainLooper());
+            Koeko.currentTestActivitySingleton.getmTest().getAnsweredQuestionIds().put(id_global, Double.valueOf(quantitative_eval));
+            Koeko.currentTestActivitySingleton.testIsFinished = Koeko.currentTestActivitySingleton.checkIfTestFinished();
 
-            Runnable myRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    Koeko.currentTestActivitySingleton.checkIfTestFinished();
-                }
-            };
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+            Runnable myRunnable = () -> Koeko.currentTestActivitySingleton.finalizeTest();
             mainHandler.post(myRunnable);
         }
 
