@@ -219,7 +219,9 @@ public class TestActivity extends AppCompatActivity {
     }
 
     public void finalizeTest() {
-
+        if (testIsFinished) {
+            mTest.getQuestionsIDs().add("0");
+        }
         if (testIsFinished && testChronometer != null) {
             testChronometer.stop();
             Long testDuration = testChronometer.getOverallDuration();

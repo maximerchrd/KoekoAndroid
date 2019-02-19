@@ -59,24 +59,31 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
-        holder.questionText.setText(mQuestionTexts[position]);
-        if (!test.getActiveQuestionIds().contains(test.getQuestionsIDs().get(position))) {
-            holder.questionText.setTextColor(Color.GRAY);
-        } else if (test.getAnsweredQuestionIds().containsKey(test.getQuestionsIDs().get(position))) {
-            holder.questionText.setPaintFlags(holder.questionText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-        } else {
-            holder.questionText.setTextColor(Color.BLACK);
-        }
-
-        System.out.println(Koeko.currentTestActivitySingleton.testIsFinished);
-        if (Koeko.currentTestActivitySingleton.testIsFinished) {
-            if (test.getAnsweredQuestionIds().get(test.getActiveQuestionIds().get(position)) >= 100) {
-                holder.questionText.setTextColor(Color.GREEN);
-            } else if (test.getAnsweredQuestionIds().get(test.getActiveQuestionIds().get(position)) >= 0) {
-                holder.questionText.setTextColor(Color.RED);
+        if (position < mQuestionTexts.length) {
+            holder.questionText.setText(mQuestionTexts[position]);
+            if (!test.getActiveQuestionIds().contains(test.getQuestionsIDs().get(position))) {
+                holder.questionText.setTextColor(Color.GRAY);
+            } else if (test.getAnsweredQuestionIds().containsKey(test.getQuestionsIDs().get(position))) {
+                holder.questionText.setPaintFlags(holder.questionText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            } else {
+                holder.questionText.setTextColor(Color.BLACK);
             }
+
+            if (Koeko.currentTestActivitySingleton.testIsFinished) {
+                if (test.getAnsweredQuestionIds().get(test.getActiveQuestionIds().get(position)) >= 100) {
+                    holder.questionText.setTextColor(Color.GREEN);
+                } else if (test.getAnsweredQuestionIds().get(test.getActiveQuestionIds().get(position)) >= 0) {
+                    holder.questionText.setTextColor(Color.RED);
+                }
+            }
+        } else if (Koeko.currentTestActivitySingleton.testIsFinished) {
+            double overallEval = 0.0;
+            for (double eval : test.getAnsweredQuestionIds().values()) {
+                overallEval += eval;
+            }
+            overallEval /= test.getAnsweredQuestionIds().size();
+            holder.questionText.setText("Overall evaluation: " + overallEval + " %");
+            holder.questionText.setTextColor(Color.BLACK);
         }
     }
 

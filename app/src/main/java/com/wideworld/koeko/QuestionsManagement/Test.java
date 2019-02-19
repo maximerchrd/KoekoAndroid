@@ -211,13 +211,7 @@ public class Test extends TransferableObject {
             }
         }
 
-        Koeko.currentTestActivitySingleton.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Koeko.currentTestActivitySingleton.getmAdapter().notifyDataSetChanged();
-            }
-        });
-
+        Koeko.currentTestActivitySingleton.runOnUiThread(() -> Koeko.currentTestActivitySingleton.getmAdapter().notifyDataSetChanged());
     }
 
     /**
