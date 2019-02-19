@@ -56,7 +56,9 @@ public class DbTableQuestionShortAnswer {
             Log.v("insert shrtaQuest, ID: ", String.valueOf(quest.getId()));
 
             for (int i = 0; i < quest.getAnswers().size(); i++) {
-                DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getId()),quest.getAnswers().get(i));
+                if (!quest.getAnswers().get(i).contentEquals("")) {
+                    DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getId()), quest.getAnswers().get(i));
+                }
             }
         } catch ( SQLException e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
