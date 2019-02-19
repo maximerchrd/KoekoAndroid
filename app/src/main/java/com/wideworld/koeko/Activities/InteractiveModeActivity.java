@@ -360,11 +360,10 @@ public class InteractiveModeActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus) {
-            Log.v("interactive mode: ", "focus lost");
-            ((Koeko) this.getApplication()).startActivityTransitionTimer();
+            Log.v("WARNING: ", "user left application");
+            Koeko.networkCommunicationSingleton.sendDisconnectionSignal("");
         } else {
-            ((Koeko) this.getApplication()).stopActivityTransitionTimer();
-            Log.v("interactive mode: ", "has focus");
+            Log.v(TAG, "has focus");
         }
     }
 }

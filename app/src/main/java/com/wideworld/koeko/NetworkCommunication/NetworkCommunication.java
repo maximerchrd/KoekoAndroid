@@ -12,6 +12,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -31,6 +33,7 @@ import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.Koeko;
+import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableSettings;
 
 public class NetworkCommunication {
@@ -233,7 +236,16 @@ public class NetworkCommunication {
 		bun.putInt("nbCorrectAnswers", question_to_display.getNB_CORRECT_ANS());
 		bun.putInt("timerSeconds", question_to_display.getTimerSeconds());
 		mIntent.putExtras(bun);
-		mContextNetCom.startActivity(mIntent);
+
+		FragmentManager fragmentManager = mInteractiveModeActivity.getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+		MultChoiceQuestionActivity fragment = new MultChoiceQuestionActivity();
+		fragment.setArguments(mIntent.getExtras());
+		fragmentTransaction.replace(R.id.viewgroup, fragment);
+		fragmentTransaction.addToBackStack(null);
+		fragmentTransaction.commit();
+
+		//mContextNetCom.startActivity(mIntent);
 	}
 
 	public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display, String directCorrection) {

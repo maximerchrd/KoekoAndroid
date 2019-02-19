@@ -5,18 +5,17 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.SystemClock;
+import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -26,15 +25,13 @@ import android.widget.TextView;
 
 import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
 import com.wideworld.koeko.Koeko;
-import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
-import com.wideworld.koeko.NetworkCommunication.OtherTransferables.Answer;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.Tools.FileHandler;
 
-public class MultChoiceQuestionActivity extends Activity {
+public class MultChoiceQuestionActivity extends Fragment {
     private Boolean wasAnswered = false;
     private int number_of_possible_answers = 0;
     private QuestionMultipleChoice currentQ;
@@ -44,31 +41,31 @@ public class MultChoiceQuestionActivity extends Activity {
     private ImageView picture;
     private boolean isImageFitToScreen = true;
     private LinearLayout linearLayout;
-    private Activity mContext;
+    private Activity mActivity;
     private Long startingTime = 0L;
 
     private String TAG = "MultChoiceQuestionActivity";
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_multchoicequestion);
-        mContext = this;
+        View rootView = inflater.inflate(R.layout.activity_multchoicequestion, container, false);
+        mActivity = getActivity();
 
-        linearLayout = (LinearLayout) findViewById(R.id.linearLayoutMultChoice);
-        txtQuestion = (TextView) findViewById(R.id.textViewMultChoiceQuest1);
-        picture = new ImageView(getApplicationContext());
-        submitButton = new Button(getApplicationContext());
+        linearLayout = rootView.findViewById(R.id.linearLayoutMultChoice);
+        txtQuestion = rootView.findViewById(R.id.textViewMultChoiceQuest1);
+        picture = new ImageView(mActivity);
+        submitButton = new Button(mActivity);
         checkBoxesArray = new ArrayList<>();
-        TextView timerView = findViewById(R.id.timerViewMcq);
+        TextView timerView = rootView.findViewById(R.id.timerViewMcq);
 
 
         //get bluetooth client object
 //		final BluetoothClientActivity bluetooth = (BluetoothClientActivity)getIntent().getParcelableExtra("bluetoothObject");
 
         //get question from the bundle
-        Bundle bun = getIntent().getExtras();
+        Bundle bun = getArguments();
         final String question = bun.getString("question");
         String opt0 = bun.getString("opt0");        //should also be the answer
         String opt1 = bun.getString("opt1");
@@ -88,19 +85,16 @@ public class MultChoiceQuestionActivity extends Activity {
         currentQ.setNB_CORRECT_ANS(bun.getInt("nbCorrectAnswers"));
         currentQ.setTimerSeconds(timerSeconds);
         if (currentQ.getImage().length() > 0) {
-            picture.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (isImageFitToScreen) {
-                        isImageFitToScreen = false;
-                        picture.setAdjustViewBounds(true);
-                        picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        picture.setAdjustViewBounds(true);
-                    } else {
-                        isImageFitToScreen = true;
-                        picture.setAdjustViewBounds(true);
-                        picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
-                    }
+            picture.setOnClickListener(v -> {
+                if (isImageFitToScreen) {
+                    isImageFitToScreen = false;
+                    picture.setAdjustViewBounds(true);
+                    picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    picture.setAdjustViewBounds(true);
+                } else {
+                    isImageFitToScreen = true;
+                    picture.setAdjustViewBounds(true);
+                    picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
                 }
             });
         }
@@ -116,7 +110,7 @@ public class MultChoiceQuestionActivity extends Activity {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            finish();
+            Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
         }
 
         //send receipt to server
@@ -141,15 +135,14 @@ public class MultChoiceQuestionActivity extends Activity {
             wasAnswered = true;
             saveActivityState();
 
-            NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
-            networkCommunication.sendAnswerToServer(answers, answer, question, currentQ.getId(), "ANSW0",
+            Koeko.networkCommunicationSingleton.sendAnswerToServer(answers, answer, question, currentQ.getId(), "ANSW0",
                     (SystemClock.elapsedRealtime() - startingTime) / 1000);
 
             if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
                 MltChoiceQuestionButtonClick();
             } else {
-                finish();
-                invalidateOptionsMenu();
+                Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
+                //invalidateOptionsMenu();
             }
         });
 
@@ -167,10 +160,10 @@ public class MultChoiceQuestionActivity extends Activity {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    mContext.runOnUiThread(() -> timerView.setText(String.valueOf((timerSeconds -
+                    mActivity.runOnUiThread(() -> timerView.setText(String.valueOf((timerSeconds -
                             (SystemClock.elapsedRealtime() - startingTime) / 1000))));
                 }
-                mContext.runOnUiThread(() -> disactivateQuestion());
+                mActivity.runOnUiThread(() -> disactivateQuestion());
             }).start();
         }
 
@@ -180,10 +173,9 @@ public class MultChoiceQuestionActivity extends Activity {
          * START CODE USED FOR TESTING
          */
         if (question.contains("*ç%&")) {
-            NetworkCommunication networkCommunication = ((Koeko) getApplication()).getAppNetwork();
             ArrayList<String> answer = new ArrayList<>();
             answer.add(String.valueOf(opt0));
-            networkCommunication.sendAnswerToServer(answer, String.valueOf(opt0), question, currentQ.getId(), "ANSW0", 4239L);
+            Koeko.networkCommunicationSingleton.sendAnswerToServer(answer, String.valueOf(opt0), question, currentQ.getId(), "ANSW0", 4239L);
             Thread thread = new Thread() {
                 @Override
                 public void run() {
@@ -193,8 +185,8 @@ public class MultChoiceQuestionActivity extends Activity {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    finish();
-                    invalidateOptionsMenu();
+                    Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
+                    //invalidateOptionsMenu();
                 }
             };
             thread.start();
@@ -203,6 +195,8 @@ public class MultChoiceQuestionActivity extends Activity {
         /**
          * END CODE USED FOR TESTING
          */
+
+        return rootView;
     }
 
     private void setQuestionView() {
@@ -211,7 +205,7 @@ public class MultChoiceQuestionActivity extends Activity {
         if (currentQ.getImage().contains(":") && currentQ.getImage().length() > currentQ.getImage().indexOf(":") + 1) {
             currentQ.setImage(currentQ.getImage().substring(currentQ.getImage().indexOf(":") + 1));
         }
-        File imgFile = new File(getFilesDir() + "/"+ FileHandler.mediaDirectory + currentQ.getImage());
+        File imgFile = new File(mActivity.getFilesDir() + "/"+ FileHandler.mediaDirectory + currentQ.getImage());
         if (imgFile.exists()) {
             String path = imgFile.getAbsolutePath();
             Bitmap myBitmap = BitmapFactory.decodeFile(path);
@@ -257,7 +251,7 @@ public class MultChoiceQuestionActivity extends Activity {
         CheckBox tempCheckBox = null;
 
         for (int i = 0; i < number_of_possible_answers; i++) {
-            tempCheckBox = new CheckBox(getApplicationContext());
+            tempCheckBox = new CheckBox(mActivity);
             tempCheckBox.setText(answerOptions[i]);
             tempCheckBox.setTextColor(Color.BLACK);
             checkBoxesArray.add(tempCheckBox);
@@ -274,8 +268,8 @@ public class MultChoiceQuestionActivity extends Activity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        int height = getApplicationContext().getResources().getDisplayMetrics().heightPixels;
-        int width = getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+        int height = mActivity.getResources().getDisplayMetrics().heightPixels;
+        int width = mActivity.getResources().getDisplayMetrics().widthPixels;
         params.setMargins(width / 40, height / 200, width / 40, height / 200);  //left, top, right, bottom
         submitButton.setLayoutParams(params);
         submitButton.setTextColor(Color.WHITE);
@@ -324,7 +318,7 @@ public class MultChoiceQuestionActivity extends Activity {
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
 
         Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
@@ -378,9 +372,9 @@ public class MultChoiceQuestionActivity extends Activity {
             message = getString(R.string.correction_incorrect) + correct_answers;
         }
 
-        CustomAlertDialog customAlertDialog = new CustomAlertDialog(this);
+        CustomAlertDialog customAlertDialog = new CustomAlertDialog(mActivity);
         customAlertDialog.show();
-        customAlertDialog.setProperties(message, this);
+        customAlertDialog.setProperties(message, mActivity);
     }
 
     private void disactivateQuestion() {
@@ -392,21 +386,4 @@ public class MultChoiceQuestionActivity extends Activity {
         }
         wasAnswered = true;
     }
-
-    /**
-     * method used to know if we send a disconnection signal to the server
-     * @param hasFocus
-     */
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus) {
-            Log.v("Question activity: ", "focus lost");
-            ((Koeko) this.getApplication()).startActivityTransitionTimer();
-        } else {
-            ((Koeko) this.getApplication()).stopActivityTransitionTimer();
-            Log.v("Question activity: ", "has focus");
-            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
-        }
-    }
-
 }
