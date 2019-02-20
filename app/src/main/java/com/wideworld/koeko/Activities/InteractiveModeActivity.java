@@ -17,6 +17,7 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +28,8 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 public class InteractiveModeActivity extends AppCompatActivity {
     public TextView intmod_out;
@@ -247,14 +250,14 @@ public class InteractiveModeActivity extends AppCompatActivity {
         Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
     }
 
-    public void processQRCode() {
+    protected void processQRCode() {
         if (!Koeko.qrCode.contentEquals("")) {
             launchResourceFromCode();
             Koeko.qrCode = "";
         }
     }
 
-    public void setForwardButton() {
+    protected void setForwardButton() {
         if (forwardButton != null) {
             if (Koeko.qmcActivityState != null || Koeko.shrtaqActivityState != null) {
                 forwardButton.setTitle(getString(R.string.back_to_question) + " >");
@@ -325,6 +328,47 @@ public class InteractiveModeActivity extends AppCompatActivity {
         } else {
             Log.w(TAG, "Array from QR code string is too short");
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment fragment = getCurrentTopFragment(getSupportFragmentManager());
+        if (fragment != null) {
+            String classname = fragment.getClass().getName();
+            classname = classname.split("\\.")[classname.split("\\.").length - 1];
+            switch (classname) {
+                case "ShortAnswerQuestionFragment":
+                    ((ShortAnswerQuestionFragment) fragment).saveActivityState();
+                    setForwardButton();
+                    break;
+                case "MultChoiceQuestionFragment":
+                    ((MultChoiceQuestionFragment) fragment).saveActivityState();
+                    setForwardButton();
+                    break;
+                default:
+                    System.out.println("back from other fragment");
+            }
+            super.onBackPressed();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private static Fragment getCurrentTopFragment(FragmentManager fm) {
+        int stackCount = fm.getBackStackEntryCount();
+        if (stackCount == 1) {
+            return  fm.getFragments().get(stackCount - 1);
+        } else {
+            List<Fragment> fragments = fm.getFragments();
+            if (fragments != null && fragments.size()>0) {
+                for (Fragment f: fragments) {
+                    if (f != null && !f.isHidden()) {
+                        return f;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     // create an action bar button

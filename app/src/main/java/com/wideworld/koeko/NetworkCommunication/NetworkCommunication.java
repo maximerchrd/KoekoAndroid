@@ -11,20 +11,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.wideworld.koeko.Activities.GameActivity;
 import com.wideworld.koeko.Activities.InteractiveModeActivity;
-import com.wideworld.koeko.Activities.MultChoiceQuestionActivity;
-import com.wideworld.koeko.Activities.ShortAnswerQuestionActivity;
+import com.wideworld.koeko.Activities.MultChoiceQuestionFragment;
+import com.wideworld.koeko.Activities.ShortAnswerQuestionFragment;
 import com.wideworld.koeko.Activities.TestActivity;
-import com.wideworld.koeko.NetworkCommunication.HotspotServer.Client;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.Answer;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
@@ -217,7 +215,7 @@ public class NetworkCommunication {
 
 	public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display, String directCorrection) {
 		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
-		Intent mIntent = new Intent(mContextNetCom, MultChoiceQuestionActivity.class);
+		Intent mIntent = new Intent(mContextNetCom, MultChoiceQuestionFragment.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQuestion());
 		bun.putString("opt0", question_to_display.getOpt0());
@@ -237,19 +235,12 @@ public class NetworkCommunication {
 		bun.putInt("timerSeconds", question_to_display.getTimerSeconds());
 		mIntent.putExtras(bun);
 
-		FragmentManager fragmentManager = mInteractiveModeActivity.getSupportFragmentManager();
-		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-		MultChoiceQuestionActivity fragment = new MultChoiceQuestionActivity();
-		fragment.setArguments(mIntent.getExtras());
-		fragmentTransaction.replace(R.id.viewgroup, fragment);
-		fragmentTransaction.addToBackStack(null);
-		fragmentTransaction.commit();
-
+		launchFragment(new MultChoiceQuestionFragment(), mIntent);
 	}
 
 	public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display, String directCorrection) {
 		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
-		Intent mIntent = new Intent(mContextNetCom, ShortAnswerQuestionActivity.class);
+		Intent mIntent = new Intent(mContextNetCom, ShortAnswerQuestionFragment.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQuestion());
 		bun.putString("id", question_to_display.getId());
@@ -257,7 +248,7 @@ public class NetworkCommunication {
 		bun.putString("directCorrection", directCorrection);
 		bun.putInt("timerSeconds", question_to_display.getTimerSeconds());
 		mIntent.putExtras(bun);
-		mContextNetCom.startActivity(mIntent);
+		launchFragment(new ShortAnswerQuestionFragment(), mIntent);
 	}
 
 	public void launchTestActivity(Long testID, String directCorrection) {
@@ -279,6 +270,15 @@ public class NetworkCommunication {
 		bun.putInt("team", team);
 		mIntent.putExtras(bun);
 		mContextNetCom.startActivity(mIntent);
+	}
+
+	private void launchFragment(Fragment fragment, Intent mIntent) {
+		FragmentManager fragmentManager = mInteractiveModeActivity.getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+		fragment.setArguments(mIntent.getExtras());
+		fragmentTransaction.replace(R.id.viewgroup, fragment);
+		fragmentTransaction.addToBackStack(null);
+		fragmentTransaction.commit();
 	}
 
 	public String getLastAnswer() {

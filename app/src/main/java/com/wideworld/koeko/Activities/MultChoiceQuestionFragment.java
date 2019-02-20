@@ -31,7 +31,7 @@ import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.Tools.FileHandler;
 
-public class MultChoiceQuestionActivity extends Fragment {
+public class MultChoiceQuestionFragment extends Fragment {
     private Boolean wasAnswered = false;
     private int number_of_possible_answers = 0;
     private QuestionMultipleChoice currentQ;
@@ -44,7 +44,7 @@ public class MultChoiceQuestionActivity extends Fragment {
     private Activity mActivity;
     private Long startingTime = 0L;
 
-    private String TAG = "MultChoiceQuestionActivity";
+    private String TAG = "MultChoiceQuestionFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -110,7 +110,7 @@ public class MultChoiceQuestionActivity extends Fragment {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
+            dismiss();
         }
 
         //send receipt to server
@@ -141,7 +141,7 @@ public class MultChoiceQuestionActivity extends Fragment {
             if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
                 MltChoiceQuestionButtonClick();
             } else {
-                Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
+                dismiss();
                 //invalidateOptionsMenu();
             }
         });
@@ -185,7 +185,7 @@ public class MultChoiceQuestionActivity extends Fragment {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
+                    dismiss();
                     //invalidateOptionsMenu();
                 }
             };
@@ -325,7 +325,7 @@ public class MultChoiceQuestionActivity extends Fragment {
         saveActivityState();
     }
 
-    private void saveActivityState() {
+    protected void saveActivityState() {
         String activityState = "";
         for (CheckBox checkbox : checkBoxesArray) {
             if (checkbox.isChecked()) {
@@ -385,5 +385,9 @@ public class MultChoiceQuestionActivity extends Fragment {
             checkBox.setAlpha(0.3f);
         }
         wasAnswered = true;
+    }
+
+    private void dismiss() {
+        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
     }
 }
