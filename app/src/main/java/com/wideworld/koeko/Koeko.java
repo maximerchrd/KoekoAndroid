@@ -4,7 +4,7 @@ import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.wideworld.koeko.Activities.GameActivity;
-import com.wideworld.koeko.Activities.TestActivity;
+import com.wideworld.koeko.Activities.TestFragment;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.NetworkCommunication.WifiCommunication;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
@@ -16,7 +16,7 @@ import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 public class Koeko extends MultiDexApplication {
     public static int testConnectivity = 0;
     public static GameActivity currentGameActivity = null;
-    public static TestActivity currentTestActivitySingleton = null;
+    public static TestFragment currentTestFragmentSingleton = null;
     public static String qmcActivityState = null;
     public static QuestionMultipleChoice currentQuestionMultipleChoiceSingleton = null;
     public static String shrtaqActivityState = null;

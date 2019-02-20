@@ -14,6 +14,8 @@ import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.R;
 
+import java.util.Arrays;
+
 public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHolder> {
     private String[] mQuestionTexts;
     private Test test;
@@ -39,7 +41,11 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
             QuestionMultipleChoice questionMultipleChoice = test.getIdMapQmc().get(test.getQuestionsIDs().get(i));
             if (questionMultipleChoice == null) {
                 QuestionShortAnswer questionShortAnswer = test.getIdMapShrtaq().get(test.getQuestionsIDs().get(i));
-                mQuestionTexts[i] = questionShortAnswer.getQuestion();
+                if (questionShortAnswer != null) {
+                    mQuestionTexts[i] = questionShortAnswer.getQuestion();
+                } else {
+                    mQuestionTexts = Arrays.copyOfRange(mQuestionTexts, 0, mQuestionTexts.length - 1);
+                }
             } else {
                 mQuestionTexts[i] = questionMultipleChoice.getQuestion();
             }
@@ -69,14 +75,14 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
                 holder.questionText.setTextColor(Color.BLACK);
             }
 
-            if (Koeko.currentTestActivitySingleton.testIsFinished) {
+            if (Koeko.currentTestFragmentSingleton.testIsFinished) {
                 if (test.getAnsweredQuestionIds().get(test.getActiveQuestionIds().get(position)) >= 100) {
                     holder.questionText.setTextColor(Color.GREEN);
                 } else if (test.getAnsweredQuestionIds().get(test.getActiveQuestionIds().get(position)) >= 0) {
                     holder.questionText.setTextColor(Color.RED);
                 }
             }
-        } else if (Koeko.currentTestActivitySingleton.testIsFinished) {
+        } else if (Koeko.currentTestFragmentSingleton.testIsFinished) {
             double overallEval = 0.0;
             for (double eval : test.getAnsweredQuestionIds().values()) {
                 overallEval += eval;

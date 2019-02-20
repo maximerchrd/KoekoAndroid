@@ -211,7 +211,7 @@ public class Test extends TransferableObject {
             }
         }
 
-        Koeko.currentTestActivitySingleton.runOnUiThread(() -> Koeko.currentTestActivitySingleton.getmAdapter().notifyDataSetChanged());
+        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.runOnUiThread(() -> Koeko.currentTestFragmentSingleton.getmAdapter().notifyDataSetChanged());
     }
 
     /**

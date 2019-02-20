@@ -139,7 +139,7 @@ public class NearbyReceptionProtocol {
         String id_global = stringPrefix.split("///")[1];
 
         //reinitializing all types of displays
-        Koeko.currentTestActivitySingleton = null;
+        Koeko.currentTestFragmentSingleton = null;
         Koeko.shrtaqActivityState = null;
         Koeko.qmcActivityState = null;
 
@@ -157,14 +157,14 @@ public class NearbyReceptionProtocol {
                 Koeko.networkCommunicationSingleton.directCorrection = stringPrefix.split("///")[2];
                 Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, Koeko.networkCommunicationSingleton.directCorrection);
                 Koeko.shrtaqActivityState = null;
-                Koeko.currentTestActivitySingleton = null;
+                Koeko.currentTestFragmentSingleton = null;
             } else {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
                 questionShortAnswer.setId(id_global);
                 Koeko.networkCommunicationSingleton.directCorrection = stringPrefix.split("///")[2];
                 Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, Koeko.networkCommunicationSingleton.directCorrection);
                 Koeko.qmcActivityState = null;
-                Koeko.currentTestActivitySingleton = null;
+                Koeko.currentTestFragmentSingleton = null;
             }
         }
     }

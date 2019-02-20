@@ -1,19 +1,20 @@
 package com.wideworld.koeko.Activities;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -37,7 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
-public class TestActivity extends AppCompatActivity {
+public class TestFragment extends Fragment {
     public Map<String, String> mcqActivitiesStates;
     public Map<String, String> shrtaqActivitiesStates;
     public TestChronometer testChronometer;
@@ -62,7 +63,7 @@ public class TestActivity extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private Test mTest;
 
-    private String TAG = "TestActivity";
+    private String TAG = "TestFragment";
 
     public Test getmTest() {
         return mTest;
@@ -70,27 +71,29 @@ public class TestActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_test);
-        mRecyclerView = (RecyclerView) findViewById(R.id.test_recycler_view);
+        View rootView = inflater.inflate(R.layout.activity_test, container, false);
+        mRecyclerView = rootView.findViewById(R.id.test_recycler_view);
+
+        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.forwardButton.setTitle("");
 
         //initialize static variables
         mcqActivitiesStates = new LinkedHashMap<>();
         shrtaqActivitiesStates = new LinkedHashMap<>();
 
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
 
-        mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         //load the test
-        Bundle bun = getIntent().getExtras();
+        Bundle bun = getArguments();
         Long testID = bun.getLong("testID");
 
-        if (Koeko.currentTestActivitySingleton == null) {
+        if (Koeko.currentTestFragmentSingleton == null) {
             mTest = DbTableTest.getTestFromTestId(String.valueOf(testID));
             if (mTest != null) {
                 mTest.setIdGlobal(testID);
@@ -101,19 +104,19 @@ public class TestActivity extends AppCompatActivity {
                 reloadActivity = false;
             } else {
                 Log.w(TAG, "Received test id but can't find corresponding test in db!");
-                finish();
-                return;
+                dismiss();
+                return rootView;
             }
         } else {
-            mTest = Koeko.currentTestActivitySingleton.mTest;
-            mcqActivitiesStates = Koeko.currentTestActivitySingleton.mcqActivitiesStates;
-            shrtaqActivitiesStates = Koeko.currentTestActivitySingleton.shrtaqActivitiesStates;
+            mTest = Koeko.currentTestFragmentSingleton.mTest;
+            mcqActivitiesStates = Koeko.currentTestFragmentSingleton.mcqActivitiesStates;
+            shrtaqActivitiesStates = Koeko.currentTestFragmentSingleton.shrtaqActivitiesStates;
             reloadActivity = true;
         }
 
         mAdapter = new TestListAdapter(mTest);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
+        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
                 if (mTest.getActiveQuestionIds().contains(mTest.getQuestionsIDs().get(position))) {
@@ -137,31 +140,31 @@ public class TestActivity extends AppCompatActivity {
 
         if (mTest.getMedalsInstructionsString().length() > 0
                 && !mTest.getMedalsInstructionsString().contentEquals("null")
-                && Koeko.currentTestActivitySingleton == null) {
+                && Koeko.currentTestFragmentSingleton == null) {
             Vector<Vector<String>> instruc = mTest.getMedalsInstructions();
             if (instruc.size() >=3) {
                 String message = "Gold medal\nTime: " + (instruc.get(2).get(0) != "1000000" ? instruc.get(2).get(0) : "no time limit;") + " \nScore: " + instruc.get(2).get(1) + "\n\n";
                 message += "Silver medal\nTime: " + (instruc.get(1).get(0) != "1000000" ? instruc.get(1).get(0) : "no time limit;") + " \nScore: " + instruc.get(1).get(1) + "\n\n";
                 message += "Bronze medal\nTime: " + (instruc.get(0).get(0) != "1000000" ? instruc.get(0).get(0) : "no time limit;") + " \nScore: " + instruc.get(0).get(1) + "\n\n";
-                CustomAlertDialog customAlertDialog = new CustomAlertDialog(this);
+                CustomAlertDialog customAlertDialog = new CustomAlertDialog(getContext());
                 customAlertDialog.setTestInstructions(true);
                 customAlertDialog.show();
-                customAlertDialog.setProperties(message, this);
+                customAlertDialog.setProperties(message, getActivity());
             }
         }
 
         //setup media player
-        videoView = findViewById(R.id.videoView);
-        videoFrame = findViewById(R.id.video_frame);
-        playerButtons = findViewById(R.id.buttonsLinearLayout);
-        play_pauseButton = findViewById(R.id.play_pause);
-        stopButton = findViewById(R.id.reset);
+        videoView = rootView.findViewById(R.id.videoView);
+        videoFrame = rootView.findViewById(R.id.video_frame);
+        playerButtons = rootView.findViewById(R.id.buttonsLinearLayout);
+        play_pauseButton = rootView.findViewById(R.id.play_pause);
+        stopButton = rootView.findViewById(R.id.reset);
         if (mTest.getMediaFileType() == 1) {
             playerButtons.setVisibility(View.VISIBLE);
         } else if (mTest.getMediaFileType() == 2) {
             videoFrame.setVisibility(View.VISIBLE);
             playerButtons.setVisibility(View.VISIBLE);
-            String pathtohere = this.getFilesDir().getAbsolutePath().toString();
+            String pathtohere = getActivity().getFilesDir().getAbsolutePath().toString();
             videoUri = Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName());
             videoView.setVideoURI(videoUri);
         } else if (mTest.getMediaFileType() == 3) {
@@ -174,27 +177,31 @@ public class TestActivity extends AppCompatActivity {
         transferable.setOptionalArgument1(String.valueOf(testID));
         Koeko.networkCommunicationSingleton.sendBytesToServer(transferable.getTransferableBytes());
 
-        Koeko.currentTestActivitySingleton = this;
-        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
+        if (mTest.getAnsweredQuestionIds().size() == mTest.getActiveQuestionIds().size()) {
+            testIsFinished = true;
+        }
+        Koeko.currentTestFragmentSingleton = this;
+
+        return rootView;
     }
-    @Override
+    /*@Override
     public void onResume() {
         Log.d(TAG, "onResume");
         if (mTest.getMediaFileType() == 1) {
             if (mediaPlayer == null) {
-                String pathtohere = this.getFilesDir().getAbsolutePath().toString();
-                mediaPlayer = MediaPlayer.create(this, Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName()));
+                String pathtohere = getActivity().getFilesDir().getAbsolutePath();
+                mediaPlayer = MediaPlayer.create(getContext(), Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName()));
             }
         }
         play_pauseButton.setImageResource(R.drawable.play_icon);
         super.onResume();
-    }
+    }*/
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (mTest.getMedalsInstructions() != null ) {
             if (mTest.getMedalsInstructionsString().length() > 0) {
-                getMenuInflater().inflate(R.menu.menu_test, menu);
+                inflater.inflate(R.menu.menu_test, menu);
 
                 testChronometer = (TestChronometer) menu
                         .findItem(R.id.chronometer)
@@ -210,7 +217,7 @@ public class TestActivity extends AppCompatActivity {
         } else {
             Log.w(TAG, "Medals Instructions are null!!");
         }
-        return (super.onCreateOptionsMenu(menu));
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     public Boolean checkIfTestFinished() {
@@ -258,13 +265,14 @@ public class TestActivity extends AppCompatActivity {
                 Log.w(TAG, "NumberFormatException in medals instructions when checking if medal won.");
             }
             if (!medal.contentEquals("none")) {
-                CustomAlertDialog customAlertDialog = new CustomAlertDialog(this, message, medal);
+                CustomAlertDialog customAlertDialog = new CustomAlertDialog(getActivity(), message, medal);
                 customAlertDialog.show();
             }
             DbTableIndividualQuestionForResult.addIndividualTestForStudentResult(String.valueOf(mTest.getIdGlobal()),
                     mTest.getTestName(), String.valueOf(testDuration), "FORMATIVE",
                     quantEval, medal);
         }
+        mAdapter.notifyDataSetChanged();
     }
 
     public void PlayPause(View v) {
@@ -278,8 +286,8 @@ public class TestActivity extends AppCompatActivity {
             }
         } else if (mTest.getMediaFileType() == 1) {
             if (mediaPlayer == null) {
-                String pathtohere = this.getFilesDir().getAbsolutePath().toString();
-                mediaPlayer = MediaPlayer.create(this, Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName()));
+                String pathtohere = getActivity().getFilesDir().getAbsolutePath() ;
+                mediaPlayer = MediaPlayer.create(getContext(), Uri.parse(pathtohere + "/media/" + mTest.getMediaFileName()));
             }
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
@@ -289,9 +297,8 @@ public class TestActivity extends AppCompatActivity {
                 play_pauseButton.setImageResource(R.drawable.pause_icon);
             }
         } else if (mTest.getMediaFileType() == 3) {
-            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.LONG_TRANSITION_TIME;
-            Intent intent = new Intent(TestActivity.this, WebViewActivity.class);
-            startActivity(intent);
+            //Intent intent = new Intent(TestFragment.this, WebViewActivity.class);
+            //startActivity(intent);
         }
     }
 
@@ -306,32 +313,11 @@ public class TestActivity extends AppCompatActivity {
         play_pauseButton.setImageResource(R.drawable.play_icon);
     }
 
-    /**
-     * method used to know if we send a disconnection signal to the server
-     *
-     * @param hasFocus
-     */
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus) {
-            Log.v("test activity: ", "focus lost");
-            ((Koeko) this.getApplication()).startActivityTransitionTimer();
-        } else {
-            ((Koeko) this.getApplication()).stopActivityTransitionTimer();
-            Log.v("test activity: ", "has focus");
-            Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
-        }
-    }
-
-    @Override
-    public void onPause() {
-        Log.d(TAG, "onPause");
-
-        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
+    private void dismiss() {
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer = null;
         }
-        super.onPause();
+        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
     }
 }

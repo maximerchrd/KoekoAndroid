@@ -22,7 +22,7 @@ import com.wideworld.koeko.Activities.GameActivity;
 import com.wideworld.koeko.Activities.InteractiveModeActivity;
 import com.wideworld.koeko.Activities.MultChoiceQuestionFragment;
 import com.wideworld.koeko.Activities.ShortAnswerQuestionFragment;
-import com.wideworld.koeko.Activities.TestActivity;
+import com.wideworld.koeko.Activities.TestFragment;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.Answer;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
@@ -239,7 +239,6 @@ public class NetworkCommunication {
 	}
 
 	public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display, String directCorrection) {
-		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
 		Intent mIntent = new Intent(mContextNetCom, ShortAnswerQuestionFragment.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQuestion());
@@ -252,17 +251,15 @@ public class NetworkCommunication {
 	}
 
 	public void launchTestActivity(Long testID, String directCorrection) {
-		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
-		Intent mIntent = new Intent(mContextNetCom, TestActivity.class);
+		Intent mIntent = new Intent(mContextNetCom, TestFragment.class);
 		Bundle bun = new Bundle();
 		bun.putLong("testID", testID);
 		bun.putString("directCorrection", directCorrection);
 		mIntent.putExtras(bun);
-		mContextNetCom.startActivity(mIntent);
+		launchFragment(new TestFragment(), mIntent);
 	}
 
 	public void launchGameActivity(GameView gameView, int team) {
-		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
 		Intent mIntent = new Intent(mContextNetCom, GameActivity.class);
 		Bundle bun = new Bundle();
 		bun.putInt("endScore", gameView.getEndScore());
@@ -276,7 +273,7 @@ public class NetworkCommunication {
 		FragmentManager fragmentManager = mInteractiveModeActivity.getSupportFragmentManager();
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 		fragment.setArguments(mIntent.getExtras());
-		fragmentTransaction.replace(R.id.viewgroup, fragment);
+		fragmentTransaction.add(R.id.viewgroup, fragment);
 		fragmentTransaction.addToBackStack(null);
 		fragmentTransaction.commit();
 	}

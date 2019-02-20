@@ -13,7 +13,10 @@ import android.graphics.Color;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,6 +27,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
+import com.wideworld.koeko.Activities.ActivityTools.TestChronometer;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
@@ -52,6 +56,9 @@ public class MultChoiceQuestionFragment extends Fragment {
         super.onCreate(savedInstanceState);
         View rootView = inflater.inflate(R.layout.activity_multchoicequestion, container, false);
         mActivity = getActivity();
+
+        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.forwardButton.setTitle("");
+
 
         linearLayout = rootView.findViewById(R.id.linearLayoutMultChoice);
         txtQuestion = rootView.findViewById(R.id.textViewMultChoiceQuest1);
@@ -167,7 +174,6 @@ public class MultChoiceQuestionFragment extends Fragment {
             }).start();
         }
 
-        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
 
         /**
          * START CODE USED FOR TESTING
@@ -277,14 +283,14 @@ public class MultChoiceQuestionFragment extends Fragment {
 
         //restore activity state
         String activityState = null;
-        if (Koeko.currentTestActivitySingleton != null) {
-            activityState = Koeko.currentTestActivitySingleton.mcqActivitiesStates.get(String.valueOf(currentQ.getId()));
+        if (Koeko.currentTestFragmentSingleton != null) {
+            activityState = Koeko.currentTestFragmentSingleton.mcqActivitiesStates.get(String.valueOf(currentQ.getId()));
         } else {
             if (Koeko.qmcActivityState != null) {
                 activityState = Koeko.qmcActivityState;
             }
         }
-        if ((activityState != null && Koeko.currentTestActivitySingleton != null) || (activityState != null &&
+        if ((activityState != null && Koeko.currentTestFragmentSingleton != null) || (activityState != null &&
                 Koeko.currentQuestionMultipleChoiceSingleton != null &&
                 Koeko.currentQuestionMultipleChoiceSingleton.getId().contentEquals(currentQ.getId()))) {
             String[] parsedState = activityState.split("///");
@@ -317,14 +323,6 @@ public class MultChoiceQuestionFragment extends Fragment {
         //finished restoring activity
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
-        saveActivityState();
-    }
-
     protected void saveActivityState() {
         String activityState = "";
         for (CheckBox checkbox : checkBoxesArray) {
@@ -334,8 +332,8 @@ public class MultChoiceQuestionFragment extends Fragment {
         }
         activityState += wasAnswered + "///";
         activityState += String.valueOf(startingTime);
-        if (Koeko.currentTestActivitySingleton != null) {
-            Koeko.currentTestActivitySingleton.mcqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
+        if (Koeko.currentTestFragmentSingleton != null) {
+            Koeko.currentTestFragmentSingleton.mcqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
         } else {
             Koeko.qmcActivityState = activityState;
             Koeko.currentQuestionMultipleChoiceSingleton = currentQ;
@@ -388,6 +386,9 @@ public class MultChoiceQuestionFragment extends Fragment {
     }
 
     private void dismiss() {
+        saveActivityState();
         Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
+        InteractiveModeActivity.backToTestFromQuestion = true;
+        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.setForwardButton();
     }
 }

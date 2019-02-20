@@ -128,13 +128,13 @@ public class DbTableIndividualQuestionForResult {
         }
 
         //for test: update the active questions list and the answered questions list
-        if (Koeko.currentTestActivitySingleton != null) {
-            Koeko.currentTestActivitySingleton.getmTest().addResultAndRefreshActiveIDs(id_global, quantitative_eval);
-            Koeko.currentTestActivitySingleton.getmTest().getAnsweredQuestionIds().put(id_global, Double.valueOf(quantitative_eval));
-            Koeko.currentTestActivitySingleton.testIsFinished = Koeko.currentTestActivitySingleton.checkIfTestFinished();
+        if (Koeko.currentTestFragmentSingleton != null) {
+            Koeko.currentTestFragmentSingleton.getmTest().addResultAndRefreshActiveIDs(id_global, quantitative_eval);
+            Koeko.currentTestFragmentSingleton.getmTest().getAnsweredQuestionIds().put(id_global, Double.valueOf(quantitative_eval));
+            Koeko.currentTestFragmentSingleton.testIsFinished = Koeko.currentTestFragmentSingleton.checkIfTestFinished();
 
             Handler mainHandler = new Handler(Looper.getMainLooper());
-            Runnable myRunnable = () -> Koeko.currentTestActivitySingleton.finalizeTest();
+            Runnable myRunnable = () -> Koeko.currentTestFragmentSingleton.finalizeTest();
             mainHandler.post(myRunnable);
         }
 
@@ -155,8 +155,8 @@ public class DbTableIndividualQuestionForResult {
         }
 
         //for test: update the active questions list
-        if (Koeko.currentTestActivitySingleton != null) {
-            Koeko.currentTestActivitySingleton.getmTest().addResultAndRefreshActiveIDs(id_global, quantitative_eval);
+        if (Koeko.currentTestFragmentSingleton != null) {
+            Koeko.currentTestFragmentSingleton.getmTest().addResultAndRefreshActiveIDs(id_global, quantitative_eval);
         }
 
         return quantitative_evaluation;

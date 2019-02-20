@@ -75,10 +75,10 @@ public class CustomAlertDialog extends Dialog {
                     activity.finish();
                     activity.invalidateOptionsMenu();
                 } else {
-                    if (Koeko.currentTestActivitySingleton.testChronometer != null) {
-                        Koeko.currentTestActivitySingleton.testChronometer.reset();
-                        Koeko.currentTestActivitySingleton.testChronometer.run();
-                        Koeko.activeTestStartTime = Koeko.currentTestActivitySingleton.testChronometer.getStartTime();
+                    if (Koeko.currentTestFragmentSingleton.testChronometer != null) {
+                        Koeko.currentTestFragmentSingleton.testChronometer.reset();
+                        Koeko.currentTestFragmentSingleton.testChronometer.run();
+                        Koeko.activeTestStartTime = Koeko.currentTestFragmentSingleton.testChronometer.getStartTime();
                     }
                 }
             }

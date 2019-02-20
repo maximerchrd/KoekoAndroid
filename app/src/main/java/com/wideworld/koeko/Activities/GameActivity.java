@@ -269,7 +269,7 @@ public class GameActivity extends AppCompatActivity {
         if (forwardButton != null) {
             if (Koeko.qmcActivityState != null || Koeko.shrtaqActivityState != null) {
                 forwardButton.setTitle(getString(R.string.back_to_question) + " >");
-            } else if (Koeko.currentTestActivitySingleton != null) {
+            } else if (Koeko.currentTestFragmentSingleton != null) {
                 forwardButton.setTitle(getString(R.string.back_to_test) + " >");
             }
         }
@@ -317,8 +317,8 @@ public class GameActivity extends AppCompatActivity {
             } else if (Koeko.shrtaqActivityState != null && Koeko.currentQuestionShortAnswerSingleton != null) {
                 Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(Koeko.currentQuestionShortAnswerSingleton,
                         Koeko.networkCommunicationSingleton.directCorrection);
-            } else if (Koeko.currentTestActivitySingleton != null) {
-                Koeko.networkCommunicationSingleton.launchTestActivity(Koeko.currentTestActivitySingleton.getmTest().getIdGlobal(),
+            } else if (Koeko.currentTestFragmentSingleton != null) {
+                Koeko.networkCommunicationSingleton.launchTestActivity(Koeko.currentTestFragmentSingleton.getmTest().getIdGlobal(),
                         Koeko.networkCommunicationSingleton.directCorrection);
             }
         }

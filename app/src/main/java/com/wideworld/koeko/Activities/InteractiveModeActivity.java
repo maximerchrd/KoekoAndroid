@@ -11,7 +11,6 @@ import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -35,7 +33,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
     public TextView intmod_out;
     private TextView intmod_wait_for_question;
     private TextView logView = null;
-    private MenuItem forwardButton;
+    protected MenuItem forwardButton;
     private InteractiveModeActivity interactiveModeActivity;
     private String TAG = "InteractiveModeActivity";
 
@@ -45,6 +43,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
     private Camera camera;
     private int cameraId = 0;
     private int PERMISSION_REQUEST_CODE = 1;
+    static protected Boolean backToTestFromQuestion = false;
 
     /**
      * Called when the activity is first created.
@@ -203,10 +202,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
         return cameraId;
     }
 
-    public void onStart() {
-        super.onStart();
-    }
-
     @Override
     protected void onPause() {
         if (camera != null) {
@@ -216,9 +211,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    public void onStop() {
-        super.onStop();
-    }
 
     @Override
     protected void onResume() {
@@ -246,8 +238,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 }
             }
         }
-
-        Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
     }
 
     protected void processQRCode() {
@@ -258,12 +248,14 @@ public class InteractiveModeActivity extends AppCompatActivity {
     }
 
     protected void setForwardButton() {
-        if (forwardButton != null) {
+        if (forwardButton != null && backToTestFromQuestion == false) {
             if (Koeko.qmcActivityState != null || Koeko.shrtaqActivityState != null) {
                 forwardButton.setTitle(getString(R.string.back_to_question) + " >");
-            } else if (Koeko.currentTestActivitySingleton != null) {
+            } else if (Koeko.currentTestFragmentSingleton != null) {
                 forwardButton.setTitle(getString(R.string.back_to_test) + " >");
             }
+        } else {
+            backToTestFromQuestion = false;
         }
     }
 
@@ -345,6 +337,9 @@ public class InteractiveModeActivity extends AppCompatActivity {
                     ((MultChoiceQuestionFragment) fragment).saveActivityState();
                     setForwardButton();
                     break;
+                case "TestFragment":
+                    setForwardButton();
+                    break;
                 default:
                     System.out.println("back from other fragment");
             }
@@ -356,8 +351,11 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
     private static Fragment getCurrentTopFragment(FragmentManager fm) {
         int stackCount = fm.getBackStackEntryCount();
-        if (stackCount == 1) {
-            return  fm.getFragments().get(stackCount - 1);
+        if (stackCount > 0) {
+            if (stackCount == 2) {
+                backToTestFromQuestion = true;
+            }
+            return  fm.getFragments().get(fm.getFragments().size() - 1);
         } else {
             List<Fragment> fragments = fm.getFragments();
             if (fragments != null && fragments.size()>0) {
@@ -385,14 +383,16 @@ public class InteractiveModeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.forwardbutton) {
-            if (Koeko.qmcActivityState != null && Koeko.currentQuestionMultipleChoiceSingleton != null) {
+            if (forwardButton.getTitle().toString().contentEquals("")) {
+                System.out.println("forwardButton pressed but it shouldn't make any action");
+            } else if (Koeko.qmcActivityState != null && Koeko.currentQuestionMultipleChoiceSingleton != null) {
                 Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(Koeko.currentQuestionMultipleChoiceSingleton,
                         Koeko.networkCommunicationSingleton.directCorrection);
             } else if (Koeko.shrtaqActivityState != null && Koeko.currentQuestionShortAnswerSingleton != null) {
                 Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(Koeko.currentQuestionShortAnswerSingleton,
                         Koeko.networkCommunicationSingleton.directCorrection);
-            } else if (Koeko.currentTestActivitySingleton != null) {
-                Koeko.networkCommunicationSingleton.launchTestActivity(Koeko.currentTestActivitySingleton.getmTest().getIdGlobal(),
+            } else if (Koeko.currentTestFragmentSingleton != null) {
+                Koeko.networkCommunicationSingleton.launchTestActivity(Koeko.currentTestFragmentSingleton.getmTest().getIdGlobal(),
                         Koeko.networkCommunicationSingleton.directCorrection);
             }
         }
@@ -414,7 +414,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus) {
-            Log.v("WARNING: ", "user left application");
+            Log.v("WARNING: ", "lost focus: user left application");
             Koeko.networkCommunicationSingleton.sendDisconnectionSignal("");
         } else {
             Log.v(TAG, "has focus");

@@ -1,6 +1,5 @@
 package com.wideworld.koeko.Activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +9,8 @@ import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -20,7 +21,6 @@ import android.widget.TextView;
 
 import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
 import com.wideworld.koeko.Koeko;
-import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
@@ -51,6 +51,8 @@ public class ShortAnswerQuestionFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		View rootView = inflater.inflate(R.layout.activity_shortanswerquestion, container, false);
 		mActivity = getActivity();
+
+		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.forwardButton.setTitle("");
 
 		linearLayout = rootView.findViewById(R.id.linearLayoutShortAnswer);
 		txtQuestion = rootView.findViewById(R.id.textViewShortAnswerQuest);
@@ -190,14 +192,14 @@ public class ShortAnswerQuestionFragment extends Fragment {
 
 		//restore activity state
 		String activityState = null;
-		if (Koeko.currentTestActivitySingleton != null) {
-			activityState = Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.get(String.valueOf(currentQ.getId()));
+		if (Koeko.currentTestFragmentSingleton != null) {
+			activityState = Koeko.currentTestFragmentSingleton.shrtaqActivitiesStates.get(String.valueOf(currentQ.getId()));
 		} else {
 			if (Koeko.shrtaqActivityState != null) {
 				activityState = Koeko.shrtaqActivityState;
 			}
 		}
-		if ((activityState != null && Koeko.currentTestActivitySingleton != null) || (activityState != null &&
+		if ((activityState != null && Koeko.currentTestFragmentSingleton != null) || (activityState != null &&
 				Koeko.currentQuestionShortAnswerSingleton != null &&
 				Koeko.currentQuestionShortAnswerSingleton.getId().contentEquals(currentQ.getId()))) {
 			String[] parsedState = activityState.split("///");
@@ -225,19 +227,17 @@ public class ShortAnswerQuestionFragment extends Fragment {
 	}
 
 	@Override
-	public void onPause() {
-		super.onPause();
-
-		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
-		saveActivityState();
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.runOnUiThread(() -> Koeko.networkCommunicationSingleton.mInteractiveModeActivity.forwardButton.setTitle(""));
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	protected void saveActivityState() {
 		String activityState = textAnswer.getText().toString() + "///";
 		activityState += wasAnswered + "///";
 		activityState += String.valueOf(startingTime);
-		if (Koeko.currentTestActivitySingleton != null) {
-			Koeko.currentTestActivitySingleton.shrtaqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
+		if (Koeko.currentTestFragmentSingleton != null) {
+			Koeko.currentTestFragmentSingleton.shrtaqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
 		} else {
 			Koeko.shrtaqActivityState = activityState;
 			Koeko.currentQuestionShortAnswerSingleton = currentQ;
@@ -281,6 +281,7 @@ public class ShortAnswerQuestionFragment extends Fragment {
 	private void dismiss() {
 		saveActivityState();
 		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
+		InteractiveModeActivity.backToTestFromQuestion = true;
 		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.setForwardButton();
 	}
 

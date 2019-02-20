@@ -7,11 +7,8 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.gms.common.util.ArrayUtils;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
@@ -186,7 +183,7 @@ public class ReceptionProtocol {
 
     private static void receivedQuestionIdentifier(byte[] stateUpdBytes, byte[] allBytesReceived) throws IOException {
         //reinitializing all types of displays
-        Koeko.currentTestActivitySingleton = null;
+        Koeko.currentTestFragmentSingleton = null;
         Koeko.shrtaqActivityState = null;
         Koeko.qmcActivityState = null;
 
@@ -206,14 +203,14 @@ public class ReceptionProtocol {
                 Koeko.networkCommunicationSingleton.directCorrection = String.valueOf(questionIdentifier.getCorrectionMode());
                 Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(questionMultipleChoice, Koeko.networkCommunicationSingleton.directCorrection);
                 Koeko.shrtaqActivityState = null;
-                Koeko.currentTestActivitySingleton = null;
+                Koeko.currentTestFragmentSingleton = null;
             } else {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionIdentifier.getIdentifier());
                 questionShortAnswer.setId(questionIdentifier.getIdentifier());
                 Koeko.networkCommunicationSingleton.directCorrection = String.valueOf(questionIdentifier.getCorrectionMode());
                 Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(questionShortAnswer, Koeko.networkCommunicationSingleton.directCorrection);
                 Koeko.qmcActivityState = null;
-                Koeko.currentTestActivitySingleton = null;
+                Koeko.currentTestFragmentSingleton = null;
             }
         }
 
@@ -264,7 +261,7 @@ public class ReceptionProtocol {
         Koeko.networkCommunicationSingleton.launchGameActivity(gameView, gameView.getTeam());
         Koeko.shrtaqActivityState = null;
         Koeko.qmcActivityState = null;
-        Koeko.currentTestActivitySingleton = null;
+        Koeko.currentTestFragmentSingleton = null;
     }
 
     private static void receivedObjective(byte[] objectiveBytes, byte[] allBytesReceived) throws IOException {
