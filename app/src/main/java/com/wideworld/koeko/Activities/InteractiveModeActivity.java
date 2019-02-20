@@ -17,8 +17,11 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -98,9 +101,12 @@ public class InteractiveModeActivity extends AppCompatActivity {
                         1
                 );
             } else {
-                Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.LONG_TRANSITION_TIME;
-                Intent capturecodeIntent = new Intent(InteractiveModeActivity.this, ContinuousQrScanning.class);
-                startActivity(capturecodeIntent);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                ContinuousQrScanning continuousQrScanning = new ContinuousQrScanning();
+                fragmentTransaction.replace(R.id.viewgroup, continuousQrScanning);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
 
@@ -227,19 +233,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
             });
         }
 
-        if (forwardButton != null) {
-            if (Koeko.qmcActivityState != null || Koeko.shrtaqActivityState != null) {
-                forwardButton.setTitle(getString(R.string.back_to_question) + " >");
-            } else if (Koeko.currentTestActivitySingleton != null) {
-                forwardButton.setTitle(getString(R.string.back_to_test) + " >");
-            }
-        }
-
-        if (!Koeko.qrCode.contentEquals("")) {
-            launchResourceFromCode();
-            Koeko.qrCode = "";
-        }
-
         if (NetworkCommunication.network_solution == 1) {
             if (android.os.Build.VERSION.SDK_INT >= 23) {
                 if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -252,6 +245,23 @@ public class InteractiveModeActivity extends AppCompatActivity {
         }
 
         Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
+    }
+
+    public void processQRCode() {
+        if (!Koeko.qrCode.contentEquals("")) {
+            launchResourceFromCode();
+            Koeko.qrCode = "";
+        }
+    }
+
+    public void setForwardButton() {
+        if (forwardButton != null) {
+            if (Koeko.qmcActivityState != null || Koeko.shrtaqActivityState != null) {
+                forwardButton.setTitle(getString(R.string.back_to_question) + " >");
+            } else if (Koeko.currentTestActivitySingleton != null) {
+                forwardButton.setTitle(getString(R.string.back_to_test) + " >");
+            }
+        }
     }
 
     public void showDisconnected() {

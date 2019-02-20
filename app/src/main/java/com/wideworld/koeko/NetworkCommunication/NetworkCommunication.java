@@ -245,7 +245,6 @@ public class NetworkCommunication {
 		fragmentTransaction.addToBackStack(null);
 		fragmentTransaction.commit();
 
-		//mContextNetCom.startActivity(mIntent);
 	}
 
 	public void launchShortAnswerQuestionActivity(QuestionShortAnswer question_to_display, String directCorrection) {

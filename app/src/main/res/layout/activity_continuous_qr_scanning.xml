@@ -20,17 +20,6 @@
         android:id="@+id/buttonsLayout"
         android:layout_toLeftOf="@+id/centerHorizont">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Pause"
-            android:onClick="pause" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Resume"
-            android:onClick="resume" />
     </LinearLayout>
 
     <View
