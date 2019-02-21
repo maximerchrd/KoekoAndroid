@@ -77,4 +77,5 @@
     <string name="delete_code">Delete Code</string>
     <string name="friendly_name">Friendly Name</string>
     <string name="download_new_homework_version">Download Homework</string>
+    <string name="back_to_game">Back to Game</string>
 </resources>

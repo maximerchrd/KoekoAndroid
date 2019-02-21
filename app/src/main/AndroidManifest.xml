@@ -85,11 +85,6 @@
             android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden" />
         <activity
-            android:name="com.wideworld.koeko.Activities.GameActivity"
-            android:label="Game"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden" />
-        <activity
             android:name="com.wideworld.koeko.AndroidDatabaseManager"
             android:label="DB Browsing" />
     </application>

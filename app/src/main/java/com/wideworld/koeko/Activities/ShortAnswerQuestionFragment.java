@@ -282,7 +282,7 @@ public class ShortAnswerQuestionFragment extends Fragment {
 		saveActivityState();
 		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
 		InteractiveModeActivity.backToTestFromQuestion = true;
-		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.setForwardButton();
+		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.setForwardButton(InteractiveModeActivity.forwardQuestionShortAnswer);
 	}
 
 }

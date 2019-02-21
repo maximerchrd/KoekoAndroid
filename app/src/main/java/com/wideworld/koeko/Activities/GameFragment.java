@@ -8,11 +8,15 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -23,15 +27,17 @@ import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
+import com.wideworld.koeko.QuestionsManagement.GameState;
 import com.wideworld.koeko.QuestionsManagement.GameType;
+import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableSettings;
 
 import pl.droidsonroids.gif.GifImageView;
 
-public class GameActivity extends AppCompatActivity {
+public class GameFragment extends Fragment {
     private MenuItem forwardButton;
-    private String TAG = "GameActivity";
+    private String TAG = "GameFragment";
 
     private Integer team = 0;
     private TextView redScore;
@@ -63,12 +69,14 @@ public class GameActivity extends AppCompatActivity {
 
     public void changeScore (Double teamOneScore, Double teamTwoScore) {
         Log.d(TAG, "changeScore: " + teamOneScore + "; " + teamTwoScore);
+        Koeko.gameState.setScoreTeamOne(teamOneScore);
+        Koeko.gameState.setScoreTeamTwo(teamTwoScore);
 
         final float newXTeamone = blueClimberInitx + (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * widthToCoverToTop);
         final float newYTeamOne = blueClimberInity - (float) ((teamOneScore / endScore) * backgroudImage.getWidth() * imageRatio * heightToCoverToTop);
         final float newXTeamTwo = redClimberInitx - (float) ((teamTwoScore / endScore) * backgroudImage.getWidth() * widthToCoverToTop);
         final float newYTeamTwo = redClimberInity - (float) ((teamTwoScore / endScore) * backgroudImage.getWidth() * imageRatio * heightToCoverToTop);
-        this.runOnUiThread(() -> {
+        getActivity().runOnUiThread(() -> {
             blueClimber.setX(newXTeamone);
             blueClimber.setY(newYTeamOne);
             redClimber.setX(newXTeamTwo);
@@ -113,57 +121,56 @@ public class GameActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        View rootView = inflater.inflate(R.layout.activity_game, container, false);
 
-        //initialize view
-        setContentView(R.layout.activity_game);
+        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.forwardButton.setTitle("");
 
-        Bundle bun = getIntent().getExtras();
+        Bundle bun = getArguments();
         endScore = bun.getInt("endScore");
         gameType = bun.getInt("gameType");
 
-        backgroundView = findViewById(R.id.background_landscape_layout);
-        backgroudImage = findViewById(R.id.background_landscape);
+        backgroundView = rootView.findViewById(R.id.background_landscape_layout);
+        backgroudImage = rootView.findViewById(R.id.background_landscape);
 
         // do we have a camera?
-        if (!getPackageManager()
+        if (!getActivity().getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            Toast.makeText(this, "No camera on this device", Toast.LENGTH_LONG)
+            Toast.makeText(getActivity(), "No camera on this device", Toast.LENGTH_LONG)
                     .show();
         } else {
             cameraId = findFrontFacingCamera();
             if (cameraId < 0) {
-                Toast.makeText(this, "No front facing camera found.",
+                Toast.makeText(getActivity(), "No front facing camera found.",
                         Toast.LENGTH_LONG).show();
             }
         }
 
-        scanQQButton = findViewById(R.id.scan_qr_button_game);
+        scanQQButton = rootView.findViewById(R.id.scan_qr_button_game);
         if (gameType == GameType.qrCodeGame) {
             scanQQButton.setOnClickListener(e -> {
                 // Check if we have write permission
-                int permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+                int permission = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA);
 
                 if (permission != PackageManager.PERMISSION_GRANTED) {
                     // We don't have permission so prompt the user
                     ActivityCompat.requestPermissions(
-                            this,
+                            getActivity(),
                             new String[]{Manifest.permission.CAMERA},
                             1
                     );
                 } else {
-                    Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.LONG_TRANSITION_TIME;
-                    Intent capturecodeIntent = new Intent(GameActivity.this, ContinuousQrScanning.class);
-                    startActivity(capturecodeIntent);
+                    Koeko.networkCommunicationSingleton.mInteractiveModeActivity.launchQRscanning();
                 }
             });
         } else {
             scanQQButton.setVisibility(View.GONE);
         }
 
-        readyButton = findViewById(R.id.ready_button);
-        final Activity currentActivity = this;
+        readyButton = rootView.findViewById(R.id.ready_button);
+        final Activity currentActivity = getActivity();
         if (gameType == GameType.orderedAutomaticSending || gameType == GameType.randomAutomaticSending) {
             readyButton.setOnClickListener(e -> {
                 ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.readyPrefix);
@@ -178,10 +185,10 @@ public class GameActivity extends AppCompatActivity {
             readyButton.setVisibility(View.GONE);
         }
 
-        redCelebration = findViewById(R.id.red_celebration);
-        blueCelebration = findViewById(R.id.blue_celebration);
+        redCelebration = rootView.findViewById(R.id.red_celebration);
+        blueCelebration = rootView.findViewById(R.id.blue_celebration);
 
-        final Context context = this;
+        final Context context = getActivity();
         backgroudImage.post(() -> {
             //position climbers
             blueClimber = new ImageView(context);
@@ -189,8 +196,15 @@ public class GameActivity extends AppCompatActivity {
             backgroundView.addView(blueClimber);
             blueClimberInitx = backgroudImage.getWidth() * 0.22f;
             blueClimberInity = backgroudImage.getHeight() * 0.5f;
-            blueClimber.setX(blueClimberInitx);
-            blueClimber.setY(blueClimberInity);
+            if (Koeko.gameState == null) {
+                blueClimber.setX(blueClimberInitx);
+                blueClimber.setY(blueClimberInity);
+            } else {
+                final float newXTeamone = blueClimberInitx + (float) ((Koeko.gameState.getScoreTeamOne() / endScore) * backgroudImage.getWidth() * widthToCoverToTop);
+                final float newYTeamOne = blueClimberInity - (float) ((Koeko.gameState.getScoreTeamOne() / endScore) * backgroudImage.getWidth() * imageRatio * heightToCoverToTop);
+                blueClimber.setX(newXTeamone);
+                blueClimber.setY(newYTeamOne);
+            }
             Double imageRatio = (double)backgroudImage.getHeight() / (double)backgroudImage.getWidth();
             int imageWidth = (int)(backgroudImage.getWidth() * 0.1f);
             int imageHeight = (int)(backgroudImage.getWidth() * 0.1f * imageRatio);
@@ -203,8 +217,15 @@ public class GameActivity extends AppCompatActivity {
             backgroundView.addView(redClimber);
             redClimberInitx = backgroudImage.getWidth() * 0.67f;
             redClimberInity = backgroudImage.getHeight() * 0.5f;
-            redClimber.setX(redClimberInitx);
-            redClimber.setY(redClimberInity);
+            if (Koeko.gameState == null) {
+                redClimber.setX(redClimberInitx);
+                redClimber.setY(redClimberInity);
+            } else {
+                final float newXTeamTwo = redClimberInitx - (float) ((Koeko.gameState.getScoreTeamTwo() / endScore) * backgroudImage.getWidth() * widthToCoverToTop);
+                final float newYTeamTwo = redClimberInity - (float) ((Koeko.gameState.getScoreTeamTwo() / endScore) * backgroudImage.getWidth() * imageRatio * heightToCoverToTop);
+                redClimber.setX(newXTeamTwo);
+                redClimber.setY(newYTeamTwo);
+            }
             redClimber.getLayoutParams().width = imageWidth;
             redClimber.getLayoutParams().height = imageHeight;
             redClimber.requestLayout();
@@ -212,21 +233,37 @@ public class GameActivity extends AppCompatActivity {
             //initialize scores
             team = bun.getInt("team");
             Log.d(TAG, "onCreate: team=" + team);
-            blueScore = findViewById(R.id.blue_score);
-            if (team == 1) {
-                blueScore.setText(getString(R.string.me) + ": 0");
-            } else {
-                blueScore.setText("0");
+            blueScore = rootView.findViewById(R.id.blue_score);
+            String initialScoreOne = "0";
+            String initialScoreTwo = "0";
+            if (Koeko.gameState != null) {
+                team = Koeko.gameState.getGameView().getTeam();
+                initialScoreOne = String.valueOf(Koeko.gameState.getScoreTeamOne());
+                initialScoreTwo = String.valueOf(Koeko.gameState.getScoreTeamTwo());
             }
-            redScore = findViewById(R.id.red_score);
-            if (team == 2) {
-                redScore.setText(getString(R.string.me) + "Me: 0");
+            if (team == 1) {
+                blueScore.setText(getString(R.string.me) + ": " + initialScoreOne);
             } else {
-                redScore.setText("0");
+                blueScore.setText(initialScoreOne);
+            }
+            redScore = rootView.findViewById(R.id.red_score);
+            if (team == 2) {
+                redScore.setText(getString(R.string.me) + "Me: " + initialScoreTwo);
+            } else {
+                redScore.setText(initialScoreTwo);
+            }
+
+            if (Koeko.gameState == null) {
+                GameView gameView = new GameView();
+                gameView.setEndScore(endScore);
+                gameView.setGameType(gameType);
+                gameView.setTeam(team);
+                Koeko.gameState = new GameState();
+                Koeko.gameState.setGameView(gameView);
             }
         });
-
-        Koeko.currentGameActivity = this;
+        Koeko.currentGameFragment = this;
+        return rootView;
     }
 
     private int findFrontFacingCamera() {
@@ -245,24 +282,7 @@ public class GameActivity extends AppCompatActivity {
         return cameraId;
     }
 
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onPause() {
-        if (camera != null) {
-            camera.release();
-            camera = null;
-        }
-        super.onPause();
-    }
-
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
+    /*@Override
     protected void onResume() {
         super.onResume();
 
@@ -282,7 +302,7 @@ public class GameActivity extends AppCompatActivity {
         Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.SHORT_TRANSITION_TIME;
 
         readyButton.setBackgroundColor(getResources().getColor(R.color.koekored));
-    }
+    }*/
 
     private void sendQuestionRequest() {
         String[] codeArray = Koeko.qrCode.split(":");
@@ -295,14 +315,6 @@ public class GameActivity extends AppCompatActivity {
         } else {
             Log.w(TAG, "Array from QR code string is too short");
         }
-    }
-
-    // create an action bar button
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_interactivemode, menu);
-        forwardButton = menu.findItem(R.id.forwardbutton);
-        return super.onCreateOptionsMenu(menu);
     }
 
     // handle button activities
@@ -323,28 +335,5 @@ public class GameActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Called when system is low on resources or finish() called on activity
-     */
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    /**
-     * method used to know if we send a disconnection signal to the server
-     *
-     * @param hasFocus
-     */
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus) {
-            Log.v(TAG, "focus lost");
-            ((Koeko) this.getApplication()).startActivityTransitionTimer();
-        } else {
-            ((Koeko) this.getApplication()).stopActivityTransitionTimer();
-            Log.v(TAG, "has focus");
-        }
     }
 }

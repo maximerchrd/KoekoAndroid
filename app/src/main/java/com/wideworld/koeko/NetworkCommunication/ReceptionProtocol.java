@@ -10,6 +10,7 @@ import android.util.Log;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
+import com.wideworld.koeko.Activities.InteractiveModeActivity;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.HotspotServer.HotspotServer;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
@@ -148,8 +149,8 @@ public class ReceptionProtocol {
             case ShortCommands.gameScore:
                 Double scoreTeamOne = Double.valueOf(shortCommand.getOptionalArgument1());
                 Double scoreTeamTwo = Double.valueOf(shortCommand.getOptionalArgument2());
-                if (Koeko.currentGameActivity != null) {
-                    Koeko.currentGameActivity.changeScore(scoreTeamOne, scoreTeamTwo);
+                if (Koeko.currentGameFragment != null) {
+                    Koeko.currentGameFragment.changeScore(scoreTeamOne, scoreTeamTwo);
                 }
                 break;
             default:
@@ -186,6 +187,11 @@ public class ReceptionProtocol {
         Koeko.currentTestFragmentSingleton = null;
         Koeko.shrtaqActivityState = null;
         Koeko.qmcActivityState = null;
+        if (InteractiveModeActivity.getCurrentTopFragment(Koeko.networkCommunicationSingleton.mInteractiveModeActivity
+                .getSupportFragmentManager()) != null && !InteractiveModeActivity.getCurrentTopFragment(Koeko.networkCommunicationSingleton.mInteractiveModeActivity
+                .getSupportFragmentManager()).getClass().getName().contains("GameFragment")) {
+            Koeko.gameState = null;
+        }
 
         QuestionIdentifier questionIdentifier = getObjectMapper().readValue(new String(stateUpdBytes), QuestionIdentifier.class);
 

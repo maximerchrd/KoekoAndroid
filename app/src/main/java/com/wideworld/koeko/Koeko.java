@@ -3,10 +3,11 @@ package com.wideworld.koeko;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
-import com.wideworld.koeko.Activities.GameActivity;
+import com.wideworld.koeko.Activities.GameFragment;
 import com.wideworld.koeko.Activities.TestFragment;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.NetworkCommunication.WifiCommunication;
+import com.wideworld.koeko.QuestionsManagement.GameState;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 
@@ -15,12 +16,13 @@ import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
  */
 public class Koeko extends MultiDexApplication {
     public static int testConnectivity = 0;
-    public static GameActivity currentGameActivity = null;
+    public static GameFragment currentGameFragment = null;
     public static TestFragment currentTestFragmentSingleton = null;
     public static String qmcActivityState = null;
     public static QuestionMultipleChoice currentQuestionMultipleChoiceSingleton = null;
     public static String shrtaqActivityState = null;
     public static QuestionShortAnswer currentQuestionShortAnswerSingleton = null;
+    public static GameState gameState = null;
     public static Long activeTestStartTime = 0L;
     public static String qrCode = "";
 

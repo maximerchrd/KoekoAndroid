@@ -191,7 +191,7 @@ public class Test extends TransferableObject {
     }
 
     private void initializeActiveIds() {
-        activeQuestionIds = (Vector<String>) questionsIDs.clone();
+        activeQuestionIds = new Vector<>(questionsIDs);
         for (Map.Entry<String, String> entry : idMapRelation.entrySet()) {
             if (entry.getValue().length() > 0) {
                 activeQuestionIds.remove(entry.getKey().split("\\|")[1]);

@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.wideworld.koeko.Activities.GameActivity;
+import com.wideworld.koeko.Activities.GameFragment;
 import com.wideworld.koeko.Activities.InteractiveModeActivity;
 import com.wideworld.koeko.Activities.MultChoiceQuestionFragment;
 import com.wideworld.koeko.Activities.ShortAnswerQuestionFragment;
@@ -260,13 +260,13 @@ public class NetworkCommunication {
 	}
 
 	public void launchGameActivity(GameView gameView, int team) {
-		Intent mIntent = new Intent(mContextNetCom, GameActivity.class);
+		Intent mIntent = new Intent(mContextNetCom, GameFragment.class);
 		Bundle bun = new Bundle();
 		bun.putInt("endScore", gameView.getEndScore());
 		bun.putInt("gameType", gameView.getGameType());
 		bun.putInt("team", team);
 		mIntent.putExtras(bun);
-		mContextNetCom.startActivity(mIntent);
+		launchFragment(new GameFragment(), mIntent);
 	}
 
 	private void launchFragment(Fragment fragment, Intent mIntent) {

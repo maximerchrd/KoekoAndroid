@@ -4,6 +4,8 @@ import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
+import com.wideworld.koeko.QuestionsManagement.GameState;
+import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.R;
@@ -43,7 +45,12 @@ public class InteractiveModeActivity extends AppCompatActivity {
     private Camera camera;
     private int cameraId = 0;
     private int PERMISSION_REQUEST_CODE = 1;
+
     static protected Boolean backToTestFromQuestion = false;
+    static protected int forwardQuestionMultipleChoice = 1;
+    static protected int forwardQuestionShortAnswer = 2;
+    static protected int forwardTest = 3;
+    static protected int forwardGame = 4;
 
     /**
      * Called when the activity is first created.
@@ -103,12 +110,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
                         1
                 );
             } else {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                ContinuousQrScanning continuousQrScanning = new ContinuousQrScanning();
-                fragmentTransaction.replace(R.id.viewgroup, continuousQrScanning);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
+                launchQRscanning();
             }
         });
 
@@ -116,6 +118,15 @@ public class InteractiveModeActivity extends AppCompatActivity {
         toggleConnectionButton.setOnClickListener(l -> toggleConnection());
 
         connectToTeacher();
+    }
+
+    protected void launchQRscanning() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        ContinuousQrScanning continuousQrScanning = new ContinuousQrScanning();
+        fragmentTransaction.replace(R.id.viewgroup, continuousQrScanning);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     private void toggleConnection() {
@@ -247,9 +258,11 @@ public class InteractiveModeActivity extends AppCompatActivity {
         }
     }
 
-    protected void setForwardButton() {
+    protected void setForwardButton(int forwardType) {
         if (forwardButton != null && backToTestFromQuestion == false) {
-            if (Koeko.qmcActivityState != null || Koeko.shrtaqActivityState != null) {
+            if (forwardType == forwardGame) {
+                forwardButton.setTitle(getString(R.string.back_to_game) + " >");
+            } else if (Koeko.qmcActivityState != null || Koeko.shrtaqActivityState != null) {
                 forwardButton.setTitle(getString(R.string.back_to_question) + " >");
             } else if (Koeko.currentTestFragmentSingleton != null) {
                 forwardButton.setTitle(getString(R.string.back_to_test) + " >");
@@ -331,14 +344,17 @@ public class InteractiveModeActivity extends AppCompatActivity {
             switch (classname) {
                 case "ShortAnswerQuestionFragment":
                     ((ShortAnswerQuestionFragment) fragment).saveActivityState();
-                    setForwardButton();
+                    setForwardButton(forwardQuestionMultipleChoice);
                     break;
                 case "MultChoiceQuestionFragment":
                     ((MultChoiceQuestionFragment) fragment).saveActivityState();
-                    setForwardButton();
+                    setForwardButton(forwardQuestionMultipleChoice);
                     break;
                 case "TestFragment":
-                    setForwardButton();
+                    setForwardButton(forwardTest);
+                    break;
+                case "GameFragment":
+                    setForwardButton(forwardGame);
                     break;
                 default:
                     System.out.println("back from other fragment");
@@ -349,10 +365,10 @@ public class InteractiveModeActivity extends AppCompatActivity {
         }
     }
 
-    private static Fragment getCurrentTopFragment(FragmentManager fm) {
+    public static Fragment getCurrentTopFragment(FragmentManager fm) {
         int stackCount = fm.getBackStackEntryCount();
         if (stackCount > 0) {
-            if (stackCount == 2) {
+            if (stackCount == 2 && fm.getFragments().get(0).getClass().getName().contains("TestFragment")) {
                 backToTestFromQuestion = true;
             }
             return  fm.getFragments().get(fm.getFragments().size() - 1);
@@ -385,6 +401,8 @@ public class InteractiveModeActivity extends AppCompatActivity {
         if (id == R.id.forwardbutton) {
             if (forwardButton.getTitle().toString().contentEquals("")) {
                 System.out.println("forwardButton pressed but it shouldn't make any action");
+            } else if (Koeko.gameState != null && forwardButton.getTitle().toString().contains(getString(R.string.back_to_game))) {
+                Koeko.networkCommunicationSingleton.launchGameActivity(Koeko.gameState.getGameView(), Koeko.gameState.getGameView().getTeam());
             } else if (Koeko.qmcActivityState != null && Koeko.currentQuestionMultipleChoiceSingleton != null) {
                 Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(Koeko.currentQuestionMultipleChoiceSingleton,
                         Koeko.networkCommunicationSingleton.directCorrection);
@@ -399,18 +417,10 @@ public class InteractiveModeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Called when system is low on resources or finish() called on activity
-     */
     public void onDestroy() {
         super.onDestroy();
     }
 
-    /**
-     * method used to know if we send a disconnection signal to the server
-     *
-     * @param hasFocus
-     */
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus) {
