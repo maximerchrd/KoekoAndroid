@@ -80,11 +80,6 @@
             android:name="com.wideworld.koeko.Activities.EvaluationCityRepresentationActivity"
             android:label="@string/title_activity_evaluation_results" />
         <activity
-            android:name="com.wideworld.koeko.Activities.WebViewActivity"
-            android:label="Media"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden" />
-        <activity
             android:name="com.wideworld.koeko.AndroidDatabaseManager"
             android:label="DB Browsing" />
     </application>

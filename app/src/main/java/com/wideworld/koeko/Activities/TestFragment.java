@@ -289,7 +289,7 @@ public class TestFragment extends Fragment {
         mAdapter.notifyDataSetChanged();
     }
 
-    public void PlayPause(View v) {
+    public void PlayPause() {
         if (mTest.getMediaFileType() == 2) {
             if (videoView.isPlaying()) {
                 videoView.pause();
@@ -311,12 +311,12 @@ public class TestFragment extends Fragment {
                 play_pauseButton.setImageResource(R.drawable.pause_icon);
             }
         } else if (mTest.getMediaFileType() == 3) {
-            //Intent intent = new Intent(TestFragment.this, WebViewActivity.class);
-            //startActivity(intent);
+            Intent mIntent = new Intent(getContext(), GameFragment.class);
+            launchFragment(new WebViewFragment(), mIntent);
         }
     }
 
-    public void Stop(View v) {
+    public void Stop() {
         if (mTest.getMediaFileType() == 2) {
             videoView.stopPlayback();
             videoView.setVideoURI(videoUri);

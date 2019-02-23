@@ -2,8 +2,6 @@ package com.wideworld.koeko.Activities;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Random;
 
 
@@ -16,10 +14,7 @@ import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -29,8 +24,6 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
-import com.wideworld.koeko.Activities.ActivityTools.TestChronometer;
 import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;

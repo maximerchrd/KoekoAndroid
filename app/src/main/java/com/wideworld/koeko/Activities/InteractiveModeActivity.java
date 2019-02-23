@@ -338,6 +338,18 @@ public class InteractiveModeActivity extends AppCompatActivity {
         }
     }
 
+    public void PlayPause(View v) {
+        if (Koeko.currentTestFragmentSingleton != null) {
+            Koeko.currentTestFragmentSingleton.PlayPause();
+        }
+    }
+
+    public void Stop(View v) {
+        if (Koeko.currentTestFragmentSingleton != null) {
+            Koeko.currentTestFragmentSingleton.Stop();
+        }
+    }
+
     @Override
     public void onBackPressed() {
         Fragment fragment = getCurrentTopFragment(getSupportFragmentManager());
@@ -358,6 +370,9 @@ public class InteractiveModeActivity extends AppCompatActivity {
                     break;
                 case "GameFragment":
                     setForwardButton(forwardGame);
+                    break;
+                case "WebViewFragment":
+                    backToTestFromQuestion = false;
                     break;
                 default:
                     System.out.println("back from other fragment");
