@@ -2,6 +2,8 @@ package com.wideworld.koeko.Activities;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Random;
 
 
@@ -12,6 +14,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -32,6 +35,7 @@ import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
+import com.wideworld.koeko.QuestionsManagement.States.QuestionMultipleChoiceState;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.Tools.FileHandler;
 
@@ -130,26 +134,28 @@ public class MultChoiceQuestionFragment extends Fragment {
         }
 
         submitButton.setOnClickListener(v -> {
-            String answer = "";
-            ArrayList<String> answers = new ArrayList<>();
-            for (int i = 0; i < number_of_possible_answers; i++) {
-                if (checkBoxesArray.get(i).isChecked()) {
-                    answer += checkBoxesArray.get(i).getText() + "|||";
-                    answers.add(checkBoxesArray.get(i).getText().toString());
+            if (!wasAnswered) {
+                String answer = "";
+                ArrayList<String> answers = new ArrayList<>();
+                for (int i = 0; i < number_of_possible_answers; i++) {
+                    if (checkBoxesArray.get(i).isChecked()) {
+                        answer += checkBoxesArray.get(i).getText() + "|||";
+                        answers.add(checkBoxesArray.get(i).getText().toString());
+                    }
                 }
-            }
 
-            wasAnswered = true;
-            saveActivityState();
+                wasAnswered = true;
 
-            Koeko.networkCommunicationSingleton.sendAnswerToServer(answers, answer, question, currentQ.getId(), "ANSW0",
-                    (SystemClock.elapsedRealtime() - startingTime) / 1000);
+                Koeko.networkCommunicationSingleton.sendAnswerToServer(answers, answer, question, currentQ.getId(), "ANSW0",
+                        (SystemClock.elapsedRealtime() - startingTime) / 1000);
 
-            if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
-                MltChoiceQuestionButtonClick();
+                if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
+                    MltChoiceQuestionButtonClick();
+                } else {
+                    dismiss();
+                }
             } else {
                 dismiss();
-                //invalidateOptionsMenu();
             }
         });
 
@@ -282,7 +288,7 @@ public class MultChoiceQuestionFragment extends Fragment {
         linearLayout.addView(submitButton);
 
         //restore activity state
-        String activityState = null;
+        QuestionMultipleChoiceState activityState = null;
         if (Koeko.currentTestFragmentSingleton != null) {
             activityState = Koeko.currentTestFragmentSingleton.mcqActivitiesStates.get(String.valueOf(currentQ.getId()));
         } else {
@@ -293,24 +299,21 @@ public class MultChoiceQuestionFragment extends Fragment {
         if ((activityState != null && Koeko.currentTestFragmentSingleton != null) || (activityState != null &&
                 Koeko.currentQuestionMultipleChoiceSingleton != null &&
                 Koeko.currentQuestionMultipleChoiceSingleton.getId().contentEquals(currentQ.getId()))) {
-            String[] parsedState = activityState.split("///");
-            if (parsedState[parsedState.length - 2].contentEquals("true")) {
-                disactivateQuestion();
-            }
 
             //restore checkboxes
-            for (CheckBox checkBox : checkBoxesArray) {
-                for (int i = 0; i < parsedState.length; i++) {
-                    if (parsedState[i].contentEquals(checkBox.getText())) {
-                        checkBox.setChecked(true);
-                        break;
-                    }
-                }
+            for (int i = 0; i < checkBoxesArray.size() && i < activityState.getCheckboxes().size(); i++) {
+                checkBoxesArray.get(i).setChecked(activityState.getCheckboxes().get(i).isChecked());
+                checkBoxesArray.get(i).setText(activityState.getCheckboxes().get(i).getText());
+            }
+
+            if (activityState.getWasAnswered()) {
+                disactivateQuestion();
+                wasAnswered = activityState.getWasAnswered();
             }
 
             //restore timer
             try {
-                startingTime = Long.valueOf(parsedState[parsedState.length - 1]);
+                startingTime = activityState.getTimeRemaining();
                 Long elapsedTime = SystemClock.elapsedRealtime();
                 Long effectiveElapsedTime = elapsedTime - startingTime;
                 if (currentQ.getTimerSeconds() != -1 && (currentQ.getTimerSeconds() - effectiveElapsedTime / 1000) < 0) {
@@ -324,14 +327,10 @@ public class MultChoiceQuestionFragment extends Fragment {
     }
 
     protected void saveActivityState() {
-        String activityState = "";
-        for (CheckBox checkbox : checkBoxesArray) {
-            if (checkbox.isChecked()) {
-                activityState += checkbox.getText() + "///";
-            }
-        }
-        activityState += wasAnswered + "///";
-        activityState += String.valueOf(startingTime);
+        QuestionMultipleChoiceState activityState = new QuestionMultipleChoiceState();
+        activityState.setCheckboxes(checkBoxesArray);
+        activityState.setWasAnswered(wasAnswered);
+        activityState.setTimeRemaining(startingTime);
         if (Koeko.currentTestFragmentSingleton != null) {
             Koeko.currentTestFragmentSingleton.mcqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
         } else {
@@ -342,53 +341,54 @@ public class MultChoiceQuestionFragment extends Fragment {
 
     private void MltChoiceQuestionButtonClick() {
         //get the answers checked by student
-        ArrayList<String> studentAnswers = new ArrayList<String>();
-        for (int i = 0; i < checkBoxesArray.size(); i++) {
-            if (checkBoxesArray.get(i).isChecked()) {
-                studentAnswers.add(checkBoxesArray.get(i).getText().toString());
-            }
-        }
         //get the right answers
-        ArrayList<String> rightAnswers = new ArrayList<String>();
+        ArrayList<String> rightAnswers = new ArrayList<>();
         for (int i = 0; i < currentQ.getNB_CORRECT_ANS(); i++) {
             rightAnswers.add(currentQ.getPossibleAnswers().get(i));
         }
-        //compare the student answers with the right answers
-        String title = "";
-        String message = "";
-        if (rightAnswers.containsAll(studentAnswers) && studentAnswers.containsAll(rightAnswers)) {
-            title = "Good job!";
-            message = getString(R.string.correction_correct);
-
-        } else {
-            String correct_answers = "";
-            for (int i = 0; i < rightAnswers.size(); i++) {
-                correct_answers += (rightAnswers.get(i));
-                if (!(i == rightAnswers.size() - 1)) correct_answers += " or ";
+        for (int i = 0; i < checkBoxesArray.size(); i++) {
+            if (checkBoxesArray.get(i).isChecked()) {
+                if (rightAnswers.contains(checkBoxesArray.get(i).getText().toString())) {
+                    String correction = " <font size=\"5\" color=\"green\">Right :-)</font> <br/>" +
+                            checkBoxesArray.get(i).getText().toString();
+                    checkBoxesArray.get(i).setText(Html.fromHtml(correction));
+                } else {
+                    String correction = " <font size=\"5\" color=\"red\">This shouldn't be selected :-(</font> <br/>" +
+                            checkBoxesArray.get(i).getText().toString();
+                    checkBoxesArray.get(i).setText(Html.fromHtml(correction));
+                }
+            } else {
+                if (rightAnswers.contains(checkBoxesArray.get(i).getText().toString())) {
+                    String correction = " <font size=\"5\" color=\"red\">This should be selected :-(</font> <br/>" +
+                            checkBoxesArray.get(i).getText().toString();
+                    checkBoxesArray.get(i).setText(Html.fromHtml(correction));
+                } else {
+                    String correction = " <font size=\"5\" color=\"green\">Right :-)</font> <br/>" +
+                            checkBoxesArray.get(i).getText().toString();
+                    checkBoxesArray.get(i).setText(Html.fromHtml(correction));
+                }
             }
-            title = ":-(";
-            message = getString(R.string.correction_incorrect) + correct_answers;
         }
-
-        CustomAlertDialog customAlertDialog = new CustomAlertDialog(mActivity);
-        customAlertDialog.show();
-        customAlertDialog.setProperties(message, mActivity);
+        disactivateQuestion();
     }
 
     private void disactivateQuestion() {
-        submitButton.setEnabled(false);
-        submitButton.setAlpha(0.3f);
+        //submitButton.setEnabled(false);
+        //submitButton.setAlpha(0.3f);
         for (CheckBox checkBox : checkBoxesArray) {
             checkBox.setEnabled(false);
-            checkBox.setAlpha(0.3f);
+            //checkBox.setAlpha(0.3f);
         }
+        submitButton.setText("OK");
         wasAnswered = true;
     }
 
     private void dismiss() {
         saveActivityState();
         Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
-        InteractiveModeActivity.backToTestFromQuestion = true;
+        if (Koeko.currentTestFragmentSingleton != null) {
+            InteractiveModeActivity.backToTestFromQuestion = true;
+        }
         Koeko.networkCommunicationSingleton.mInteractiveModeActivity.setForwardButton(InteractiveModeActivity.forwardQuestionMultipleChoice);
     }
 }

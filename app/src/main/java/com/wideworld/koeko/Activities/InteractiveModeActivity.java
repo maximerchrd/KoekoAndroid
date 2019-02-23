@@ -4,8 +4,6 @@ import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.NetworkCommunication;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
-import com.wideworld.koeko.QuestionsManagement.GameState;
-import com.wideworld.koeko.QuestionsManagement.GameView;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.R;

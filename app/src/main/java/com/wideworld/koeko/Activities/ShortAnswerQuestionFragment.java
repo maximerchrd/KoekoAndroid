@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +25,7 @@ import com.wideworld.koeko.Koeko;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServerTransferable;
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.QuestionsManagement.States.QuestionShortAnswerState;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.Tools.FileHandler;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
@@ -115,19 +117,23 @@ public class ShortAnswerQuestionFragment extends Fragment {
 		}
 
 		submitButton.setOnClickListener(v -> {
-			wasAnswered = true;
-			String answer = textAnswer.getText().toString();
+			if (!wasAnswered) {
+				wasAnswered = true;
+				String answer = textAnswer.getText().toString();
 
-			ArrayList<String> answerArray = new ArrayList<>();
-			answerArray.add(answer);
-			Koeko.networkCommunicationSingleton.sendAnswerToServer(answerArray, answer, question, currentQ.getId(), "ANSW1",
-					(SystemClock.elapsedRealtime() - startingTime) / 1000);
+				ArrayList<String> answerArray = new ArrayList<>();
+				answerArray.add(answer);
+				Koeko.networkCommunicationSingleton.sendAnswerToServer(answerArray, answer, question, currentQ.getId(), "ANSW1",
+						(SystemClock.elapsedRealtime() - startingTime) / 1000);
 
-			if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
-				popupCorrection();
+				if (Koeko.networkCommunicationSingleton.directCorrection.contentEquals("1")) {
+					popupCorrection();
+				} else {
+					dismiss();
+					//invalidateOptionsMenu();
+				}
 			} else {
 				dismiss();
-				//invalidateOptionsMenu();
 			}
 		});
 
@@ -191,7 +197,7 @@ public class ShortAnswerQuestionFragment extends Fragment {
 		linearLayout.addView(submitButton);
 
 		//restore activity state
-		String activityState = null;
+		QuestionShortAnswerState activityState = null;
 		if (Koeko.currentTestFragmentSingleton != null) {
 			activityState = Koeko.currentTestFragmentSingleton.shrtaqActivitiesStates.get(String.valueOf(currentQ.getId()));
 		} else {
@@ -202,18 +208,16 @@ public class ShortAnswerQuestionFragment extends Fragment {
 		if ((activityState != null && Koeko.currentTestFragmentSingleton != null) || (activityState != null &&
 				Koeko.currentQuestionShortAnswerSingleton != null &&
 				Koeko.currentQuestionShortAnswerSingleton.getId().contentEquals(currentQ.getId()))) {
-			String[] parsedState = activityState.split("///");
-			if (parsedState[parsedState.length - 2].contentEquals("true")) {
-				submitButton.setEnabled(false);
-				submitButton.setAlpha(0.3f);
+			if (activityState.getWasAnswered()) {
+				disactivateQuestion();
 				wasAnswered = true;
 			}
 
-			textAnswer.setText(parsedState[0]);
+			textAnswer.setText(activityState.getQuestionText());
 
 			//restore timer
 			try {
-				startingTime = Long.valueOf(parsedState[parsedState.length - 1]);
+				startingTime = activityState.getTimeRemaining();
 				Long elapsedTime = SystemClock.elapsedRealtime();
 				Long effectiveElapsedTime = elapsedTime - startingTime;
 				if (currentQ.getTimerSeconds() != -1 && (currentQ.getTimerSeconds()	- effectiveElapsedTime / 1000) < 0) {
@@ -233,9 +237,10 @@ public class ShortAnswerQuestionFragment extends Fragment {
 	}
 
 	protected void saveActivityState() {
-		String activityState = textAnswer.getText().toString() + "///";
-		activityState += wasAnswered + "///";
-		activityState += String.valueOf(startingTime);
+		QuestionShortAnswerState activityState = new QuestionShortAnswerState();
+		activityState.setQuestionText(textAnswer.getText().toString());
+		activityState.setWasAnswered(wasAnswered);
+		activityState.setTimeRemaining(startingTime);
 		if (Koeko.currentTestFragmentSingleton != null) {
 			Koeko.currentTestFragmentSingleton.shrtaqActivitiesStates.put(String.valueOf(currentQ.getId()), activityState);
 		} else {
@@ -247,41 +252,39 @@ public class ShortAnswerQuestionFragment extends Fragment {
 	private void popupCorrection() {
 		//get the answerof the student
 		QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(currentQ.getId());
-		String studentAnswers = textAnswer.getText().toString();
+		String studentAnswer = textAnswer.getText().toString();
 		//get the right answers
 		ArrayList<String> rightAnswers = questionShortAnswer.getAnswers();
 
 		//compare the student answer with the right answers
-		String title = "";
-		String message = "";
-		if (rightAnswers.contains(studentAnswers)) {
-			title = ":-)";
-			message = getString(R.string.correction_correct);
+		String correction = "";
+		if (rightAnswers.contains(studentAnswer)) {
+			correction = "<font size='5' color='green'>Right :-)</font> <br/>" + studentAnswer;
 		} else {
-			String rightAnswer = "";
-			for (int i = 0; i < rightAnswers.size(); i++) {
-				rightAnswer += (rightAnswers.get(i));
-				if (!(i == rightAnswers.size() -1)) rightAnswer += " or ";
+			correction = studentAnswer + "<br/><font size='5' color='red'>Unfortunately, this wasn't the right answer :-( </font>";
+			if (rightAnswers.size() == 0) {
+				correction += "The right answer was EMPTY ANSWER";
+			} else if (rightAnswers.size() == 1) {
+				correction += "The right answer was:<br/>" + rightAnswers.get(0);
+			} else {
+				correction += "The right answer was for example:<br/>" + rightAnswers.get(0);
 			}
-			title = ":-(";
-			message = getString(R.string.correction_incorrect) + rightAnswer;
 		}
-
-		CustomAlertDialog customAlertDialog = new CustomAlertDialog(mActivity);
-		customAlertDialog.show();
-		customAlertDialog.setProperties(message, mActivity);
+		textAnswer.setText(Html.fromHtml(correction));
 	}
 
 	private void disactivateQuestion() {
-		submitButton.setEnabled(false);
-		submitButton.setAlpha(0.3f);
+		textAnswer.setEnabled(false);
+		submitButton.setText("OK");
 		wasAnswered = true;
 	}
 
 	private void dismiss() {
 		saveActivityState();
 		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager().popBackStack();
-		InteractiveModeActivity.backToTestFromQuestion = true;
+		if (Koeko.currentTestFragmentSingleton != null) {
+			InteractiveModeActivity.backToTestFromQuestion = true;
+		}
 		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.setForwardButton(InteractiveModeActivity.forwardQuestionShortAnswer);
 	}
 

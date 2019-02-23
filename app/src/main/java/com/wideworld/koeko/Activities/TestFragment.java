@@ -29,6 +29,8 @@ import com.wideworld.koeko.NetworkCommunication.OtherTransferables.ClientToServe
 import com.wideworld.koeko.NetworkCommunication.OtherTransferables.CtoSPrefix;
 import com.wideworld.koeko.QuestionsManagement.QuestionMultipleChoice;
 import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
+import com.wideworld.koeko.QuestionsManagement.States.QuestionMultipleChoiceState;
+import com.wideworld.koeko.QuestionsManagement.States.QuestionShortAnswerState;
 import com.wideworld.koeko.QuestionsManagement.Test;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableIndividualQuestionForResult;
@@ -39,8 +41,8 @@ import java.util.Map;
 import java.util.Vector;
 
 public class TestFragment extends Fragment {
-    public Map<String, String> mcqActivitiesStates;
-    public Map<String, String> shrtaqActivitiesStates;
+    public Map<String, QuestionMultipleChoiceState> mcqActivitiesStates;
+    public Map<String, QuestionShortAnswerState> shrtaqActivitiesStates;
     public TestChronometer testChronometer;
     public Boolean testIsFinished = false;
     private Boolean reloadActivity = false;
