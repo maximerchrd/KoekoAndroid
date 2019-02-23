@@ -62,11 +62,11 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
         holder.evaluationText.setText(evaluations[position]);
 
         Drawable drawable = null;
-        if (medalImageNames[position].contentEquals("gold-medal")) {
+        if (medalImageNames[position].contentEquals(MedalFragment.goldMedal)) {
             drawable = context.getResources().getDrawable(R.drawable.gold_medal);
-        } else if (medalImageNames[position].contentEquals("silver-medal")) {
+        } else if (medalImageNames[position].contentEquals(MedalFragment.silverMedal)) {
             drawable = context.getResources().getDrawable(R.drawable.silver_medal);
-        } else if (medalImageNames[position].contentEquals("bronze-medal")) {
+        } else if (medalImageNames[position].contentEquals(MedalFragment.bronzeMedal)) {
             drawable = context.getResources().getDrawable(R.drawable.bronze_medal);
         }
         holder.medalImage.setImageDrawable(drawable);

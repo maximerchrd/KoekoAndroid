@@ -6,4 +6,11 @@
         android:id="@+id/forwardbutton"
         android:title=""
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/chronometer"
+        android:title=""
+        app:actionViewClass="com.wideworld.koeko.Activities.ActivityTools.TestChronometer"
+        app:showAsAction="always">
+    </item>
 </menu>

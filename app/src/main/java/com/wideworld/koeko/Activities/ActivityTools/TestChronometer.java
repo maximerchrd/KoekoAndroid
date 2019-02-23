@@ -21,7 +21,7 @@ import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-public class TestChronometer extends TextView implements Runnable {
+public class TestChronometer extends android.support.v7.widget.AppCompatTextView implements Runnable {
     private long startTime = 0L;
     private long overallDuration = 0L;
     private boolean isRunning = false;

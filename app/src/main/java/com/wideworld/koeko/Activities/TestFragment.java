@@ -1,18 +1,19 @@
 package com.wideworld.koeko.Activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -20,7 +21,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.VideoView;
 
-import com.wideworld.koeko.Activities.ActivityTools.CustomAlertDialog;
+import com.wideworld.koeko.Activities.ActivityTools.MedalFragment;
 import com.wideworld.koeko.Activities.ActivityTools.TestChronometer;
 import com.wideworld.koeko.Activities.ActivityTools.TestListAdapter;
 import com.wideworld.koeko.Activities.ActivityTools.RecyclerTouchListener;
@@ -148,10 +149,14 @@ public class TestFragment extends Fragment {
                 String message = "Gold medal\nTime: " + (instruc.get(2).get(0) != "1000000" ? instruc.get(2).get(0) : "no time limit;") + " \nScore: " + instruc.get(2).get(1) + "\n\n";
                 message += "Silver medal\nTime: " + (instruc.get(1).get(0) != "1000000" ? instruc.get(1).get(0) : "no time limit;") + " \nScore: " + instruc.get(1).get(1) + "\n\n";
                 message += "Bronze medal\nTime: " + (instruc.get(0).get(0) != "1000000" ? instruc.get(0).get(0) : "no time limit;") + " \nScore: " + instruc.get(0).get(1) + "\n\n";
-                CustomAlertDialog customAlertDialog = new CustomAlertDialog(getContext());
-                customAlertDialog.setTestInstructions(true);
-                customAlertDialog.show();
-                customAlertDialog.setProperties(message, getActivity());
+
+                Intent mIntent = new Intent(getContext(), GameFragment.class);
+                Bundle bundle = new Bundle();
+                bundle.putBoolean("instructions", true);
+                bundle.putString("medal", MedalFragment.noMedal);
+                bundle.putString("text", message);
+                mIntent.putExtras(bundle);
+                launchFragment(new MedalFragment(), mIntent);
             }
         }
 
@@ -182,6 +187,9 @@ public class TestFragment extends Fragment {
         if (mTest.getAnsweredQuestionIds().size() == mTest.getActiveQuestionIds().size()) {
             testIsFinished = true;
         }
+        if (Koeko.currentTestFragmentSingleton != null && Koeko.currentTestFragmentSingleton.testChronometer != null) {
+            this.testChronometer = Koeko.currentTestFragmentSingleton.testChronometer;
+        }
         Koeko.currentTestFragmentSingleton = this;
 
         return rootView;
@@ -199,27 +207,26 @@ public class TestFragment extends Fragment {
         super.onResume();
     }*/
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (mTest.getMedalsInstructions() != null ) {
-            if (mTest.getMedalsInstructionsString().length() > 0) {
-                inflater.inflate(R.menu.menu_test, menu);
+    private void launchFragment(Fragment fragment, Intent mIntent) {
+        FragmentManager fragmentManager = Koeko.networkCommunicationSingleton.mInteractiveModeActivity.getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragment.setArguments(mIntent.getExtras());
+        fragmentTransaction.add(R.id.viewgroup, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
 
-                testChronometer = (TestChronometer) menu
-                        .findItem(R.id.chronometer)
-                        .getActionView();
-
-                testChronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-                testChronometer.setTextColor(Color.WHITE);
-                if (reloadActivity) {
-                    testChronometer.setStartTime(Koeko.activeTestStartTime);
-                    testChronometer.run();
-                }
-            }
-        } else {
-            Log.w(TAG, "Medals Instructions are null!!");
+    public void showChronometer() {
+        testChronometer = (TestChronometer) Koeko.networkCommunicationSingleton.mInteractiveModeActivity.interactiveModeMenu
+                .findItem(R.id.chronometer)
+                .getActionView();
+        testChronometer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+        testChronometer.setTextColor(Color.WHITE);
+        testChronometer.setVisibility(View.VISIBLE);
+        if (reloadActivity) {
+            testChronometer.setStartTime(Koeko.activeTestStartTime);
+            testChronometer.run();
         }
-        super.onCreateOptionsMenu(menu, inflater);
     }
 
     public Boolean checkIfTestFinished() {
@@ -243,21 +250,21 @@ public class TestFragment extends Fragment {
             quantEval = quantEval / mTest.getAnsweredQuestionIds().size();
 
             //check if medal won
-            String medal = "none";
+            String medal = "no-medal";
             String message = "You are a Champ!";
             try {
                 if (mTest.getMedalsInstructions().size() >= 3) {
                     if (Long.valueOf(mTest.getMedalsInstructions().get(2).get(0)) >= testDuration &&
                             Double.valueOf(mTest.getMedalsInstructions().get(2).get(1)) <= quantEval) {
                         message += "\nYou won the GOLD MEDAL";
-                        medal = "gold-medal";
+                        medal = MedalFragment.goldMedal;
                     } else if (Long.valueOf(mTest.getMedalsInstructions().get(1).get(0)) >= testDuration &&
                             Double.valueOf(mTest.getMedalsInstructions().get(1).get(1)) <= quantEval) {
-                        medal = "silver-medal";
+                        medal = MedalFragment.silverMedal;
                         message += "\nYou won the SILVER MEDAL";
                     } else if (Long.valueOf(mTest.getMedalsInstructions().get(0).get(0)) >= testDuration &&
                             Double.valueOf(mTest.getMedalsInstructions().get(0).get(1)) <= quantEval) {
-                        medal = "bronze-medal";
+                        medal = MedalFragment.bronzeMedal;
                         message += "\nYou won the BRONZE MEDAL";
                     }
                 } else {
@@ -266,9 +273,14 @@ public class TestFragment extends Fragment {
             } catch (NumberFormatException e) {
                 Log.w(TAG, "NumberFormatException in medals instructions when checking if medal won.");
             }
-            if (!medal.contentEquals("none")) {
-                CustomAlertDialog customAlertDialog = new CustomAlertDialog(getActivity(), message, medal);
-                customAlertDialog.show();
+            if (!medal.contentEquals(MedalFragment.noMedal)) {
+                Intent mIntent = new Intent(getContext(), GameFragment.class);
+                Bundle bundle = new Bundle();
+                bundle.putBoolean("instructions", false);
+                bundle.putString("medal", medal);
+                bundle.putString("text", message);
+                mIntent.putExtras(bundle);
+                launchFragment(new MedalFragment(), mIntent);
             }
             DbTableIndividualQuestionForResult.addIndividualTestForStudentResult(String.valueOf(mTest.getIdGlobal()),
                     mTest.getTestName(), String.valueOf(testDuration), "FORMATIVE",

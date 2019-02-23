@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
     protected MenuItem forwardButton;
     private InteractiveModeActivity interactiveModeActivity;
     private String TAG = "InteractiveModeActivity";
+    protected Menu interactiveModeMenu;
 
     //launch scanning QR code
     private Button scanQQButton;
@@ -264,6 +266,9 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 forwardButton.setTitle(getString(R.string.back_to_question) + " >");
             } else if (Koeko.currentTestFragmentSingleton != null) {
                 forwardButton.setTitle(getString(R.string.back_to_test) + " >");
+                if (Koeko.currentTestFragmentSingleton.testChronometer != null) {
+                    Koeko.currentTestFragmentSingleton.testChronometer.setVisibility(View.GONE);
+                }
             }
         } else {
             backToTestFromQuestion = false;
@@ -387,6 +392,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_interactivemode, menu);
+        interactiveModeMenu = menu;
         forwardButton = menu.findItem(R.id.forwardbutton);
         return super.onCreateOptionsMenu(menu);
     }
