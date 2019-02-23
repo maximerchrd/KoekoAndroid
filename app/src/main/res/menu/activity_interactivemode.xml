@@ -11,6 +11,6 @@
         android:id="@+id/chronometer"
         android:title=""
         app:actionViewClass="com.wideworld.koeko.Activities.ActivityTools.TestChronometer"
-        app:showAsAction="always">
+        app:showAsAction="ifRoom">
     </item>
 </menu>

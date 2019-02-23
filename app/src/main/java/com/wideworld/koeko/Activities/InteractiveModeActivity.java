@@ -187,8 +187,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
                     }
                 }
             }).start();
-
-            ((Koeko) this.getApplication()).resetQuitApp();
         } else if (NetworkCommunication.connected == 2) {
             Log.d(TAG, "connectToTeacher: trying to connect but already connecting");
         } else {
@@ -215,11 +213,11 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        super.onPause();
         if (camera != null) {
             camera.release();
             camera = null;
         }
-        super.onPause();
     }
 
 
@@ -266,9 +264,9 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 forwardButton.setTitle(getString(R.string.back_to_question) + " >");
             } else if (Koeko.currentTestFragmentSingleton != null) {
                 forwardButton.setTitle(getString(R.string.back_to_test) + " >");
-                if (Koeko.currentTestFragmentSingleton.testChronometer != null) {
-                    Koeko.currentTestFragmentSingleton.testChronometer.setVisibility(View.GONE);
-                }
+            }
+            if (Koeko.currentTestFragmentSingleton != null && Koeko.currentTestFragmentSingleton.testChronometer != null) {
+                Koeko.currentTestFragmentSingleton.testChronometer.setVisibility(View.GONE);
             }
         } else {
             backToTestFromQuestion = false;
@@ -374,6 +372,9 @@ public class InteractiveModeActivity extends AppCompatActivity {
                 case "WebViewFragment":
                     backToTestFromQuestion = false;
                     break;
+                case "ContinuousQrScanning":
+                    ContinuousQrScanning.barcodeView.pause();
+                    break;
                 default:
                     System.out.println("back from other fragment");
             }
@@ -434,10 +435,6 @@ public class InteractiveModeActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     public void onWindowFocusChanged(boolean hasFocus) {

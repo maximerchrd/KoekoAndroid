@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.View;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -214,7 +215,6 @@ public class NetworkCommunication {
 	}
 
 	public void launchMultChoiceQuestionActivity(QuestionMultipleChoice question_to_display, String directCorrection) {
-		Koeko.MAX_ACTIVITY_TRANSITION_TIME_MS = Koeko.MEDIUM_TRANSITION_TIME;
 		Intent mIntent = new Intent(mContextNetCom, MultChoiceQuestionFragment.class);
 		Bundle bun = new Bundle();
 		bun.putString("question", question_to_display.getQuestion());
@@ -270,12 +270,16 @@ public class NetworkCommunication {
 	}
 
 	private void launchFragment(Fragment fragment, Intent mIntent) {
-		FragmentManager fragmentManager = mInteractiveModeActivity.getSupportFragmentManager();
-		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-		fragment.setArguments(mIntent.getExtras());
-		fragmentTransaction.add(R.id.viewgroup, fragment);
-		fragmentTransaction.addToBackStack(null);
-		fragmentTransaction.commit();
+		try {
+			FragmentManager fragmentManager = mInteractiveModeActivity.getSupportFragmentManager();
+			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+			fragment.setArguments(mIntent.getExtras());
+			fragmentTransaction.add(R.id.viewgroup, fragment);
+			fragmentTransaction.addToBackStack(null);
+			fragmentTransaction.commit();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getLastAnswer() {

@@ -58,7 +58,7 @@ public class TestChronometer extends android.support.v7.widget.AppCompatTextView
 
     public void reset() {
         startTime = SystemClock.elapsedRealtime();
-        setText("--:--");
+        setText("");
         setTextColor(Color.WHITE);
     }
 

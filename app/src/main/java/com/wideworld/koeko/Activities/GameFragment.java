@@ -119,7 +119,6 @@ public class GameFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         View rootView = inflater.inflate(R.layout.activity_game, container, false);
 
         Koeko.networkCommunicationSingleton.mInteractiveModeActivity.forwardButton.setTitle("");
@@ -311,25 +310,5 @@ public class GameFragment extends Fragment {
         } else {
             Log.w(TAG, "Array from QR code string is too short");
         }
-    }
-
-    // handle button activities
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.forwardbutton) {
-            if (Koeko.qmcActivityState != null && Koeko.currentQuestionMultipleChoiceSingleton != null) {
-                Koeko.networkCommunicationSingleton.launchMultChoiceQuestionActivity(Koeko.currentQuestionMultipleChoiceSingleton,
-                        Koeko.networkCommunicationSingleton.directCorrection);
-            } else if (Koeko.shrtaqActivityState != null && Koeko.currentQuestionShortAnswerSingleton != null) {
-                Koeko.networkCommunicationSingleton.launchShortAnswerQuestionActivity(Koeko.currentQuestionShortAnswerSingleton,
-                        Koeko.networkCommunicationSingleton.directCorrection);
-            } else if (Koeko.currentTestFragmentSingleton != null) {
-                Koeko.networkCommunicationSingleton.launchTestActivity(Koeko.currentTestFragmentSingleton.getmTest().getIdGlobal(),
-                        Koeko.networkCommunicationSingleton.directCorrection);
-            }
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

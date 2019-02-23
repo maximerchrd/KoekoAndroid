@@ -38,15 +38,14 @@ public class ContinuousQrScanning extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         rootView = inflater.inflate(R.layout.activity_continuous_qr_scanning, container, false);
-        super.onCreate(savedInstanceState);
 
         barcodeView = rootView.findViewById(R.id.barcode_scanner);
         Collection<BarcodeFormat> formats = Arrays.asList(BarcodeFormat.QR_CODE, BarcodeFormat.CODE_39);
         barcodeView.getBarcodeView().setDecoderFactory(new DefaultDecoderFactory(formats));
         barcodeView.initializeFromIntent(getActivity().getIntent());
         barcodeView.decodeContinuous(callback);
+        barcodeView.resume();
 
         return rootView;
     }
@@ -75,18 +74,4 @@ public class ContinuousQrScanning extends Fragment {
         public void possibleResultPoints(List<ResultPoint> resultPoints) {
         }
     };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        barcodeView.resume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        barcodeView.pause();
-    }
 }

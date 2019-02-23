@@ -50,7 +50,6 @@ public class MultChoiceQuestionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         View rootView = inflater.inflate(R.layout.activity_multchoicequestion, container, false);
         mActivity = getActivity();
 

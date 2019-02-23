@@ -6,6 +6,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -183,6 +184,13 @@ public class ReceptionProtocol {
     }
 
     private static void receivedQuestionIdentifier(byte[] stateUpdBytes, byte[] allBytesReceived) throws IOException {
+        // stop and hide chronometer
+        if (Koeko.currentTestFragmentSingleton != null && Koeko.currentTestFragmentSingleton.testChronometer != null) {
+            Koeko.networkCommunicationSingleton.mInteractiveModeActivity.runOnUiThread(() -> {
+                Koeko.currentTestFragmentSingleton.testChronometer.stop();
+                Koeko.currentTestFragmentSingleton.testChronometer.reset();
+            });
+        }
         //reinitializing all types of displays
         Koeko.currentTestFragmentSingleton = null;
         Koeko.shrtaqActivityState = null;

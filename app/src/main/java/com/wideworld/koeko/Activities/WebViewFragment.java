@@ -25,7 +25,6 @@ public class WebViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         View rootView = inflater.inflate(R.layout.activity_webview, container, false);
         testWebview = rootView.findViewById(R.id.test_webview);
 
@@ -34,8 +33,6 @@ public class WebViewFragment extends Fragment {
 
         testWebview.getSettings().setJavaScriptEnabled(true);
         testWebview.loadUrl("file:///" + file.getPath());
-
-        super.onCreate(savedInstanceState);
         return rootView;
     }
 }

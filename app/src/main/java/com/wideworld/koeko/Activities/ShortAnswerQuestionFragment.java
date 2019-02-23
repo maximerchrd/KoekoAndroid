@@ -49,7 +49,6 @@ public class ShortAnswerQuestionFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 							 ViewGroup container, Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		View rootView = inflater.inflate(R.layout.activity_shortanswerquestion, container, false);
 		mActivity = getActivity();
 
@@ -227,12 +226,6 @@ public class ShortAnswerQuestionFragment extends Fragment {
 			}
 		}
 		//finished restoring activity
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		Koeko.networkCommunicationSingleton.mInteractiveModeActivity.runOnUiThread(() -> Koeko.networkCommunicationSingleton.mInteractiveModeActivity.forwardButton.setTitle(""));
-		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	protected void saveActivityState() {
