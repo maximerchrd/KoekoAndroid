@@ -229,6 +229,8 @@ public class InteractiveModeActivity extends AppCompatActivity {
             showConnected();
         } else if (NetworkCommunication.connected == 0){
             showDisconnected();
+            Log.d(TAG, "reconnect on Resume");
+            Koeko.networkCommunicationSingleton.connectToMasterSameThread(1);
         } else {
             this.runOnUiThread(() -> {
                 Log.d(TAG, "showConnecting");
