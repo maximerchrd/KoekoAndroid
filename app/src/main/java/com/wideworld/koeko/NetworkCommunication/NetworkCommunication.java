@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -51,6 +52,9 @@ public class NetworkCommunication {
 	public HashSet<String> idsToSync;
 	public InteractiveModeActivity mInteractiveModeActivity;
 	private HotspotServer hotspotServerHotspot;
+	static public Boolean actuallySendSignal = false;
+
+	private String TAG = "NetworkCommunication";
 
 
 
@@ -176,19 +180,35 @@ public class NetworkCommunication {
 		KeyguardManager myKM = (KeyguardManager) mContextNetCom.getSystemService(Context.KEYGUARD_SERVICE);
 		if( myKM.inKeyguardRestrictedInputMode()) {
 			System.out.println("Device is locked: sending locked signal");
-			ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.disconnectionPrefix);
-			transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
-			transferable.setOptionalArgument2("locked");
-			transferable.setFileBytes(DbTableSettings.getName().getBytes());
-			sendBytesToServer(transferable.getTransferableBytes());
+			actuallySendDisconnectionSignal("locked");
+		} else if (additionalInformation.contentEquals("lost-focus")) {
+			System.out.println("Check if we really send lost-focus");
+			new Thread(() -> {
+				actuallySendSignal = true;
+				try {
+					Thread.sleep(500);
+					if (actuallySendSignal) {
+						actuallySendDisconnectionSignal("");
+						actuallySendSignal = false;
+					} else {
+						Log.w(TAG,"Problem sending disconnection: signal canceled");
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}).start();
 		} else {
 			System.out.println("Send disconnection signal");
-			ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.disconnectionPrefix);
-			transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
-			transferable.setOptionalArgument2(additionalInformation);
-			transferable.setFileBytes(DbTableSettings.getName().getBytes());
-			sendBytesToServer(transferable.getTransferableBytes());
+			actuallySendDisconnectionSignal(additionalInformation);
 		}
+	}
+
+	private void actuallySendDisconnectionSignal(String additionalInformation) {
+		ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.disconnectionPrefix);
+		transferable.setOptionalArgument1(NetworkCommunication.deviceIdentifier);
+		transferable.setOptionalArgument2(additionalInformation);
+		transferable.setFileBytes(DbTableSettings.getName().getBytes());
+		sendBytesToServer(transferable.getTransferableBytes());
 	}
 
 	public void closeConnection() {

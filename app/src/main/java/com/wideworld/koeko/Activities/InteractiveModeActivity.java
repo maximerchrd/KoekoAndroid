@@ -441,9 +441,10 @@ public class InteractiveModeActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus) {
             Log.v("WARNING: ", "lost focus: user left application");
-            Koeko.networkCommunicationSingleton.sendDisconnectionSignal("");
+            Koeko.networkCommunicationSingleton.sendDisconnectionSignal("lost-focus");
         } else {
             Log.v(TAG, "has focus");
+            NetworkCommunication.actuallySendSignal = false;
         }
     }
 }
