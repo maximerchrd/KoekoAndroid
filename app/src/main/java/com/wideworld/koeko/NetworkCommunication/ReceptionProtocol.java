@@ -185,12 +185,12 @@ public class ReceptionProtocol {
 
     private static void receivedQuestionIdentifier(byte[] stateUpdBytes, byte[] allBytesReceived) throws IOException {
         // stop and hide chronometer
-        if (Koeko.currentTestFragmentSingleton != null && Koeko.currentTestFragmentSingleton.testChronometer != null) {
-            Koeko.networkCommunicationSingleton.mInteractiveModeActivity.runOnUiThread(() -> {
+        Koeko.networkCommunicationSingleton.mInteractiveModeActivity.runOnUiThread(() -> {
+            if (Koeko.currentTestFragmentSingleton != null && Koeko.currentTestFragmentSingleton.testChronometer != null) {
                 Koeko.currentTestFragmentSingleton.testChronometer.stop();
                 Koeko.currentTestFragmentSingleton.testChronometer.reset();
-            });
-        }
+            }
+        });
         //reinitializing all types of displays
         Koeko.currentTestFragmentSingleton = null;
         Koeko.shrtaqActivityState = null;
