@@ -140,6 +140,9 @@ public class WifiCommunication {
                 }
 
                 Log.v("connectToServer", "beginning");
+                //try to avoid having e.g. 2 listening threads with inputStream
+                closeConnection();
+
                 Socket s = new Socket(ip_address, PORTNUMBER);
                 connectionSuccess = 1;
                 //outgoing stream redirect to socket
@@ -161,7 +164,11 @@ public class WifiCommunication {
                     mOutputStream.flush();
                 } catch (IOException e) {
                     String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
-                    Log.e("Fatal Error", msg);
+                    Log.e(TAG, msg);
+                    NetworkCommunication.connected = 0;
+                } catch (NullPointerException e) {
+                    String msg = "In connectToServer() and an exception occurred during write: " + e.getMessage();
+                    Log.e(TAG, msg);
                     NetworkCommunication.connected = 0;
                 }
 
@@ -243,23 +250,12 @@ public class WifiCommunication {
             success = false;
             String msg = "In sendAnswerToServer() and an exception occurred during write: " + e.getMessage();
             Log.e("IOException", msg);
+        } catch (NullPointerException e) {
+            success = false;
+            Log.e(TAG, e.getMessage());
+            Log.w(TAG, "Probably User is playing with the Connection/Disconnection button");
         }
         return success;
-    }
-
-    public void sendStringToServer(String message) {
-        byte[] sigBuffer = message.getBytes();
-        try {
-            if (mOutputStream != null) {
-                mOutputStream.write(sigBuffer, 0, sigBuffer.length);
-                mOutputStream.flush();
-            } else {
-                Log.v("SendStringToServer", "tries to send signal to null output stream");
-            }
-        } catch (IOException e) {
-            String msg = "In sendStringToServer() and an IOexception occurred during write: " + e.getMessage();
-            Log.e("Fatal Error", msg);
-        }
     }
 
     public void listenForQuestions() {
@@ -335,6 +331,16 @@ public class WifiCommunication {
                         bytesReadAlready = 0;
                     }
                 }
+            } catch (NullPointerException e) {
+                ableToRead = false;
+                NetworkCommunication.connected = 0;
+                Log.e(TAG, e.getMessage());
+                Log.w(TAG, "Probably User is playing with the Connection/Disconnection button");
+            } catch (ArrayIndexOutOfBoundsException e) {
+                ableToRead = false;
+                NetworkCommunication.connected = 0;
+                Log.e(TAG, e.getStackTrace().toString() + "\ntotalBytesRead: " + totalBytesRead
+                        + "\nexpectedSize: " + expectedSize);
             }
             if (bytesReadAlready >= 0) {
                 totalBytesRead += bytesReadAlready;

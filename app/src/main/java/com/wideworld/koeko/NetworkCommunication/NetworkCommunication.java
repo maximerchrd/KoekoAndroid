@@ -214,7 +214,6 @@ public class NetworkCommunication {
 		transferable.setOptionalArgument2(additionalInformation);
 		transferable.setFileBytes(DbTableSettings.getName().getBytes());
 		sendBytesToServer(transferable.getTransferableBytes());
-		closeConnection();
 	}
 
 	public void closeConnection() {

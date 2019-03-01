@@ -178,7 +178,7 @@ public class MultChoiceQuestionFragment extends Fragment {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    dismiss();
+                    mActivity.runOnUiThread(() -> dismiss());
                     //invalidateOptionsMenu();
                 }
             };
