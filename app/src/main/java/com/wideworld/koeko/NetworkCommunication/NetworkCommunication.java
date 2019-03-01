@@ -203,7 +203,7 @@ public class NetworkCommunication {
 				}
 			}).start();
 		} else {
-			System.out.println("Send disconnection signal");
+			System.out.println("Send disconnection signal with additional Information: " + additionalInformation);
 			actuallySendDisconnectionSignal(additionalInformation);
 		}
 	}
@@ -214,6 +214,7 @@ public class NetworkCommunication {
 		transferable.setOptionalArgument2(additionalInformation);
 		transferable.setFileBytes(DbTableSettings.getName().getBytes());
 		sendBytesToServer(transferable.getTransferableBytes());
+		closeConnection();
 	}
 
 	public void closeConnection() {

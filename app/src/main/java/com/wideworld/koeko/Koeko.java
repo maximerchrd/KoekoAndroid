@@ -51,43 +51,4 @@ public class Koeko extends MultiDexApplication {
     public void setAppNetwork(NetworkCommunication appNetwork) {
         this.appNetwork = appNetwork;
     }
-
-    public void resetQuitApp() {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    sleep(Koeko.MEDIUM_TRANSITION_TIME);
-                    quitApp = 0;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        thread.start();
-    }
-
-    public void startActivityTransitionTimer() {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    quitApp++;
-                    sleep(MAX_ACTIVITY_TRANSITION_TIME_MS);
-                    if (quitApp > 0) {
-                        Log.v("WARNING: ", "user left application");
-                        appNetwork.sendDisconnectionSignal("");
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        thread.start();
-    }
-
-    public void stopActivityTransitionTimer() {
-        quitApp--;
-    }
-
 }
