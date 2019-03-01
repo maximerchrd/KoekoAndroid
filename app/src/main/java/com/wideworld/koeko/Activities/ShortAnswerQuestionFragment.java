@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.wideworld.koeko.Koeko;
@@ -57,7 +58,7 @@ public class ShortAnswerQuestionFragment extends Fragment {
 		linearLayout = rootView.findViewById(R.id.linearLayoutShortAnswer);
 		txtQuestion = rootView.findViewById(R.id.textViewShortAnswerQuest);
 		picture = new ImageView(mActivity);
-		submitButton = new Button(mActivity);
+		submitButton = rootView.findViewById(R.id.submit_button_shortaq);
 		textAnswer = new EditText(mActivity);
 		TextView timerView = rootView.findViewById(R.id.timerViewShrtaq);
 
@@ -74,23 +75,6 @@ public class ShortAnswerQuestionFragment extends Fragment {
 		currentQ = new QuestionShortAnswer("1",question,image_path);
 		currentQ.setId(id);
 		currentQ.setTimerSeconds(timerSeconds);
-		if (currentQ.getImage().length() > 0) {
-			picture.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if(isImageFitToScreen) {
-						isImageFitToScreen=false;
-						picture.setAdjustViewBounds(true);
-						picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-						picture.setAdjustViewBounds(true);
-					}else{
-						isImageFitToScreen=true;
-						picture.setAdjustViewBounds(true);
-						picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
-					}
-				}
-			});
-		}
 
 		setQuestionView();
 
@@ -166,33 +150,29 @@ public class ShortAnswerQuestionFragment extends Fragment {
 		if (currentQ.getImage().contains(":") && currentQ.getImage().length() > currentQ.getImage().indexOf(":") + 1) {
 			currentQ.setImage(currentQ.getImage().substring(currentQ.getImage().indexOf(":") + 1));
 		}
-		File imgFile = new  File(mActivity.getFilesDir() + "/"+ FileHandler.mediaDirectory + currentQ.getImage());
-		if(imgFile.exists()){
+		File imgFile = new File(mActivity.getFilesDir() + "/"+ FileHandler.mediaDirectory + currentQ.getImage());
+		if (imgFile.exists()) {
 			String path = imgFile.getAbsolutePath();
 			Bitmap myBitmap = BitmapFactory.decodeFile(path);
 			picture.setImageBitmap(myBitmap);
+			picture.setAdjustViewBounds(true);
+			picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+			linearLayout.addView(picture);
 		}
-		picture.setAdjustViewBounds(true);
-		picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
-		linearLayout.addView(picture);
 
-//		int imageResource = getResources().getIdentifier(currentQ.getIMAGE(), null, getPackageName());
-//		picture.setImageResource(imageResource);
 		textAnswer.setTextColor(Color.BLACK);
+		textAnswer.setHint(getString(R.string.your_answer));
 		linearLayout.addView(textAnswer);
 
-		submitButton.setText(getString(R.string.answer_button));
 		submitButton.setBackgroundColor(Color.parseColor("#00CCCB"));
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT
-		);
-		int height = mActivity.getResources().getDisplayMetrics().heightPixels;
-		int width = mActivity.getResources().getDisplayMetrics().widthPixels;
-		params.setMargins(width / 40, height / 200, width / 40, height / 200);  //left, top, right, bottom
-		submitButton.setLayoutParams(params);
 		submitButton.setTextColor(Color.WHITE);
-		linearLayout.addView(submitButton);
+		submitButton.post(() -> {
+			//add empty view to fix the button hiding part of the scrollview
+			TextView emptyView = new TextView(mActivity);
+			submitButton.refreshDrawableState();
+			emptyView.setHeight(submitButton.getHeight() * 4 / 3);
+			linearLayout.addView(emptyView);
+		});
 
 		//restore activity state
 		QuestionShortAnswerState activityState = null;

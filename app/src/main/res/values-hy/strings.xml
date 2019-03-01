@@ -66,7 +66,6 @@
     <string name="start_connection">Start Connection</string>
     <string name="stop_connection">Stop Connection</string>
     <string name="hotspot_available">Hotspot Available</string>
-    <string name="me">Moi</string>
     <string name="internet_server">Ինտերնետային սերվեր</string>
     <string name="more_settings">ավելի շատ կարգավորումներ</string>
     <string name="less_settings">քիչ պարամետրեր</string>
@@ -78,4 +77,6 @@
     <string name="friendly_name">Friendly Name</string>
     <string name="download_new_homework_version">Download Homework</string>
     <string name="back_to_game">Back to Game</string>
+    <string name="your_answer">Your Answer</string>
+    <string name="me">Me</string>
 </resources>
