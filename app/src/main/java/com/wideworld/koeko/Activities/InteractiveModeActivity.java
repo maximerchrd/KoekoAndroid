@@ -388,7 +388,7 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
     public static Fragment getCurrentTopFragment(FragmentManager fm) {
         int stackCount = fm.getBackStackEntryCount();
-        if (stackCount > 0) {
+        if (fm.getFragments().size() > 0) {
             if (stackCount == 2 && fm.getFragments().get(0).getClass().getName().contains("TestFragment")) {
                 backToTestFromQuestion = true;
             }

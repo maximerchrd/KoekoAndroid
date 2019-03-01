@@ -14,13 +14,18 @@ import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.Space;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -40,7 +45,6 @@ public class MultChoiceQuestionFragment extends Fragment {
     private Button submitButton;
     private ArrayList<CheckBox> checkBoxesArray;
     private ImageView picture;
-    private boolean isImageFitToScreen = true;
     private LinearLayout linearLayout;
     private Activity mActivity;
     private Long startingTime = 0L;
@@ -59,7 +63,7 @@ public class MultChoiceQuestionFragment extends Fragment {
         linearLayout = rootView.findViewById(R.id.linearLayoutMultChoice);
         txtQuestion = rootView.findViewById(R.id.textViewMultChoiceQuest1);
         picture = new ImageView(mActivity);
-        submitButton = new Button(mActivity);
+        submitButton = rootView.findViewById(R.id.submit_button_mcq);
         checkBoxesArray = new ArrayList<>();
         TextView timerView = rootView.findViewById(R.id.timerViewMcq);
 
@@ -87,21 +91,6 @@ public class MultChoiceQuestionFragment extends Fragment {
         currentQ.setId(id);
         currentQ.setNB_CORRECT_ANS(bun.getInt("nbCorrectAnswers"));
         currentQ.setTimerSeconds(timerSeconds);
-        if (currentQ.getImage().length() > 0) {
-            picture.setOnClickListener(v -> {
-                if (isImageFitToScreen) {
-                    isImageFitToScreen = false;
-                    picture.setAdjustViewBounds(true);
-                    picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                    picture.setAdjustViewBounds(true);
-                } else {
-                    isImageFitToScreen = true;
-                    picture.setAdjustViewBounds(true);
-                    picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
-                }
-            });
-        }
-
 
         setQuestionView();
 
@@ -214,14 +203,10 @@ public class MultChoiceQuestionFragment extends Fragment {
             String path = imgFile.getAbsolutePath();
             Bitmap myBitmap = BitmapFactory.decodeFile(path);
             picture.setImageBitmap(myBitmap);
+            picture.setAdjustViewBounds(true);
+            picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            linearLayout.addView(picture);
         }
-        picture.setAdjustViewBounds(true);
-        picture.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
-        linearLayout.addView(picture);
-
-//		int imageResource = getResources().getIdentifier(currentQ.getIMAGE(), null, getPackageName());
-//		picture.setImageResource(imageResource);
-
 
         String[] answerOptions;
         answerOptions = new String[10];
@@ -246,7 +231,6 @@ public class MultChoiceQuestionFragment extends Fragment {
         Random rnd = new Random();
         for (int i = number_of_possible_answers - 1; i > 0; i--) {
             int index = rnd.nextInt(i + 1);
-            // Simple swap
             String a = answerOptions[index];
             answerOptions[index] = answerOptions[i];
             answerOptions[i] = a;
@@ -257,27 +241,28 @@ public class MultChoiceQuestionFragment extends Fragment {
         for (int i = 0; i < number_of_possible_answers; i++) {
             tempCheckBox = new CheckBox(mActivity);
             tempCheckBox.setText(answerOptions[i]);
+            tempCheckBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
             tempCheckBox.setTextColor(Color.BLACK);
             checkBoxesArray.add(tempCheckBox);
             if (checkBoxesArray.get(i).getParent() != null)
                 ((ViewGroup) checkBoxesArray.get(i).getParent()).removeView(checkBoxesArray.get(i));
 
-            checkBoxesArray.get(i).setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT, 10f));
+            TableLayout.LayoutParams params = new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT,
+                    TableLayout.LayoutParams.WRAP_CONTENT, 10f);
+            params.setMargins(0,10,0,0);
+            checkBoxesArray.get(i).setLayoutParams(params);
 
             linearLayout.addView(checkBoxesArray.get(i));
         }
         submitButton.setText(getString(R.string.answer_button));
         submitButton.setBackgroundColor(Color.parseColor("#00CCCB"));
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        int height = mActivity.getResources().getDisplayMetrics().heightPixels;
-        int width = mActivity.getResources().getDisplayMetrics().widthPixels;
-        params.setMargins(width / 40, height / 200, width / 40, height / 200);  //left, top, right, bottom
-        submitButton.setLayoutParams(params);
-        submitButton.setTextColor(Color.WHITE);
-        linearLayout.addView(submitButton);
+        submitButton.post(() -> {
+            //add empty view to fix the button hiding part of the scrollview
+            TextView emptyView = new TextView(mActivity);
+            submitButton.refreshDrawableState();
+            emptyView.setHeight(submitButton.getHeight() * 4 / 3);
+            linearLayout.addView(emptyView);
+        });
 
         //restore activity state
         QuestionMultipleChoiceState activityState = null;
