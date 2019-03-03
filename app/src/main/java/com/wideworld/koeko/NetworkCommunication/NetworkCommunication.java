@@ -82,11 +82,6 @@ public class NetworkCommunication {
         }).start();
 	}
 
-	public void connectToMasterSameThread(int reconnection) {
-		String uniqueId = NetworkCommunication.deviceIdentifier;
-		mWifiCom.connectToServer(getConnectionBytes(), uniqueId, reconnection);
-	}
-
 	public byte[] getConnectionBytes() {
 		String uniqueId = NetworkCommunication.deviceIdentifier;
 		String name = DbTableSettings.getName();

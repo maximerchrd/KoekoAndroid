@@ -52,6 +52,8 @@ public class InteractiveModeActivity extends AppCompatActivity {
     static protected int forwardTest = 3;
     static protected int forwardGame = 4;
 
+    private Boolean activityAlreadyCreated = false;
+
     /**
      * Called when the activity is first created.
      */
@@ -224,19 +226,22 @@ public class InteractiveModeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (NetworkCommunication.connected == 1) {
-            showConnected();
-        } else if (NetworkCommunication.connected == 0){
-            showDisconnected();
-            Log.d(TAG, "reconnect on Resume");
-            Koeko.networkCommunicationSingleton.connectToMasterSameThread(1);
+        if (activityAlreadyCreated) {
+            if (NetworkCommunication.connected == 1) {
+                showConnected();
+            } else if (NetworkCommunication.connected == 0) {
+                showDisconnected();
+                Log.d(TAG, "reconnect on Resume");
+                Koeko.networkCommunicationSingleton.connectToMaster(1);
+            } else {
+                this.runOnUiThread(() -> {
+                    Log.d(TAG, "showConnecting");
+                    intmod_wait_for_question.setText(getString(R.string.connecting));
+                    toggleConnectionButton.setText(R.string.stop_connection);
+                });
+            }
         } else {
-            this.runOnUiThread(() -> {
-                Log.d(TAG, "showConnecting");
-                intmod_wait_for_question.setText(getString(R.string.connecting));
-                toggleConnectionButton.setText(R.string.stop_connection);
-            });
+            activityAlreadyCreated = true;
         }
 
         if (NetworkCommunication.network_solution == 1) {
