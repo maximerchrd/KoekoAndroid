@@ -114,6 +114,7 @@ public class ShortAnswerQuestionFragment extends Fragment {
 					dismiss();
 					//invalidateOptionsMenu();
 				}
+				disactivateQuestion();
 			} else {
 				dismiss();
 			}
