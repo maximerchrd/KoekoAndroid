@@ -145,7 +145,7 @@ public class NetworkCommunication {
 			mWifiCom.sendBytes(transferable.getTransferableBytes());
 		} else if (network_solution == 1) {
 			if (NearbyCommunication.deviceRole == NearbyCommunication.DISCOVERER_ROLE) {
-				mNearbyCom.sendBytes(transferable.getTransferableBytes());
+				//mNearbyCom.sendBytes(transferable.getTransferableBytes());
 			} else {
 				mWifiCom.sendBytes(transferable.getTransferableBytes());
 			}
@@ -157,7 +157,7 @@ public class NetworkCommunication {
             mWifiCom.sendAnswerToServer(message);
         } else if (network_solution == 1) {
             if (NearbyCommunication.deviceRole == NearbyCommunication.DISCOVERER_ROLE) {
-                mNearbyCom.sendBytes(message.getBytes());
+                //mNearbyCom.sendBytes(message.getBytes());
             } else {
                 mWifiCom.sendAnswerToServer(message);
             }
@@ -169,7 +169,7 @@ public class NetworkCommunication {
 			mWifiCom.sendBytes(data);
 		} else if (network_solution == 1) {
 			if (NearbyCommunication.deviceRole == NearbyCommunication.DISCOVERER_ROLE) {
-				mNearbyCom.sendBytes(data);
+				//mNearbyCom.sendBytes(data);
 			} else {
 				mWifiCom.sendBytes(data);
 			}

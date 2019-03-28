@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.wideworld.koeko.Activities.CorrectedQuestionActivity;
 import com.wideworld.koeko.Koeko;
@@ -23,6 +24,8 @@ public class NearbyReceptionProtocol {
     private Context receptionContext;
     private DataConversion dataConversion;
     private NearbyCommunication nearbyCommunication;
+
+    private Long testNearby = -1L;
 
     String TAG = "NearbyReceptionProtocol";
 
@@ -120,6 +123,18 @@ public class NearbyReceptionProtocol {
                 case "ACTID":
                     Log.d(TAG, "forwarding ACTID");
                     Koeko.networkCommunicationSingleton.sendStringToServer(new String(bytesReceived));
+                    break;
+                case "PING":
+                    if (testNearby == -1) {
+                        testNearby = System.currentTimeMillis();
+                    }
+                    Long seconds = System.currentTimeMillis() - testNearby;
+                    seconds = seconds / 1000;
+                    Long minutes = seconds / 60;
+                    seconds = seconds % 60;
+                    Toast.makeText(receptionContext, "Nearby test running for: " + String.valueOf(minutes) + " minutes and "
+                            + String.valueOf(seconds) + " seconds", Toast.LENGTH_LONG)
+                            .show();
                     break;
                 default:
                     Log.e(TAG, "Prefix not supported");

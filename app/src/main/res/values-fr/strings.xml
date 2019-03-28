@@ -79,4 +79,7 @@
     <string name="download_new_homework_version">Télécharger le devoir</string>
     <string name="back_to_game">Retour au Jeu</string>
     <string name="your_answer">Ta Réponse</string>
+    <string name="hotspot_configuration">Mode du Hotspot</string>
+    <string name="start_central">Advertise</string>
+    <string name="start_peripheral" translatable="false">Discover</string>
 </resources>

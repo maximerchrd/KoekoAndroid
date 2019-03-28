@@ -2,14 +2,18 @@ package com.wideworld.koeko.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -31,6 +35,7 @@ public class SettingsActivity extends Activity {
 	EditText internetServerEditText;
 	TextView internetServerTextView;
 	LinearLayout linearLayoutSettingsInternetServer;
+	Spinner rolesSpinner;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +46,10 @@ public class SettingsActivity extends Activity {
 		final Switch automaticConnectionSwitch;
 		final Switch hotspotAvailableSwitch;
 
-		editName = (EditText) findViewById(R.id.edittextnom);
+		editName = findViewById(R.id.edittextnom);
 		editName.setText(DbTableSettings.getName(), null);
 
-		editMaster = (EditText) findViewById(R.id.edittextmaster);
+		editMaster = findViewById(R.id.edittextmaster);
 		editMaster.setText(DbTableSettings.getMaster(), null);
 
 		//setup the switch for automatic connection
@@ -79,6 +84,29 @@ public class SettingsActivity extends Activity {
 				DbTableSettings.setHotspotAvailable(0);
 			}
 		});
+
+		rolesSpinner = findViewById(R.id.spinnerHotspotConfiguration);
+		String[] arraySpinner;
+		if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+			arraySpinner = new String[]{"Standard Role", "Bridge"};
+		} else {
+			arraySpinner = new String[]{"Standard Role"};
+		}
+		ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, arraySpinner);
+		adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+		rolesSpinner.setAdapter(adapter);
+		rolesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+				DbTableSettings.updateHotspotConfiguration(String.valueOf(position));
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parentView) {
+				// your code here
+			}
+		});
+		rolesSpinner.setSelection(DbTableSettings.getHotspotConfiguration());
 
 		//setup more/less settings
 		linearLayoutSettingsInternetServer = findViewById(R.id.linearLayoutSettingsInternetServer);

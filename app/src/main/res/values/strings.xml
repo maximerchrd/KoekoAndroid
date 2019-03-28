@@ -90,4 +90,12 @@
     <string name="download_new_homework_version">Download Homework</string>
     <string name="back_to_game">Back to Game</string>
     <string name="your_answer">Your Answer</string>
+    <string name="hotspot_configuration">Hotspot Configuration</string>
+    <string name="start_central">Advertise</string>
+    <string name="start_peripheral" translatable="false">Discover</string>
+    <string name="bridge_hotspot">Bridge hotspot</string>
+    <string name="discover">Discover</string>
+    <string name="advertise">Advertise</string>
+    <string name="starting">Starting...</string>
+    <string name="nb_bridges">Number of bridges:</string>
 </resources>

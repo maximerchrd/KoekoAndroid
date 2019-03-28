@@ -79,4 +79,7 @@
     <string name="back_to_game">Վերադառնալ խաղին</string>
     <string name="your_answer">Ձեր պատասխանը</string>
     <string name="me">Ես</string>
+    <string name="hotspot_configuration">Hotspot Configuration</string>
+    <string name="start_central">Advertise</string>
+    <string name="start_peripheral" translatable="false">Discover</string>
 </resources>

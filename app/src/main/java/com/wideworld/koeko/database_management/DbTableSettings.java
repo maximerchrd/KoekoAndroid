@@ -2,6 +2,7 @@ package com.wideworld.koeko.database_management;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -19,6 +20,7 @@ public class DbTableSettings {
     private static final String KEY_INTERNET_SERVER = "internet_server";
     private static final String KEY_HOTSPOT_AVAILABLE = "hotspot_available";
     private static final String KEY_HOMEWORK_CODE = "homework_key";
+    private static final String KEY_HOTSPOT_CONFIGURATION = "hotspot_configuration";
     private static String uuid = "";
 
     private static String defaultMaster = "192.168.1.100";
@@ -41,6 +43,7 @@ public class DbTableSettings {
             insertSetting(KEY_AUTOMATIC_CONNECTION, "1");
             insertSetting(KEY_HOTSPOT_AVAILABLE, "0");
             insertSetting(KEY_INTERNET_SERVER, defaultInternetServer);
+            insertSetting(KEY_HOTSPOT_CONFIGURATION, "0");
         }
     }
 
@@ -151,6 +154,21 @@ public class DbTableSettings {
         String[] args = new String[]{KEY_HOMEWORK_CODE, key + "/" + friendlyName};
         DbHelper.dbHelperSingleton.getDatabase().delete(TABLE_SETTING, SETTING_KEY + "=? AND "
         + SETTING_VALUE + "=?", args);
+    }
+
+    static public void updateHotspotConfiguration(String newConf) {
+        updateSetting(KEY_HOTSPOT_CONFIGURATION, newConf);
+    }
+    static public int getHotspotConfiguration() {
+        int hotspot = 0;
+        try {
+            hotspot = Integer.parseInt(getSetting(KEY_HOTSPOT_CONFIGURATION));
+        } catch (NumberFormatException e) {
+            Log.d(TAG, "getHotspotConfiguration: unable to parse hotspotConfiguration to int");
+        } catch (NullPointerException e) {
+            Log.d(TAG, "getHotspotConfiguration: setting is null");
+        }
+        return hotspot;
     }
 
     static private void insertSetting(String settingKey, String settingValue) {

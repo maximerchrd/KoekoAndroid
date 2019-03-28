@@ -9,6 +9,7 @@ import com.wideworld.koeko.QuestionsManagement.QuestionShortAnswer;
 import com.wideworld.koeko.R;
 import com.wideworld.koeko.database_management.DbTableQuestionMultipleChoice;
 import com.wideworld.koeko.database_management.DbTableQuestionShortAnswer;
+import com.wideworld.koeko.database_management.DbTableSettings;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -33,6 +34,7 @@ import java.util.List;
 public class InteractiveModeActivity extends AppCompatActivity {
     public TextView intmod_out;
     private TextView intmod_wait_for_question;
+    private TextView bridgesTextView;
     private TextView logView = null;
     protected MenuItem forwardButton;
     private InteractiveModeActivity interactiveModeActivity;
@@ -42,6 +44,8 @@ public class InteractiveModeActivity extends AppCompatActivity {
     //launch scanning QR code
     private Button scanQQButton;
     private Button toggleConnectionButton;
+    public Button hotspotButtonDiscover;
+    public Button hotspotButtonAdvertise;
     private Camera camera;
     private int cameraId = 0;
     private int PERMISSION_REQUEST_CODE = 1;
@@ -68,7 +72,8 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
         //initialize view
         setContentView(R.layout.activity_interactivemode);
-        intmod_wait_for_question = (TextView) findViewById(R.id.textView2);
+        intmod_wait_for_question = findViewById(R.id.textView2);
+        bridgesTextView = findViewById(R.id.bridgesTextView);
 
         //START code for functional testing
         if (Koeko.testConnectivity > 0) {
@@ -118,6 +123,40 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
         toggleConnectionButton = findViewById(R.id.toggle_connection);
         toggleConnectionButton.setOnClickListener(l -> toggleConnection());
+
+        hotspotButtonDiscover = findViewById(R.id.hotspotButtonDiscover);
+        hotspotButtonAdvertise = findViewById(R.id.hotspotButtonAdvertise);
+        if (DbTableSettings.getHotspotConfiguration() >= 1) {
+            setBridgesNumber(0);
+            hotspotButtonDiscover.setText(getString(R.string.discover));
+            hotspotButtonDiscover.setOnClickListener(e -> {
+                Log.d(TAG, "onCreate: trying to discover");
+                if (!Koeko.networkCommunicationSingleton.getmNearbyCom().isDiscovering) {
+                    hotspotButtonDiscover.setText(getString(R.string.starting));
+                    Koeko.networkCommunicationSingleton.getmNearbyCom().startDiscovery();
+                } else {
+                    Koeko.networkCommunicationSingleton.getmNearbyCom().stopNearbyDiscoveryAndAdvertising();
+                    hotspotButtonDiscover.setText(getString(R.string.discover));
+                    hotspotButtonAdvertise.setText(getString(R.string.advertise));
+                }
+            });
+            hotspotButtonAdvertise.setText(getString(R.string.advertise));
+            hotspotButtonAdvertise.setOnClickListener(e -> {
+                Log.d(TAG, "onCreate: trying to advertise");
+                if (!Koeko.networkCommunicationSingleton.getmNearbyCom().isAdvertising) {
+                    hotspotButtonAdvertise.setText(getString(R.string.starting));
+                    Koeko.networkCommunicationSingleton.getmNearbyCom().startAdvertising();
+                } else {
+                    Koeko.networkCommunicationSingleton.getmNearbyCom().stopNearbyDiscoveryAndAdvertising();
+                    hotspotButtonDiscover.setText(getString(R.string.discover));
+                    hotspotButtonAdvertise.setText(getString(R.string.advertise));
+                }
+            });
+        } else {
+            hotspotButtonDiscover.setVisibility(View.GONE);
+            hotspotButtonAdvertise.setVisibility(View.GONE);
+            bridgesTextView.setVisibility(View.GONE);
+        }
 
         connectToTeacher();
     }
@@ -306,6 +345,18 @@ public class InteractiveModeActivity extends AppCompatActivity {
 
     public void showShortToast(String message) {
         this.runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show());
+    }
+
+    public void changeNearbyAdvertiseButtonText(String text) {
+        runOnUiThread(() -> hotspotButtonAdvertise.setText(text));
+    }
+
+    public void changeNearbyDiscoverButtonText(String text) {
+        runOnUiThread(() -> hotspotButtonDiscover.setText(text));
+    }
+
+    public void setBridgesNumber(int nbBridges) {
+        bridgesTextView.setText(getString(R.string.nb_bridges) + nbBridges);
     }
 
     private void launchResourceFromCode() {

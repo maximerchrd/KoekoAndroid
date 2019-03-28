@@ -110,6 +110,40 @@
             android:background="#c0c0c0"/>
 
         <LinearLayout
+            android:id="@+id/linearLayoutSettingsHotspotConfiguration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_below="@+id/automaticConnectionSwitch"
+            android:orientation="horizontal"
+            android:layout_weight="3"
+            android:weightSum="10"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/textViewHotspotConfiguration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/hotspot_configuration"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:layout_weight="5"/>
+
+            <Spinner
+                android:id="@+id/spinnerHotspotConfiguration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_weight="5" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_weight="0.1"
+            android:background="#c0c0c0"/>
+
+        <LinearLayout
             android:id="@+id/linearLayoutSettingsInternetServer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -115,7 +115,7 @@ public class HotspotServer {
             ClientToServerTransferable transferable = new ClientToServerTransferable(CtoSPrefix.hotspotIpPrefix);
             transferable.setOptionalArgument1(serverIpAddress);
             transferable.setOptionalArgument2(hotspotPassword);
-            Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(transferable.getTransferableBytes());
+            //Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(transferable.getTransferableBytes());
 
             //Wait for client connection
             System.out.println("HotspotServer Started. Waiting for clients to connect...");
@@ -160,7 +160,7 @@ public class HotspotServer {
                             String answerString = new String(bytesData, 0, bytesread, "UTF-8");
                             System.out.println(client.getInetAddres().toString() + " message:" + answerString);
                             if (answerString.split("///")[0].contentEquals("CONN")) {
-                                Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(bytesData);
+                                //Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(bytesData);
 
                                 //if RESIDS were merged with CONN
                                 if (answerString.contains("RESIDS")) {
@@ -171,7 +171,7 @@ public class HotspotServer {
                             } else if (answerString.contains("ENDTRSM")) {
                                 //TODO: implement syncing of clients
                             } else {
-                                Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(bytesData);
+                                //Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(bytesData);
                             }
                         } else {
                             System.out.println("Communication over?");

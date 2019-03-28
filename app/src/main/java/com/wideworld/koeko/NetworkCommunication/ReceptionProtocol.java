@@ -265,7 +265,7 @@ public class ReceptionProtocol {
         if (NetworkCommunication.network_solution == 1) {
             Koeko.networkCommunicationSingleton.idsToSync.add(String.valueOf(newTest.getIdGlobal()));
             if (NearbyCommunication.deviceRole == NearbyCommunication.ADVERTISER_ROLE) {
-                Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(allBytesReceived);
+                //Koeko.networkCommunicationSingleton.getmNearbyCom().sendBytes(allBytesReceived);
             }
         }
     }
